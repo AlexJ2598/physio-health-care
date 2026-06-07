@@ -28,14 +28,14 @@
             var patient = new Patient
             {
                 Id = Guid.NewGuid(),
-                FirstName = dto.FirstName.Trim(),
-                LastName = dto.LastName.Trim(),
+                FirstName = dto.FirstName?.Trim() ?? string.Empty,
+                LastName = dto.LastName?.Trim() ?? string.Empty,
                 BirthDate = dto.BirthDate,
                 Gender = (Gender)dto.Gender,
-                PhoneNumber = dto.PhoneNumber.Trim(),
-                Email = dto.Email.Trim(),
-                Address = dto.Address.Trim(),
-                Notes = dto.Notes.Trim(),
+                PhoneNumber = dto.PhoneNumber?.Trim() ?? string.Empty,
+                Email = dto.Email?.Trim() ?? string.Empty,
+                Address = dto.Address?.Trim() ?? string.Empty,
+                Notes = dto.Notes?.Trim() ?? string.Empty,
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true
             };
@@ -43,6 +43,35 @@
             var newPatient = await _patientRepository.CreateAsync(patient);
 
             return MapToResponse(newPatient);
+        }
+
+        public async Task<PatientResponseDto?> UpdateAsync(Guid id, UpdatePatientDto dto)
+        {
+            var patient = await _patientRepository.GetByIdForUpdateAsync(id);
+
+            if (patient == null)
+            {
+                return null;
+            }
+
+            patient.FirstName = dto.FirstName.Trim();
+            patient.LastName = dto.LastName.Trim();
+            patient.BirthDate = dto.BirthDate;
+            patient.Gender = (Gender)dto.Gender;
+            patient.PhoneNumber = dto.PhoneNumber?.Trim() ?? string.Empty;
+            patient.Email = dto.Email?.Trim() ?? string.Empty;
+            patient.Address = dto.Address?.Trim() ?? string.Empty;
+            patient.Notes = dto.Notes?.Trim() ?? string.Empty;
+            patient.UpdatedAt = DateTime.UtcNow;
+
+            var updatedPatient = await _patientRepository.UpdateAsync(patient);
+
+            return MapToResponse(updatedPatient);
+        }
+
+        public async Task<bool> SoftDeleteAsync(Guid id)
+        {
+            return await _patientRepository.SoftDeleteAsync(id);
         }
 
         private static PatientResponseDto MapToResponse(Patient patient)
@@ -56,6 +85,18 @@
                 PhoneNumber = patient.PhoneNumber,
                 Email = patient.Email
             };
+        }
+
+        public async Task<PatientResponseDto> GetByIdAsync(Guid id)
+        {
+
+            var patient = await _patientRepository.GetByIdAsync(id);
+            if(patient == null)
+            {
+                return null;
+            }
+
+            return MapToResponse(patient);
         }
     }
 }

@@ -1,16 +1,12 @@
-﻿using PhysioHealthCare.Application.DTOs.Patients;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PhysioHealthCare.Application.Interfaces
+﻿namespace PhysioHealthCare.Application.Interfaces
 {
+    using PhysioHealthCare.Application.DTOs.Patients;
     public interface IPatientService
     {
         Task<IReadOnlyList<PatientResponseDto>> GetAllAsync();
-
+        Task<PatientResponseDto> GetByIdAsync(Guid id);
         Task<PatientResponseDto> CreateAsync(CreatePatientDto dto);
+        Task<PatientResponseDto?> UpdateAsync(Guid id, UpdatePatientDto dto);
+        Task<bool> SoftDeleteAsync(Guid id);
     }
 }
