@@ -10,7 +10,7 @@
         Task<Patient> CreateAsync(Patient patient);
 
         Task<Patient> UpdateAsync(Patient patient);
-        Task<Patient> GetByIdForUpdateAsync(Guid id);
+        Task<Patient?> GetByIdForUpdateAsync(Guid id);
         Task<bool> SoftDeleteAsync(Guid id);
     }
 }
