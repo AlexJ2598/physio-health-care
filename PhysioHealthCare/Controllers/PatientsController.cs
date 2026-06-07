@@ -29,7 +29,39 @@
         {
             var patient = await _patientService.CreateAsync(dto);
 
+            return CreatedAtAction(nameof(GetById), new { id = patient.Id }, patient);
+        }
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, UpdatePatientDto dto)
+        {
+            var patient = await _patientService.UpdateAsync(id, dto);
+
+            if (patient == null)
+                return NotFound();
+
             return Ok(patient);
+        }
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var deleted = await _patientService.SoftDeleteAsync(id);
+
+            if (!deleted)
+                return NotFound();
+
+            return NoContent();
+        }
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var person = await _patientService.GetByIdAsync(id);
+            if(person == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(person);
+
         }
     }
 }
