@@ -19,5 +19,6 @@
         public string Address { get; set; } = string.Empty;
 
         public string Notes { get; set; } = string.Empty;
+        public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     }
 }
