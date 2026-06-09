@@ -94,7 +94,7 @@
             var patient = await _patientRepository.GetByIdAsync(id);
             if(patient == null)
             {
-                throw new BadRequestException("Patient does not exist.");
+                throw new NotFoundException("Patient not found."); ;
             }
 
             return MapToResponse(patient);

@@ -1,5 +1,6 @@
 ﻿namespace PhysioHealthCare.Middleware
 {
+    using PhysioHealthCare.Application.Responses;
     using PhysioHealthCare.Application.Exceptions;
     using System.Net;
     using System.Text.Json;
@@ -50,18 +51,21 @@
                 _ => (int)HttpStatusCode.InternalServerError
             };
 
-            var response = new
+            var response = new ErrorResponse
             {
-                statusCode,
-                message = exception.Message,
-                path = context.Request.Path.Value,
-                method = context.Request.Method,
-                traceId = context.TraceIdentifier
+                StatusCode = statusCode,
+                Message = exception.Message,
+                Path = context.Request.Path.Value ?? string.Empty,
+                Method = context.Request.Method,
+                TraceId = context.TraceIdentifier
             };
 
             context.Response.StatusCode = statusCode;
 
-            var json = JsonSerializer.Serialize(response);
+            var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
 
             await context.Response.WriteAsync(json);
         }
