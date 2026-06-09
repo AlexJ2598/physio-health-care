@@ -9,16 +9,13 @@
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-        private readonly IWebHostEnvironment _environment;
 
         public ExceptionHandlingMiddleware(
             RequestDelegate next,
-            ILogger<ExceptionHandlingMiddleware> logger,
-            IWebHostEnvironment environment)
+            ILogger<ExceptionHandlingMiddleware> logger)
         {
             _next = next;
             _logger = logger;
-            _environment = environment;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -27,40 +24,52 @@
             {
                 await _next(context);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError(
-                    ex,
-                    "Unhandled exception. Method: {Method}, Path: {Path}",
-                    context.Request.Method,
-                    context.Request.Path);
-
-                await HandleExceptionAsync(context, ex);
+                await HandleExceptionAsync(context, exception);
             }
         }
 
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            context.Response.ContentType = "application/json";
-
             var statusCode = exception switch
             {
-                NotFoundException => (int)HttpStatusCode.NotFound,
-                BadRequestException => (int)HttpStatusCode.BadRequest,
-                InvalidOperationException => (int)HttpStatusCode.BadRequest,
-                _ => (int)HttpStatusCode.InternalServerError
+                NotFoundException => HttpStatusCode.NotFound,
+                BadRequestException => HttpStatusCode.BadRequest,
+                _ => HttpStatusCode.InternalServerError
             };
+
+            if (statusCode == HttpStatusCode.InternalServerError)
+            {
+                _logger.LogError(
+                    exception,
+                    "Unhandled exception occurred. Path: {Path}, Method: {Method}, TraceId: {TraceId}",
+                    context.Request.Path,
+                    context.Request.Method,
+                    context.TraceIdentifier);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    exception,
+                    "Handled exception occurred. StatusCode: {StatusCode}, Path: {Path}, Method: {Method}, TraceId: {TraceId}",
+                    (int)statusCode,
+                    context.Request.Path,
+                    context.Request.Method,
+                    context.TraceIdentifier);
+            }
 
             var response = new ErrorResponse
             {
-                StatusCode = statusCode,
+                StatusCode = (int)statusCode,
                 Message = exception.Message,
-                Path = context.Request.Path.Value ?? string.Empty,
+                Path = context.Request.Path,
                 Method = context.Request.Method,
                 TraceId = context.TraceIdentifier
             };
 
-            context.Response.StatusCode = statusCode;
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)statusCode;
 
             var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
             {

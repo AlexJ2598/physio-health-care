@@ -1,5 +1,6 @@
 ﻿namespace PhysioHealthCare.Application.Services
 {
+    using Microsoft.Extensions.Logging;
     using PhysioHealthCare.Application.DTOs.Patients;
     using PhysioHealthCare.Application.Exceptions;
     using PhysioHealthCare.Application.Interfaces;
@@ -10,22 +11,34 @@
     public class PatientService : IPatientService
     {
         private readonly IPatientRepository _patientRepository;
+        private readonly ILogger<PatientService> _logger;
 
-        public PatientService(IPatientRepository patientRepository)
+        public PatientService(
+            IPatientRepository patientRepository,
+            ILogger<PatientService> logger)
         {
             _patientRepository = patientRepository
                 ?? throw new ArgumentNullException(nameof(patientRepository));
+
+            _logger = logger
+                ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<IReadOnlyList<PatientResponseDto>> GetAllAsync()
         {
+            _logger.LogInformation("Getting all active patients");
+
             var patients = await _patientRepository.GetAllAsync();
+
+            _logger.LogInformation("Retrieved {PatientCount} active patients", patients.Count);
 
             return patients.Select(MapToResponse).ToList();
         }
 
         public async Task<PatientResponseDto> CreateAsync(CreatePatientDto dto)
         {
+            _logger.LogInformation("Creating patient with email: {Email}", dto.Email);
+
             var patient = new Patient
             {
                 Id = Guid.NewGuid(),
@@ -43,15 +56,20 @@
 
             var newPatient = await _patientRepository.CreateAsync(patient);
 
+            _logger.LogInformation("Patient created successfully. PatientId: {PatientId}", newPatient.Id);
+
             return MapToResponse(newPatient);
         }
 
         public async Task<PatientResponseDto?> UpdateAsync(Guid id, UpdatePatientDto dto)
         {
+            _logger.LogInformation("Updating patient. PatientId: {PatientId}", id);
+
             var patient = await _patientRepository.GetByIdForUpdateAsync(id);
 
             if (patient == null)
             {
+                _logger.LogWarning("Cannot update patient because it does not exist. PatientId: {PatientId}", id);
                 throw new BadRequestException("Patient does not exist.");
             }
 
@@ -67,12 +85,41 @@
 
             var updatedPatient = await _patientRepository.UpdateAsync(patient);
 
+            _logger.LogInformation("Patient updated successfully. PatientId: {PatientId}", updatedPatient.Id);
+
             return MapToResponse(updatedPatient);
         }
 
         public async Task<bool> SoftDeleteAsync(Guid id)
         {
-            return await _patientRepository.SoftDeleteAsync(id);
+            _logger.LogInformation("Soft deleting patient. PatientId: {PatientId}", id);
+
+            var deleted = await _patientRepository.SoftDeleteAsync(id);
+
+            if (!deleted)
+            {
+                _logger.LogWarning("Cannot soft delete patient because it does not exist. PatientId: {PatientId}", id);
+                throw new NotFoundException("Patient not found.");
+            }
+
+            _logger.LogInformation("Patient soft deleted successfully. PatientId: {PatientId}", id);
+
+            return deleted;
+        }
+
+        public async Task<PatientResponseDto> GetByIdAsync(Guid id)
+        {
+            _logger.LogInformation("Getting patient by id. PatientId: {PatientId}", id);
+
+            var patient = await _patientRepository.GetByIdAsync(id);
+
+            if (patient == null)
+            {
+                _logger.LogWarning("Patient not found. PatientId: {PatientId}", id);
+                throw new NotFoundException("Patient not found.");
+            }
+
+            return MapToResponse(patient);
         }
 
         private static PatientResponseDto MapToResponse(Patient patient)
@@ -86,18 +133,6 @@
                 PhoneNumber = patient.PhoneNumber,
                 Email = patient.Email
             };
-        }
-
-        public async Task<PatientResponseDto> GetByIdAsync(Guid id)
-        {
-
-            var patient = await _patientRepository.GetByIdAsync(id);
-            if(patient == null)
-            {
-                throw new NotFoundException("Patient not found."); ;
-            }
-
-            return MapToResponse(patient);
         }
     }
 }
