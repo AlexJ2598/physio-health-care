@@ -4,6 +4,7 @@ using PhysioHealthCare.Application.Interfaces;
 using PhysioHealthCare.Application.Services;
 using PhysioHealthCare.Infrastructure.Data;
 using PhysioHealthCare.Infrastructure.Repositories;
+using PhysioHealthCare.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +31,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

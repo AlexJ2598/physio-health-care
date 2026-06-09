@@ -1,6 +1,7 @@
 ﻿namespace PhysioHealthCare.Application.Services
 {
     using PhysioHealthCare.Application.DTOs.Appointments;
+    using PhysioHealthCare.Application.Exceptions;
     using PhysioHealthCare.Application.Interfaces;
     using PhysioHealthCare.Domain.Entities;
     using System;
@@ -48,7 +49,7 @@
             var appointment = await _appointmentsRepository.GetByIdAsync(id);
             if(appointment == null)
             {
-                return null;
+                throw new NotFoundException("Appointment not found.");
             }
 
             return appointment;
@@ -64,7 +65,7 @@
             var appointment = await _appointmentsRepository.GetByIdForUpdateAsync(id);
 
             if (appointment == null)
-                return null;
+                throw new NotFoundException("Appointment not found.");
 
             appointment.AppointmentDate = dto.AppointmentDate;
             appointment.Reason = dto.Reason.Trim();

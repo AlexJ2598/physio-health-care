@@ -1,6 +1,7 @@
 ﻿namespace PhysioHealthCare.Application.Services
 {
     using PhysioHealthCare.Application.DTOs.Patients;
+    using PhysioHealthCare.Application.Exceptions;
     using PhysioHealthCare.Application.Interfaces;
     using PhysioHealthCare.Domain.Entities;
     using PhysioHealthCare.Domain.Enums;
@@ -51,7 +52,7 @@
 
             if (patient == null)
             {
-                return null;
+                throw new BadRequestException("Patient does not exist.");
             }
 
             patient.FirstName = dto.FirstName.Trim();
@@ -93,7 +94,7 @@
             var patient = await _patientRepository.GetByIdAsync(id);
             if(patient == null)
             {
-                return null;
+                throw new BadRequestException("Patient does not exist.");
             }
 
             return MapToResponse(patient);
