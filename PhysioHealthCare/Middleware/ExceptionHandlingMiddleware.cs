@@ -62,7 +62,9 @@
             var response = new ErrorResponse
             {
                 StatusCode = (int)statusCode,
-                Message = exception.Message,
+                Message = statusCode == HttpStatusCode.InternalServerError
+                ? "An unexpected error occurred."
+                : exception.Message,
                 Path = context.Request.Path,
                 Method = context.Request.Method,
                 TraceId = context.TraceIdentifier
