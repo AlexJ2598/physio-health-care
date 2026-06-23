@@ -1,5 +1,6 @@
 ﻿namespace PhysioHealthCare.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using PhysioHealthCare.Application.DTOs.Patients;
     using PhysioHealthCare.Application.Interfaces;
@@ -25,6 +26,7 @@
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<PatientResponseDto>> Create(CreatePatientDto dto)
         {
             var patient = await _patientService.CreateAsync(dto);
@@ -32,6 +34,7 @@
             return CreatedAtAction(nameof(GetById), new { id = patient.Id }, patient);
         }
         [HttpPut("{id:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(Guid id, UpdatePatientDto dto)
         {
             var patient = await _patientService.UpdateAsync(id, dto);
@@ -42,6 +45,7 @@
             return Ok(patient);
         }
         [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var deleted = await _patientService.SoftDeleteAsync(id);
