@@ -1,5 +1,6 @@
 ﻿namespace PhysioHealthCare.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using PhysioHealthCare.Application.DTOs.Appointments;
     using PhysioHealthCare.Application.Interfaces;
@@ -38,6 +39,7 @@
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<AppointmentResponseDto>> Create(CreateAppointmentDto dto)
         {
             var appointment = await _appointmentService.CreateAsync(dto);
@@ -49,6 +51,7 @@
         }
 
         [HttpPut("{id:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<AppointmentResponseDto>> Update(
             Guid id,
             UpdateAppointmentDto dto)
@@ -65,6 +68,7 @@
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var deleted =
