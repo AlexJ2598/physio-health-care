@@ -73,7 +73,52 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1",
+        new OpenApiInfo
+        {
+            Title = "PhysioHealthCare API",
+            Version = "v1"
+        });
+
+    options.AddSecurityDefinition("Bearer",
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+
+            Description =
+                "JWT Authorization header using the Bearer scheme.\n\n" +
+                "Enter your token below.\n\n" +
+                "Example:\n" +
+                "eyJhbGciOiJIUzI1NiIs...",
+
+            In = ParameterLocation.Header,
+
+            Type = SecuritySchemeType.Http,
+
+            Scheme = "Bearer",
+
+            BearerFormat = "JWT"
+        });
+
+    options.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference =
+                        new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                },
+                Array.Empty<string>()
+            }
+        });
+});
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<CreatePatientDtoValidator>();

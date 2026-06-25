@@ -159,7 +159,7 @@ public async Task CreateAsync_WhenDtoIsValid_ShouldCreateAppointmentAndReturnRes
         Times.Once);
 }
         [Fact]
-        public async Task UpdateAsync_WhenAppointmentDoesNotExist_ShouldThrowBadRequestException()
+        public async Task UpdateAsync_WhenAppointmentDoesNotExist_ShouldThrowNotFoundException()
         {
             //arrage
             var appointmentId = Guid.NewGuid();
@@ -174,7 +174,8 @@ public async Task CreateAsync_WhenDtoIsValid_ShouldCreateAppointmentAndReturnRes
             //Act:
             var act = async () => await _appointmentService.UpdateAsync(appointmentId, dto);
             //Assert
-            await act.Should().ThrowAsync<BadRequestException>()
+            await act.Should()
+            .ThrowAsync<NotFoundException>()
             .WithMessage("Appointment not found.");
         }
     }
