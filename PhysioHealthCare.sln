@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.37203.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysioHealthCare", "PhysioHealthCare\PhysioHealthCare.csproj", "{96B89CFA-1AE1-4A06-8EB8-BC00318BDD8E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysioHealthCare.Domain", "PhysioHealthCare.Domain\PhysioHealthCare.Domain.csproj", "{185006FB-2CD0-4168-8EED-0B541589EF83}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysioHealthCare.Application", "PhysioHealthCare.Application\PhysioHealthCare.Application.csproj", "{249D9F68-B3F4-4F0A-B849-A3ED14E26FE0}"
@@ -18,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementos de la solución",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysioHealthCare.Tests", "PhysioHealthCare.Tests\PhysioHealthCare.Tests.csproj", "{9A5E1EB3-BACF-40FB-A23C-B5E9A503EF73}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysioHealthCare", "PhysioHealthCare\PhysioHealthCare.csproj", "{DC4C601B-9310-0F1D-BD00-805A3F385628}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,18 +28,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{96B89CFA-1AE1-4A06-8EB8-BC00318BDD8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{96B89CFA-1AE1-4A06-8EB8-BC00318BDD8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{96B89CFA-1AE1-4A06-8EB8-BC00318BDD8E}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{96B89CFA-1AE1-4A06-8EB8-BC00318BDD8E}.Debug|x64.Build.0 = Debug|Any CPU
-		{96B89CFA-1AE1-4A06-8EB8-BC00318BDD8E}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{96B89CFA-1AE1-4A06-8EB8-BC00318BDD8E}.Debug|x86.Build.0 = Debug|Any CPU
-		{96B89CFA-1AE1-4A06-8EB8-BC00318BDD8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{96B89CFA-1AE1-4A06-8EB8-BC00318BDD8E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{96B89CFA-1AE1-4A06-8EB8-BC00318BDD8E}.Release|x64.ActiveCfg = Release|Any CPU
-		{96B89CFA-1AE1-4A06-8EB8-BC00318BDD8E}.Release|x64.Build.0 = Release|Any CPU
-		{96B89CFA-1AE1-4A06-8EB8-BC00318BDD8E}.Release|x86.ActiveCfg = Release|Any CPU
-		{96B89CFA-1AE1-4A06-8EB8-BC00318BDD8E}.Release|x86.Build.0 = Release|Any CPU
 		{185006FB-2CD0-4168-8EED-0B541589EF83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{185006FB-2CD0-4168-8EED-0B541589EF83}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{185006FB-2CD0-4168-8EED-0B541589EF83}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -88,6 +76,18 @@ Global
 		{9A5E1EB3-BACF-40FB-A23C-B5E9A503EF73}.Release|x64.Build.0 = Release|Any CPU
 		{9A5E1EB3-BACF-40FB-A23C-B5E9A503EF73}.Release|x86.ActiveCfg = Release|Any CPU
 		{9A5E1EB3-BACF-40FB-A23C-B5E9A503EF73}.Release|x86.Build.0 = Release|Any CPU
+		{DC4C601B-9310-0F1D-BD00-805A3F385628}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC4C601B-9310-0F1D-BD00-805A3F385628}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC4C601B-9310-0F1D-BD00-805A3F385628}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DC4C601B-9310-0F1D-BD00-805A3F385628}.Debug|x64.Build.0 = Debug|Any CPU
+		{DC4C601B-9310-0F1D-BD00-805A3F385628}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DC4C601B-9310-0F1D-BD00-805A3F385628}.Debug|x86.Build.0 = Debug|Any CPU
+		{DC4C601B-9310-0F1D-BD00-805A3F385628}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC4C601B-9310-0F1D-BD00-805A3F385628}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC4C601B-9310-0F1D-BD00-805A3F385628}.Release|x64.ActiveCfg = Release|Any CPU
+		{DC4C601B-9310-0F1D-BD00-805A3F385628}.Release|x64.Build.0 = Release|Any CPU
+		{DC4C601B-9310-0F1D-BD00-805A3F385628}.Release|x86.ActiveCfg = Release|Any CPU
+		{DC4C601B-9310-0F1D-BD00-805A3F385628}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

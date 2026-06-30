@@ -1,0 +1,125 @@
+.page {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding: 40px;
+}
+
+.card {
+  max-width: 900px;
+  margin: auto;
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, .08);
+}
+
+.card-header {
+  margin-bottom: 30px;
+}
+
+.card-header h1 {
+  margin: 0;
+  font-size: 32px;
+  color: #0f172a;
+}
+
+.card-header p {
+  margin-top: 8px;
+  color: #64748b;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 15px;
+  outline: none;
+  transition: .2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #14b8a6;
+  box-shadow: 0 0 0 4px rgba(20,184,166,.15);
+}
+
+textarea {
+  resize: vertical;
+}
+
+.buttons {
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 12px 22px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn-primary {
+  background: #14b8a6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0f766e;
+}
+
+.btn-secondary {
+  background: white;
+  border: 1px solid #cbd5e1;
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+}
+
+.error {
+  margin-top: 15px;
+  color: #dc2626;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+
+  .page {
+    padding: 20px;
+  }
+
+  .card {
+    padding: 24px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+}

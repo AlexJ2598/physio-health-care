@@ -1,0 +1,50 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>Patients</h1>
+      <p>Manage clinic patients</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="logout()">
+        Logout
+      </button>
+
+      <a routerLink="/patients/create" class="btn-primary">
+        New Patient
+      </a>
+    </div>
+  </header>
+
+  <p *ngIf="isLoading">Loading patients...</p>
+
+  <p class="error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </p>
+
+  <table *ngIf="!isLoading && patients.length > 0">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Birth date</th>
+        <th>Gender</th>
+        <th>Phone</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let patient of patients">
+        <td>{{ patient.fullName }}</td>
+        <td>{{ patient.birthDate | date:'mediumDate' }}</td>
+        <td>{{ patient.gender }}</td>
+        <td>{{ patient.phoneNumber }}</td>
+        <td>{{ patient.email }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="empty" *ngIf="!isLoading && patients.length === 0">
+    No patients found.
+  </div>
+</div>
