@@ -26,10 +26,11 @@
     <thead>
       <tr>
         <th>Name</th>
-        <th>Birth date</th>
+        <th>Birth Date</th>
         <th>Gender</th>
         <th>Phone</th>
         <th>Email</th>
+        <th>Actions</th>
       </tr>
     </thead>
 
@@ -40,6 +41,14 @@
         <td>{{ patient.gender }}</td>
         <td>{{ patient.phoneNumber }}</td>
         <td>{{ patient.email }}</td>
+
+        <td class="actions">
+          <a
+            class="btn-edit"
+            [routerLink]="['/patients/edit', patient.id]">
+            Edit
+          </a>
+        </td>
       </tr>
     </tbody>
   </table>

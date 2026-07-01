@@ -96,3 +96,22 @@ td {
   border-radius: 16px;
   color: #64748b;
 }
+.actions {
+  white-space: nowrap;
+}
+
+.btn-edit {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: .2s;
+}
+
+.btn-edit:hover {
+  background: #2563eb;
+}

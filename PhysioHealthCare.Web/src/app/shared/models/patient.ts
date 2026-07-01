@@ -17,3 +17,13 @@ export interface CreatePatient {
   address?: string;
   notes?: string;
 }
+export interface UpdatePatient {
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  gender: number;
+  phoneNumber?: string;
+  email?: string;
+  address?: string;
+  notes?: string;
+}
