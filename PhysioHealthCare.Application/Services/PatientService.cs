@@ -107,7 +107,7 @@
             return deleted;
         }
 
-        public async Task<PatientResponseDto> GetByIdAsync(Guid id)
+        public async Task<PatientDetailDto> GetByIdAsync(Guid id)
         {
             _logger.LogInformation("Getting patient by id. PatientId: {PatientId}", id);
 
@@ -119,7 +119,18 @@
                 throw new NotFoundException("Patient not found.");
             }
 
-            return MapToResponse(patient);
+            return new PatientDetailDto
+            {
+                Id = patient.Id,
+                FirstName = patient.FirstName,
+                LastName = patient.LastName,
+                BirthDate = patient.BirthDate,
+                Gender = (int)patient.Gender,
+                PhoneNumber = patient.PhoneNumber,
+                Email = patient.Email,
+                Address = patient.Address,
+                Notes = patient.Notes
+            }; 
         }
 
         private static PatientResponseDto MapToResponse(Patient patient)

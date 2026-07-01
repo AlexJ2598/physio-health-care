@@ -22,7 +22,19 @@
     {{ errorMessage }}
   </p>
 
-  <table *ngIf="!isLoading && patients.length > 0">
+  <p class="success" *ngIf="successMessage">
+    {{ successMessage }}
+  </p>
+
+  <div class="search-card" *ngIf="!isLoading && patients.length > 0">
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      placeholder="Search patients by name, email or phone..."
+    />
+  </div>
+
+  <table *ngIf="!isLoading && filteredPatients.length > 0">
     <thead>
       <tr>
         <th>Name</th>
@@ -35,25 +47,65 @@
     </thead>
 
     <tbody>
-      <tr *ngFor="let patient of patients">
+      <tr *ngFor="let patient of filteredPatients">
         <td>{{ patient.fullName }}</td>
         <td>{{ patient.birthDate | date:'mediumDate' }}</td>
         <td>{{ patient.gender }}</td>
         <td>{{ patient.phoneNumber }}</td>
         <td>{{ patient.email }}</td>
 
-        <td class="actions">
+        <td class="actions-cell">
           <a
-            class="btn-edit"
+            class="btn-small btn-edit"
             [routerLink]="['/patients/edit', patient.id]">
             Edit
           </a>
+
+          <button
+            type="button"
+            class="btn-small btn-delete"
+            (click)="openDeleteModal(patient)">
+            Delete
+          </button>
         </td>
       </tr>
     </tbody>
   </table>
 
-  <div class="empty" *ngIf="!isLoading && patients.length === 0">
+  <div class="empty" *ngIf="!isLoading && filteredPatients.length === 0">
     No patients found.
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showDeleteModal">
+    <div class="modal">
+      <h2>Delete Patient</h2>
+
+      <p>
+        Are you sure you want to delete
+        <strong>{{ selectedPatient?.fullName }}</strong>?
+      </p>
+
+      <p class="modal-warning">
+        This action will remove the patient from the active list.
+      </p>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="closeDeleteModal()"
+          [disabled]="isDeleting">
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="btn-danger"
+          (click)="confirmDelete()"
+          [disabled]="isDeleting">
+          {{ isDeleting ? 'Deleting...' : 'Delete' }}
+        </button>
+      </div>
+    </div>
   </div>
 </div>

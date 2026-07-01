@@ -72,7 +72,7 @@
             // Assert
             result.Should().NotBeNull();
             result.Id.Should().Be(patientId);
-            result.FullName.Should().Be("Alexis Hernandez");
+            result.FirstName.Should().Be("Alexis");
             result.Email.Should().Be("alexis@test.com");
         }
         [Fact]

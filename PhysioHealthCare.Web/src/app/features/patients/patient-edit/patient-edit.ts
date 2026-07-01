@@ -55,20 +55,22 @@ export class PatientEditComponent implements OnInit {
 
     this.patientService.getById(this.patientId).subscribe({
       next: (patient: any) => {
-        this.patient = {
-          firstName: patient.firstName,
-          lastName: patient.lastName,
-          birthDate: patient.birthDate?.substring(0, 10),
-          gender: patient.gender,
-          phoneNumber: patient.phoneNumber,
-          email: patient.email,
-          address: patient.address,
-          notes: patient.notes
-        };
+  console.log('Patient loaded:', patient);
 
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
+  this.patient = {
+    firstName: patient.firstName,
+    lastName: patient.lastName,
+    birthDate: patient.birthDate?.substring(0, 10),
+    gender: patient.gender,
+    phoneNumber: patient.phoneNumber,
+    email: patient.email,
+    address: patient.address,
+    notes: patient.notes
+  };
+
+  this.isLoading = false;
+  this.cdr.detectChanges();
+},
       error: (error) => {
         console.error('Load patient error', error);
 

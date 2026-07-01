@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CreatePatient, Patient, UpdatePatient } from '../../shared/models/patient';
+import { CreatePatient, Patient, PatientDetail, UpdatePatient } from '../../shared/models/patient';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +14,8 @@ export class PatientService {
     return this.http.get<Patient[]>(`${environment.apiUrl}/Patients`);
   }
 
-  getById(id: string): Observable<Patient> {
-    return this.http.get<Patient>(`${environment.apiUrl}/Patients/${id}`);
+  getById(id: string): Observable<PatientDetail> {
+  return this.http.get<PatientDetail>(`${environment.apiUrl}/Patients/${id}`);
   }
 
   create(patient: CreatePatient): Observable<Patient> {
