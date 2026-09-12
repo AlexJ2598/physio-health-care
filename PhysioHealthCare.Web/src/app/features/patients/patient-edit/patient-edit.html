@@ -1,11 +1,14 @@
 <div class="page">
   <div class="card">
+
     <div class="card-header">
-      <h1>Edit Patient</h1>
-      <p>Update patient information.</p>
+      <h1>{{ t('patients.edit.title') }}</h1>
+      <p>{{ t('patients.edit.subtitle') }}</p>
     </div>
 
-    <p *ngIf="isLoading">Loading patient...</p>
+    <p *ngIf="isLoading">
+      {{ t('patients.edit.loading') }}
+    </p>
 
     <form
       *ngIf="!isLoading"
@@ -13,46 +16,101 @@
       (ngSubmit)="updatePatient()">
 
       <div class="grid">
+
         <div class="form-group">
-          <label>First Name</label>
+          <label>
+            {{ t('patients.fields.firstName') }}
+          </label>
+
           <input
             type="text"
             name="firstName"
             [(ngModel)]="patient.firstName"
-            required>
+            required
+            #firstName="ngModel"
+            [class.invalid]="formSubmitted && firstName.invalid">
+
+          <span
+            class="field-error"
+            *ngIf="formSubmitted && firstName.invalid">
+            {{ t('patients.validation.firstNameRequired') }}
+          </span>
         </div>
 
         <div class="form-group">
-          <label>Last Name</label>
+          <label>
+            {{ t('patients.fields.lastName') }}
+          </label>
+
           <input
             type="text"
             name="lastName"
             [(ngModel)]="patient.lastName"
-            required>
+            required
+            #lastName="ngModel"
+            [class.invalid]="formSubmitted && lastName.invalid">
+
+          <span
+            class="field-error"
+            *ngIf="formSubmitted && lastName.invalid">
+            {{ t('patients.validation.lastNameRequired') }}
+          </span>
         </div>
 
         <div class="form-group">
-          <label>Birth Date</label>
+          <label>
+            {{ t('patients.fields.birthDate') }}
+          </label>
+
           <input
             type="date"
             name="birthDate"
             [(ngModel)]="patient.birthDate"
-            required>
+            required
+            #birthDate="ngModel"
+            [class.invalid]="formSubmitted && birthDate.invalid">
+
+          <span
+            class="field-error"
+            *ngIf="formSubmitted && birthDate.invalid">
+            {{ t('patients.validation.birthDateRequired') }}
+          </span>
         </div>
 
         <div class="form-group">
-          <label>Gender</label>
+          <label>
+            {{ t('patients.fields.gender') }}
+          </label>
+
           <select
             name="gender"
             [(ngModel)]="patient.gender"
-            required>
-            <option [ngValue]="1">Male</option>
-            <option [ngValue]="2">Female</option>
+            required
+            #gender="ngModel"
+            [class.invalid]="formSubmitted && gender.invalid">
+
+            <option [ngValue]="1">
+              {{ t('patients.gender.male') }}
+            </option>
+
+            <option [ngValue]="2">
+              {{ t('patients.gender.female') }}
+            </option>
+
           </select>
+
+          <span
+            class="field-error"
+            *ngIf="formSubmitted && gender.invalid">
+            {{ t('patients.validation.genderRequired') }}
+          </span>
         </div>
 
         <div class="form-group">
-          <label>Phone</label>
+          <label>
+            {{ t('patients.fields.phone') }}
+          </label>
+
           <input
             type="text"
             name="phoneNumber"
@@ -60,16 +118,23 @@
         </div>
 
         <div class="form-group">
-          <label>Email</label>
+          <label>
+            {{ t('patients.fields.email') }}
+          </label>
+
           <input
             type="email"
             name="email"
             [(ngModel)]="patient.email">
         </div>
+
       </div>
 
       <div class="form-group">
-        <label>Address</label>
+        <label>
+          {{ t('patients.fields.address') }}
+        </label>
+
         <input
           type="text"
           name="address"
@@ -77,7 +142,10 @@
       </div>
 
       <div class="form-group">
-        <label>Notes</label>
+        <label>
+          {{ t('patients.fields.notes') }}
+        </label>
+
         <textarea
           rows="4"
           name="notes"
@@ -85,25 +153,42 @@
         </textarea>
       </div>
 
-      <div class="error" *ngIf="errorMessage">
-        {{ errorMessage }}
+      <div
+        class="error-banner"
+        *ngIf="errorMessage">
+
+        <strong>
+          ⚠ {{ t('patients.validation.title') }}
+        </strong>
+
+        <p>{{ errorMessage }}</p>
       </div>
 
       <div class="buttons">
+
         <button
           type="button"
           class="btn-secondary"
           routerLink="/patients">
-          Cancel
+          {{ t('common.cancel') }}
         </button>
 
         <button
           type="submit"
           class="btn-primary"
-          [disabled]="patientForm.invalid || isSaving">
-          {{ isSaving ? 'Saving...' : 'Save Changes' }}
+          [disabled]="isSaving">
+
+          {{
+            isSaving
+              ? t('patients.saving')
+              : t('patients.edit.saveChanges')
+          }}
+
         </button>
+
       </div>
+
     </form>
+
   </div>
 </div>

@@ -107,6 +107,36 @@ textarea {
   color: #dc2626;
   font-weight: 700;
 }
+.error-banner {
+  margin: 20px 0;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.error-banner strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+.error-banner p {
+  margin: 0;
+  color: #991b1b;
+}
+.invalid {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12) !important;
+}
+
+.field-error {
+  margin-top: 6px;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 600;
+}
 
 @media (max-width: 768px) {
 

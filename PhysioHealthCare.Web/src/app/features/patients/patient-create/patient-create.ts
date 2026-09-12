@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { PatientService } from '../../../core/services/patient';
+import { TranslationService } from '../../../core/services/translation';
 import { CreatePatient } from '../../../shared/models/patient';
 
 @Component({
@@ -16,6 +17,7 @@ import { CreatePatient } from '../../../shared/models/patient';
 export class PatientCreateComponent {
   isLoading = false;
   errorMessage = '';
+  formSubmitted = false;
 
   patient: CreatePatient = {
     firstName: '',
@@ -31,11 +33,34 @@ export class PatientCreateComponent {
   constructor(
     private patientService: PatientService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private translationService: TranslationService
   ) {}
 
+  t(key: string): string {
+    return this.translationService.translate(key);
+  }
+
   createPatient(): void {
-    if (this.isLoading) return;
+    this.formSubmitted = true;
+
+    if (this.isLoading) {
+      return;
+    }
+
+    if (
+      !this.patient.firstName.trim() ||
+      !this.patient.lastName.trim() ||
+      !this.patient.birthDate ||
+      !this.patient.gender ||
+      !this.patient.email?.trim()
+    ) {
+      this.errorMessage =
+        this.t('patients.validation.requiredFields');
+
+      this.cdr.detectChanges();
+      return;
+    }
 
     this.errorMessage = '';
     this.isLoading = true;
@@ -48,6 +73,7 @@ export class PatientCreateComponent {
 
         this.router.navigate(['/patients']);
       },
+
       error: (error) => {
         console.error('Create patient error', error);
 
@@ -56,7 +82,7 @@ export class PatientCreateComponent {
         this.errorMessage =
           error.error?.message ||
           error.error?.Message ||
-          'Error creating patient.';
+          this.t('patients.create.error');
 
         this.cdr.detectChanges();
       }

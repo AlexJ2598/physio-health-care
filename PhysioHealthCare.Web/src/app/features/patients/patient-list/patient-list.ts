@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { PatientService } from '../../../core/services/patient';
 import { AuthService } from '../../../core/services/auth';
 import { Patient } from '../../../shared/models/patient';
+import { TranslationService } from '../../../core/services/translation';
 
 @Component({
   selector: 'app-patient-list',
@@ -27,7 +28,8 @@ export class PatientListComponent implements OnInit {
     private patientService: PatientService,
     private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private translationService: TranslationService
   ) {}
 
   ngOnInit(): void {
@@ -113,5 +115,8 @@ get filteredPatients(): Patient[] {
     patient.email?.toLowerCase().includes(term) ||
     patient.phoneNumber?.toLowerCase().includes(term)
   );
+}
+t(key: string): string {
+  return this.translationService.translate(key);
 }
 }

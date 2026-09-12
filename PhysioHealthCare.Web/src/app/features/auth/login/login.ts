@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 import { Login } from '../../../shared/models/login';
+import { TranslationService } from '../../../core/services/translation';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +22,8 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private translationService : TranslationService
   ) {}
 
   login(): void {
@@ -52,10 +54,13 @@ export class LoginComponent {
         this.errorMessage =
           error.error?.message ||
           error.error?.Message ||
-          'Invalid email or password.';
+          this.t('login.invalidCredentials');
 
         this.cdr.detectChanges();
       }
     });
+  }
+  t(key: string): string{
+    return this.translationService.translate(key)
   }
 }
