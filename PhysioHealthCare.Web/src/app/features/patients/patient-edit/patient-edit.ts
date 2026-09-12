@@ -12,6 +12,7 @@ import {
 } from '@angular/router';
 
 import { PatientService } from '../../../core/services/patient';
+import { ToastService } from '../../../core/services/toast';
 import { TranslationService } from '../../../core/services/translation';
 import { UpdatePatient } from '../../../shared/models/patient';
 
@@ -29,10 +30,8 @@ import { UpdatePatient } from '../../../shared/models/patient';
 export class PatientEditComponent implements OnInit {
 
   patientId = '';
-
   isLoading = false;
   isSaving = false;
-
   errorMessage = '';
   formSubmitted = false;
 
@@ -52,7 +51,8 @@ export class PatientEditComponent implements OnInit {
     private router: Router,
     private patientService: PatientService,
     private cdr: ChangeDetectorRef,
-    private translationService: TranslationService
+    private translationService: TranslationService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -80,14 +80,17 @@ export class PatientEditComponent implements OnInit {
     this.patientService
       .getById(this.patientId)
       .subscribe({
-
         next: (patient: any) => {
-          console.log('Patient loaded:', patient);
+          console.log(
+            'Patient loaded:',
+            patient
+          );
 
           this.patient = {
             firstName: patient.firstName,
             lastName: patient.lastName,
-            birthDate: patient.birthDate?.substring(0, 10),
+            birthDate:
+              patient.birthDate?.substring(0, 10),
             gender: patient.gender,
             phoneNumber: patient.phoneNumber,
             email: patient.email,
@@ -109,7 +112,9 @@ export class PatientEditComponent implements OnInit {
           this.isLoading = false;
 
           if (error.status === 404) {
-            this.router.navigate(['/not-found']);
+            this.router.navigate([
+              '/not-found'
+            ]);
             return;
           }
 
@@ -118,7 +123,6 @@ export class PatientEditComponent implements OnInit {
 
           this.cdr.detectChanges();
         }
-
       });
   }
 
@@ -136,7 +140,9 @@ export class PatientEditComponent implements OnInit {
       !this.patient.gender
     ) {
       this.errorMessage =
-        this.t('patients.validation.requiredFields');
+        this.t(
+          'patients.validation.requiredFields'
+        );
 
       this.cdr.detectChanges();
       return;
@@ -153,13 +159,16 @@ export class PatientEditComponent implements OnInit {
         this.patient
       )
       .subscribe({
-
         next: () => {
           this.isSaving = false;
 
-          this.cdr.detectChanges();
+          this.toastService.success(
+            this.t('patients.edit.success')
+          );
 
-          this.router.navigate(['/patients']);
+          this.router.navigate([
+            '/patients'
+          ]);
         },
 
         error: (error) => {
@@ -177,8 +186,6 @@ export class PatientEditComponent implements OnInit {
 
           this.cdr.detectChanges();
         }
-
       });
   }
-
 }

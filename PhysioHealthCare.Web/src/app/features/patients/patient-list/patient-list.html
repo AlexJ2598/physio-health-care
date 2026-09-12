@@ -8,15 +8,11 @@
     </div>
 
     <div class="header-actions">
-
       <a
         routerLink="/patients/create"
         class="btn-primary">
-
         {{ t('patients.new') }}
-
       </a>
-
     </div>
 
   </header>
@@ -28,17 +24,7 @@
   <p
     class="error"
     *ngIf="errorMessage">
-
     {{ errorMessage }}
-
-  </p>
-
-  <p
-    class="success"
-    *ngIf="successMessage">
-
-    {{ successMessage }}
-
   </p>
 
   <div
@@ -68,7 +54,6 @@
     </thead>
 
     <tbody>
-
       <tr *ngFor="let patient of filteredPatients">
 
         <td>{{ patient.fullName }}</td>
@@ -94,24 +79,19 @@
           <a
             class="btn-small btn-edit"
             [routerLink]="['/patients/edit', patient.id]">
-
             {{ t('common.edit') }}
-
           </a>
 
           <button
             type="button"
             class="btn-small btn-delete"
             (click)="openDeleteModal(patient)">
-
             {{ t('common.delete') }}
-
           </button>
 
         </td>
 
       </tr>
-
     </tbody>
 
   </table>
@@ -119,9 +99,7 @@
   <div
     class="empty"
     *ngIf="!isLoading && filteredPatients.length === 0">
-
     {{ t('patients.empty') }}
-
   </div>
 
   <div
@@ -136,7 +114,9 @@
 
       <p>
         {{ t('patients.deleteQuestion') }}
-        <strong>{{ selectedPatient?.fullName }}</strong>?
+        <strong>
+          {{ selectedPatient?.fullName }}
+        </strong>?
       </p>
 
       <p class="modal-warning">
@@ -150,9 +130,7 @@
           class="btn-secondary"
           (click)="closeDeleteModal()"
           [disabled]="isDeleting">
-
           {{ t('common.cancel') }}
-
         </button>
 
         <button
@@ -160,13 +138,11 @@
           class="btn-danger"
           (click)="confirmDelete()"
           [disabled]="isDeleting">
-
           {{
             isDeleting
               ? t('patients.deleting')
               : t('common.delete')
           }}
-
         </button>
 
       </div>

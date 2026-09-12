@@ -67,6 +67,9 @@
   "navigation.dashboard": "Inicio",
 
   "patients.loadError": "Ocurrió un error al cargar los pacientes.",
-  "patients.deleteError": "Ocurrió un error al eliminar el paciente."
+  "patients.deleteError": "Ocurrió un error al eliminar el paciente.",
+
+  "patients.create.success": "Paciente creado correctamente.",
+  "patients.edit.success": "Paciente actualizado correctamente."
   
 }

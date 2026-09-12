@@ -1,20 +1,32 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import {
+  Router,
+  RouterLink
+} from '@angular/router';
 
 import { PatientService } from '../../../core/services/patient';
+import { ToastService } from '../../../core/services/toast';
 import { TranslationService } from '../../../core/services/translation';
 import { CreatePatient } from '../../../shared/models/patient';
 
 @Component({
   selector: 'app-patient-create',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink
+  ],
   templateUrl: './patient-create.html',
   styleUrl: './patient-create.scss',
 })
 export class PatientCreateComponent {
+
   isLoading = false;
   errorMessage = '';
   formSubmitted = false;
@@ -34,7 +46,8 @@ export class PatientCreateComponent {
     private patientService: PatientService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private translationService: TranslationService
+    private translationService: TranslationService,
+    private toastService: ToastService
   ) {}
 
   t(key: string): string {
@@ -64,28 +77,39 @@ export class PatientCreateComponent {
 
     this.errorMessage = '';
     this.isLoading = true;
+
     this.cdr.detectChanges();
 
-    this.patientService.create(this.patient).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
+    this.patientService
+      .create(this.patient)
+      .subscribe({
+        next: () => {
+          this.isLoading = false;
 
-        this.router.navigate(['/patients']);
-      },
+          this.toastService.success(
+            this.t('patients.create.success')
+          );
 
-      error: (error) => {
-        console.error('Create patient error', error);
+          this.router.navigate([
+            '/patients'
+          ]);
+        },
 
-        this.isLoading = false;
+        error: (error) => {
+          console.error(
+            'Create patient error',
+            error
+          );
 
-        this.errorMessage =
-          error.error?.message ||
-          error.error?.Message ||
-          this.t('patients.create.error');
+          this.isLoading = false;
 
-        this.cdr.detectChanges();
-      }
-    });
+          this.errorMessage =
+            error.error?.message ||
+            error.error?.Message ||
+            this.t('patients.create.error');
+
+          this.cdr.detectChanges();
+        }
+      });
   }
 }

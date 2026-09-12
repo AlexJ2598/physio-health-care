@@ -67,6 +67,9 @@
   "navigation.dashboard": "Dashboard",
 
   "patients.loadError": "Error loading patients.",
-  "patients.deleteError": "Error deleting patient."
+  "patients.deleteError": "Error deleting patient.",
+
+  "patients.create.success": "Patient created successfully.",
+  "patients.edit.success": "Patient updated successfully."
 
 }

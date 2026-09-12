@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { PatientService } from '../../../core/services/patient';
+import { ToastService } from '../../../core/services/toast';
 import { TranslationService } from '../../../core/services/translation';
 import { Patient } from '../../../shared/models/patient';
 
@@ -25,25 +26,18 @@ import { Patient } from '../../../shared/models/patient';
 export class PatientListComponent implements OnInit {
 
   patients: Patient[] = [];
-
   isLoading = false;
-
   errorMessage = '';
-
   showDeleteModal = false;
-
   selectedPatient: Patient | null = null;
-
   isDeleting = false;
-
-  successMessage = '';
-
   searchTerm = '';
 
   constructor(
     private patientService: PatientService,
     private cdr: ChangeDetectorRef,
-    private translationService: TranslationService
+    private translationService: TranslationService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -59,10 +53,8 @@ export class PatientListComponent implements OnInit {
     this.patientService
       .getAll()
       .subscribe({
-
         next: (patients) => {
           this.patients = patients;
-
           this.isLoading = false;
 
           this.cdr.detectChanges();
@@ -81,7 +73,6 @@ export class PatientListComponent implements OnInit {
 
           this.cdr.detectChanges();
         }
-
       });
   }
 
@@ -108,21 +99,16 @@ export class PatientListComponent implements OnInit {
     this.patientService
       .delete(this.selectedPatient.id)
       .subscribe({
-
         next: () => {
           this.isDeleting = false;
 
           this.closeDeleteModal();
 
-          this.successMessage =
-            this.t('patients.deletedSuccess');
+          this.toastService.success(
+            this.t('patients.deletedSuccess')
+          );
 
           this.loadPatients();
-
-          setTimeout(() => {
-            this.successMessage = '';
-            this.cdr.detectChanges();
-          }, 3000);
 
           this.cdr.detectChanges();
         },
@@ -135,12 +121,12 @@ export class PatientListComponent implements OnInit {
 
           this.isDeleting = false;
 
-          this.errorMessage =
-            this.t('patients.deleteError');
+          this.toastService.error(
+            this.t('patients.deleteError')
+          );
 
           this.cdr.detectChanges();
         }
-
       });
   }
 
@@ -158,11 +144,9 @@ export class PatientListComponent implements OnInit {
       patient.fullName
         .toLowerCase()
         .includes(term) ||
-
       patient.email
         ?.toLowerCase()
         .includes(term) ||
-
       patient.phoneNumber
         ?.toLowerCase()
         .includes(term)

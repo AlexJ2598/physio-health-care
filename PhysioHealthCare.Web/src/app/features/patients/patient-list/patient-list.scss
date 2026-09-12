@@ -1,5 +1,6 @@
 .page {
   min-height: 100vh;
+
   padding: var(--space-8);
 
   background: var(--color-background);
@@ -68,11 +69,25 @@
   background: var(--color-surface);
   color: var(--color-text-secondary);
 
-  border: 1px solid var(--color-border-strong);
+  border:
+    1px solid
+    var(--color-border-strong);
+
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast);
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not(:disabled) {
   background: var(--color-surface-soft);
+  color: var(--color-text-primary);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 
@@ -88,10 +103,15 @@
   width: 100%;
   max-width: 420px;
 
-  padding: 14px var(--space-4);
+  padding:
+    14px
+    var(--space-4);
 
   border-radius: 14px;
-  border: 1px solid var(--color-border-strong);
+
+  border:
+    1px solid
+    var(--color-border-strong);
 
   font-size: 15px;
 
@@ -135,7 +155,8 @@ td {
   text-align: left;
 
   border-bottom:
-    1px solid var(--color-border);
+    1px solid
+    var(--color-border);
 }
 
 th {
@@ -167,17 +188,23 @@ td {
 }
 
 .btn-small {
-  padding: 8px 12px;
+  padding:
+    var(--space-2)
+    var(--space-3);
 
   border-radius: 10px;
   border: none;
 
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 700;
 
   text-decoration: none;
 
   cursor: pointer;
+
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .btn-edit {
@@ -187,6 +214,7 @@ td {
 
 .btn-edit:hover {
   background: var(--color-info-hover);
+  color: var(--color-info);
 }
 
 .btn-delete {
@@ -196,6 +224,7 @@ td {
 
 .btn-delete:hover {
   background: var(--color-danger-hover);
+  color: var(--color-danger-dark);
 }
 
 
@@ -209,21 +238,324 @@ td {
   font-weight: 700;
 }
 
-.success {
-  margin: var(--space-4) 0;
+.empty {
+  padding: var(--space-8);
 
+  background: var(--color-surface);
+
+  border-radius: var(--radius-lg);
+
+  color: var(--color-text-muted);
+}
+
+
+/* =========================================
+   Modal
+   ========================================= */
+
+.modal-backdrop {
+  position: fixed;
+
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: var(--space-6);
+
+  background: var(--color-overlay);
+}
+
+.modal {
+  width: 100%;
+  max-width: 420px;
+
+  padding: 28px;
+
+  background: var(--color-surface);
+
+  border-radius: 20px;
+
+  box-shadow: var(--shadow-lg);
+}
+
+.modal h2 {
+  margin:
+    0
+    0
+    var(--space-3);
+
+  color: var(--color-text-primary);
+}
+
+.modal p {
+  color: var(--color-text-secondary);
+}
+
+.modal-warning {
+  font-size: 14px;
+
+  color: var(--color-danger-dark);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: var(--space-3);
+
+  margin-top: var(--space-6);
+}
+
+
+.page {
+  min-height: 100vh;
+
+  padding: var(--space-8);
+
+  background: var(--color-background);
+  font-family: var(--font-family-base);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: var(--space-8);
+}
+
+.page-header h1 {
+  margin: 0;
+
+  font-size: var(--font-size-title);
+
+  color: var(--color-text-primary);
+}
+
+.page-header p {
+  margin:
+    var(--space-2)
+    0
+    0;
+
+  color: var(--color-text-muted);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+
+  gap: var(--space-3);
+}
+
+
+/* =========================================
+   Buttons
+   ========================================= */
+
+.btn-primary,
+.btn-secondary {
   padding:
     var(--space-3)
-    var(--space-4);
+    18px;
 
   border-radius: var(--radius-md);
+  border: none;
 
-  background: var(--color-success-soft);
-  color: var(--color-success-dark);
+  cursor: pointer;
+
+  font-weight: 700;
+  font-size: 14px;
+
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-surface);
+
+  transition:
+    background-color var(--transition-fast);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+}
+
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
 
   border:
     1px solid
-    var(--color-success-border);
+    var(--color-border-strong);
+
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--color-surface-soft);
+  color: var(--color-text-primary);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================
+   Search
+   ========================================= */
+
+.search-card {
+  margin-bottom: var(--space-5);
+}
+
+.search-card input {
+  width: 100%;
+  max-width: 420px;
+
+  padding:
+    var(--form-control-padding)
+    var(--space-4);
+
+  border-radius: var(--radius-lg);
+
+  border:
+    1px solid
+    var(--color-border-strong);
+
+  font-size: var(--font-size-base);
+
+  outline: none;
+
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.search-card input:focus {
+  border-color: var(--color-primary);
+
+  box-shadow: var(--focus-ring-primary);
+}
+
+
+/* =========================================
+   Table
+   ========================================= */
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  background: var(--color-surface);
+
+  border-radius: var(--radius-lg);
+
+  overflow: hidden;
+
+  box-shadow: var(--shadow-md);
+}
+
+th,
+td {
+  padding: var(--space-4);
+
+  text-align: left;
+
+  border-bottom:
+    1px solid
+    var(--color-border);
+}
+
+th {
+  background: var(--color-surface-soft);
+
+  color: var(--color-text-secondary);
+
+  font-weight: 700;
+}
+
+td {
+  color: var(--color-text-secondary);
+}
+
+
+/* =========================================
+   Table actions
+   ========================================= */
+
+.actions {
+  white-space: nowrap;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+
+  gap: var(--space-2);
+}
+
+.btn-small {
+  padding:
+    var(--space-2)
+    var(--space-3);
+
+  border-radius: 10px;
+  border: none;
+
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.btn-edit {
+  background: var(--color-info-soft);
+  color: var(--color-info);
+}
+
+.btn-edit:hover {
+  background: var(--color-info-hover);
+  color: var(--color-info);
+}
+
+.btn-delete {
+  background: var(--color-danger-soft);
+  color: var(--color-danger-dark);
+}
+
+.btn-delete:hover {
+  background: var(--color-danger-hover);
+  color: var(--color-danger-dark);
+}
+
+
+/* =========================================
+   Feedback
+   ========================================= */
+
+.error {
+  color: var(--color-danger);
 
   font-weight: 700;
 }
@@ -303,11 +635,22 @@ td {
    Danger button
    ========================================= */
 
-.btn-danger {
-  padding: 12px 18px;
+.modal-actions .btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 80px;
+
+  padding:
+    var(--space-3)
+    18px;
+
+  border:
+    1px solid
+    var(--color-danger);
 
   border-radius: var(--radius-md);
-  border: none;
 
   background: var(--color-danger);
   color: var(--color-surface);
@@ -315,14 +658,37 @@ td {
   font-weight: 700;
 
   cursor: pointer;
+
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast);
 }
 
-.btn-danger:hover {
+.modal-actions .btn-danger:hover:not(:disabled) {
   background: var(--color-danger-dark);
+  border-color: var(--color-danger-dark);
+  color: var(--color-surface);
 }
 
-.btn-danger:disabled,
-.btn-secondary:disabled {
+.modal-actions .btn-danger:focus-visible:not(:disabled) {
+  background: var(--color-danger-dark);
+  border-color: var(--color-danger-dark);
+  color: var(--color-surface);
+}
+
+.modal-actions .btn-danger:active:not(:disabled) {
+  background: var(--color-danger-dark);
+  border-color: var(--color-danger-dark);
+  color: var(--color-surface);
+}
+
+.modal-actions .btn-danger:disabled {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: var(--color-surface);
+
   opacity: 0.6;
 
   cursor: not-allowed;

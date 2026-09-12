@@ -28,6 +28,7 @@
 
   /* Danger */
   --color-danger: #dc2626;
+  --color-danger-dark: #b91c1c;
   --color-danger-soft: #fee2e2;
   --color-danger-hover: #fecaca;
   --color-danger-surface: #fef2f2;
@@ -36,18 +37,25 @@
 
   /* Warning */
   --color-warning: #d97706;
+  --color-warning-dark: #92400e;
   --color-warning-soft: #fef3c7;
 
   /* Info */
   --color-info: #0369a1;
+  --color-info-dark: #075985;
   --color-info-soft: #e0f2fe;
   --color-info-hover: #bae6fd;
 
   /* Typography */
   --font-family-base: Arial, sans-serif;
+
+  --font-size-xs: 12px;
   --font-size-sm: 13px;
   --font-size-base: 15px;
+  --font-size-md: 16px;
   --font-size-lg: 18px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 28px;
   --font-size-title: 32px;
 
   /* Spacing */
@@ -71,44 +79,34 @@
 
   /* Shadows */
   --shadow-sm: 0 4px 18px rgba(15, 23, 42, 0.05);
+
   --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.08);
+
   --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.12);
 
   /* Forms */
   --form-card-max-width: 900px;
   --form-control-padding: 14px;
 
+  /* Authentication */
+  --auth-card-max-width: 460px;
+
+  --auth-background: linear-gradient(135deg, #e6f5f5, #f8fbff);
+
+  /* Toasts */
+  --toast-max-width: 420px;
+  --toast-z-index: 1100;
+
+  --toast-success-background: #f0fdf4;
+  --toast-error-background: #fef2f2;
+  --toast-warning-background: #fffbeb;
+  --toast-info-background: #f0f9ff;
+
   /* Focus rings */
   --focus-ring-primary: 0 0 0 4px rgba(101, 174, 179, 0.15);
+
   --focus-ring-danger: 0 0 0 4px rgba(220, 38, 38, 0.12);
 
   /* Motion */
   --transition-fast: 0.2s;
-
-  /* =========================================
-   Authentication
-   ========================================= */
-
---auth-card-max-width: 460px;
-
---auth-background:
-  linear-gradient(
-    135deg,
-    #e6f5f5,
-    #f8fbff
-  );
-
-
-/* =========================================
-   Typography
-   ========================================= */
-
---font-size-xs: 12px;
---font-size-sm: 13px;
---font-size-base: 15px;
---font-size-md: 16px;
---font-size-lg: 18px;
---font-size-xl: 24px;
---font-size-2xl: 28px;
---font-size-title: 32px;
 }
