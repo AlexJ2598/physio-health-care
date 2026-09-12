@@ -1,0 +1,56 @@
+<header class="app-header">
+
+  <div class="header-container">
+
+    <a
+      routerLink="/patients"
+      class="brand">
+
+      <img
+        src="/images/salma-logo.jpeg"
+        alt="Salma Cortés"
+        class="brand-logo">
+
+      <div class="brand-text">
+        <strong>Salma Cortés</strong>
+        <span>Clinic Management System</span>
+      </div>
+
+    </a>
+
+    <nav class="navigation">
+
+      <a
+        routerLink="/patients"
+        routerLinkActive="active">
+        {{ t('navigation.patients') }}
+      </a>
+
+      <a
+        routerLink="/appointments"
+        routerLinkActive="active">
+        {{ t('navigation.appointments') }}
+      </a>
+
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="active">
+        {{ t('navigation.dashboard') }}
+      </a>
+
+    </nav>
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="logout-button"
+        (click)="logout()">
+        {{ t('common.logout') }}
+      </button>
+
+    </div>
+
+  </div>
+
+</header>

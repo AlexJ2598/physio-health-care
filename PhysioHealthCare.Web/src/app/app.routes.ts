@@ -1,10 +1,15 @@
 import { Routes } from '@angular/router';
 
+import { authGuard } from './core/guards/auth-guard';
+
 import { LoginComponent } from './features/auth/login/login';
+
 import { PatientListComponent } from './features/patients/patient-list/patient-list';
 import { PatientCreateComponent } from './features/patients/patient-create/patient-create';
 import { PatientEditComponent } from './features/patients/patient-edit/patient-edit';
-import { authGuard } from './core/guards/auth-guard';
+
+import { AppLayoutComponent } from './layout/app-layout/app-layout';
+
 import { NotFoundComponent } from './shared/components/not-found/not-found';
 
 export const routes: Routes = [
@@ -13,29 +18,40 @@ export const routes: Routes = [
     redirectTo: 'login',
     pathMatch: 'full'
   },
+
   {
     path: 'login',
     component: LoginComponent
   },
+
   {
-    path: 'patients',
-    component: PatientListComponent,
-    canActivate: [authGuard]
+    path: '',
+    component: AppLayoutComponent,
+    canActivate: [authGuard],
+
+    children: [
+      {
+        path: 'patients',
+        component: PatientListComponent
+      },
+
+      {
+        path: 'patients/create',
+        component: PatientCreateComponent
+      },
+
+      {
+        path: 'patients/edit/:id',
+        component: PatientEditComponent
+      }
+    ]
   },
-  {
-    path: 'patients/create',
-    component: PatientCreateComponent,
-    canActivate: [authGuard]
-  },
-  {
-  path: 'patients/edit/:id',
-  component: PatientEditComponent,
-  canActivate: [authGuard]
-  },
+
   {
     path: 'not-found',
     component: NotFoundComponent
   },
+
   {
     path: '**',
     redirectTo: 'not-found'

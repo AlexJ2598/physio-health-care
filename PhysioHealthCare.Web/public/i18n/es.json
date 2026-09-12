@@ -60,6 +60,13 @@
   "patients.edit.loading": "Cargando paciente...",
   "patients.edit.saveChanges": "Guardar cambios",
   "patients.edit.error": "Ocurrió un error al actualizar el paciente.",
-  "patients.validation.genderRequired": "El género es obligatorio."
+  "patients.validation.genderRequired": "El género es obligatorio.",
+
+  "navigation.patients": "Pacientes",
+  "navigation.appointments": "Citas",
+  "navigation.dashboard": "Inicio",
+
+  "patients.loadError": "Ocurrió un error al cargar los pacientes.",
+  "patients.deleteError": "Ocurrió un error al eliminar el paciente."
   
 }

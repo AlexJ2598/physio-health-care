@@ -1,42 +1,61 @@
 <div class="page">
+
   <header class="page-header">
+
     <div>
       <h1>{{ t('patients.title') }}</h1>
       <p>{{ t('patients.subtitle') }}</p>
     </div>
 
     <div class="header-actions">
-      <button class="btn-secondary" (click)="logout()">
-        {{ t('common.logout') }}
-      </button>
 
-      <a routerLink="/patients/create" class="btn-primary">
+      <a
+        routerLink="/patients/create"
+        class="btn-primary">
+
         {{ t('patients.new') }}
+
       </a>
+
     </div>
+
   </header>
 
   <p *ngIf="isLoading">
     {{ t('common.loading') }}
   </p>
 
-  <p class="error" *ngIf="errorMessage">
+  <p
+    class="error"
+    *ngIf="errorMessage">
+
     {{ errorMessage }}
+
   </p>
 
-  <p class="success" *ngIf="successMessage">
+  <p
+    class="success"
+    *ngIf="successMessage">
+
     {{ successMessage }}
+
   </p>
 
-  <div class="search-card" *ngIf="!isLoading && patients.length > 0">
+  <div
+    class="search-card"
+    *ngIf="!isLoading && patients.length > 0">
+
     <input
       type="text"
       [(ngModel)]="searchTerm"
       [placeholder]="t('patients.search')"
     />
+
   </div>
 
-  <table *ngIf="!isLoading && filteredPatients.length > 0">
+  <table
+    *ngIf="!isLoading && filteredPatients.length > 0">
+
     <thead>
       <tr>
         <th>{{ t('patients.columns.name') }}</th>
@@ -49,14 +68,29 @@
     </thead>
 
     <tbody>
+
       <tr *ngFor="let patient of filteredPatients">
+
         <td>{{ patient.fullName }}</td>
-        <td>{{ patient.birthDate | date:'mediumDate' }}</td>
-        <td>{{ patient.gender }}</td>
-        <td>{{ patient.phoneNumber }}</td>
-        <td>{{ patient.email }}</td>
+
+        <td>
+          {{ patient.birthDate | date:'mediumDate' }}
+        </td>
+
+        <td>
+          {{ patient.gender }}
+        </td>
+
+        <td>
+          {{ patient.phoneNumber }}
+        </td>
+
+        <td>
+          {{ patient.email }}
+        </td>
 
         <td class="actions-cell">
+
           <a
             class="btn-small btn-edit"
             [routerLink]="['/patients/edit', patient.id]">
@@ -73,19 +107,32 @@
             {{ t('common.delete') }}
 
           </button>
+
         </td>
+
       </tr>
+
     </tbody>
+
   </table>
 
-  <div class="empty" *ngIf="!isLoading && filteredPatients.length === 0">
+  <div
+    class="empty"
+    *ngIf="!isLoading && filteredPatients.length === 0">
+
     {{ t('patients.empty') }}
+
   </div>
 
-  <div class="modal-backdrop" *ngIf="showDeleteModal">
+  <div
+    class="modal-backdrop"
+    *ngIf="showDeleteModal">
+
     <div class="modal">
 
-      <h2>{{ t('patients.deleteTitle') }}</h2>
+      <h2>
+        {{ t('patients.deleteTitle') }}
+      </h2>
 
       <p>
         {{ t('patients.deleteQuestion') }}
@@ -114,12 +161,18 @@
           (click)="confirmDelete()"
           [disabled]="isDeleting">
 
-          {{ isDeleting ? t('patients.deleting') : t('common.delete') }}
+          {{
+            isDeleting
+              ? t('patients.deleting')
+              : t('common.delete')
+          }}
 
         </button>
 
       </div>
 
     </div>
+
   </div>
+
 </div>

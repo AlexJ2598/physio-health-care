@@ -53,6 +53,20 @@
   "patients.validation.emailRequired": "Email is required.",
   "patients.validation.birthDateRequired": "Birth date is required.",
   "patients.saving": "Saving...",
-  "patients.savePatient": "Save Patient"
+  "patients.savePatient": "Save Patient",
+
+  "patients.edit.title": "Edit Patient",
+  "patients.edit.subtitle": "Update patient information.",
+  "patients.edit.loading": "Loading patient...",
+  "patients.edit.saveChanges": "Save Changes",
+  "patients.edit.error": "Error updating patient.",
+  "patients.validation.genderRequired": "Gender is required.",
+
+  "navigation.patients": "Patients",
+  "navigation.appointments": "Appointments",
+  "navigation.dashboard": "Dashboard",
+
+  "patients.loadError": "Error loading patients.",
+  "patients.deleteError": "Error deleting patient."
 
 }
