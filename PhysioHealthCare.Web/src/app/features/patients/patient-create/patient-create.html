@@ -1,14 +1,22 @@
 <div class="page">
+
   <div class="card">
 
     <div class="card-header">
-      <h1>{{ t('patients.create.title') }}</h1>
-      <p>{{ t('patients.create.subtitle') }}</p>
+      <h1>
+        {{ t('patients.create.title') }}
+      </h1>
+
+      <p>
+        {{ t('patients.create.subtitle') }}
+      </p>
     </div>
+
 
     <form
       #patientForm="ngForm"
-      (ngSubmit)="createPatient()">
+      (ngSubmit)="createPatient()"
+    >
 
       <div class="grid">
 
@@ -23,14 +31,27 @@
             [(ngModel)]="patient.firstName"
             required
             #firstName="ngModel"
-            [class.invalid]="formSubmitted && firstName.invalid">
+            [class.invalid]="
+              formSubmitted &&
+              firstName.invalid
+            "
+          >
 
           <span
             class="field-error"
-            *ngIf="formSubmitted && firstName.invalid">
-            {{ t('patients.validation.firstNameRequired') }}
+            *ngIf="
+              formSubmitted &&
+              firstName.invalid
+            "
+          >
+            {{
+              t(
+                'patients.validation.firstNameRequired'
+              )
+            }}
           </span>
         </div>
+
 
         <div class="form-group">
           <label>
@@ -43,14 +64,27 @@
             [(ngModel)]="patient.lastName"
             required
             #lastName="ngModel"
-            [class.invalid]="formSubmitted && lastName.invalid">
+            [class.invalid]="
+              formSubmitted &&
+              lastName.invalid
+            "
+          >
 
           <span
             class="field-error"
-            *ngIf="formSubmitted && lastName.invalid">
-            {{ t('patients.validation.lastNameRequired') }}
+            *ngIf="
+              formSubmitted &&
+              lastName.invalid
+            "
+          >
+            {{
+              t(
+                'patients.validation.lastNameRequired'
+              )
+            }}
           </span>
         </div>
+
 
         <div class="form-group">
           <label>
@@ -63,14 +97,27 @@
             [(ngModel)]="patient.birthDate"
             required
             #birthDate="ngModel"
-            [class.invalid]="formSubmitted && birthDate.invalid">
+            [class.invalid]="
+              formSubmitted &&
+              birthDate.invalid
+            "
+          >
 
           <span
             class="field-error"
-            *ngIf="formSubmitted && birthDate.invalid">
-            {{ t('patients.validation.birthDateRequired') }}
+            *ngIf="
+              formSubmitted &&
+              birthDate.invalid
+            "
+          >
+            {{
+              t(
+                'patients.validation.birthDateRequired'
+              )
+            }}
           </span>
         </div>
+
 
         <div class="form-group">
           <label>
@@ -79,8 +126,8 @@
 
           <select
             name="gender"
-            [(ngModel)]="patient.gender">
-
+            [(ngModel)]="patient.gender"
+          >
             <option [ngValue]="1">
               {{ t('patients.gender.male') }}
             </option>
@@ -88,9 +135,9 @@
             <option [ngValue]="2">
               {{ t('patients.gender.female') }}
             </option>
-
           </select>
         </div>
+
 
         <div class="form-group">
           <label>
@@ -101,8 +148,10 @@
             type="text"
             name="phoneNumber"
             [(ngModel)]="patient.phoneNumber"
-            placeholder="555-123-4567">
+            placeholder="555-123-4567"
+          >
         </div>
+
 
         <div class="form-group">
           <label>
@@ -115,16 +164,29 @@
             [(ngModel)]="patient.email"
             required
             #email="ngModel"
-            [class.invalid]="formSubmitted && email.invalid">
+            [class.invalid]="
+              formSubmitted &&
+              email.invalid
+            "
+          >
 
           <span
             class="field-error"
-            *ngIf="formSubmitted && email.invalid">
-            {{ t('patients.validation.emailRequired') }}
+            *ngIf="
+              formSubmitted &&
+              email.invalid
+            "
+          >
+            {{
+              t(
+                'patients.validation.emailRequired'
+              )
+            }}
           </span>
         </div>
 
       </div>
+
 
       <div class="form-group">
         <label>
@@ -134,8 +196,10 @@
         <input
           type="text"
           name="address"
-          [(ngModel)]="patient.address">
+          [(ngModel)]="patient.address"
+        >
       </div>
+
 
       <div class="form-group">
         <label>
@@ -145,42 +209,53 @@
         <textarea
           rows="4"
           name="notes"
-          [(ngModel)]="patient.notes">
-        </textarea>
+          [(ngModel)]="patient.notes"
+        ></textarea>
       </div>
+
 
       <div
         class="error-banner"
-        *ngIf="errorMessage">
-
+        *ngIf="errorMessage"
+      >
         <strong>
           ⚠ {{ t('patients.validation.title') }}
         </strong>
 
-        <p>{{ errorMessage }}</p>
+        <p>
+          {{ errorMessage }}
+        </p>
       </div>
+
 
       <div class="buttons">
 
         <button
           type="button"
           class="btn-secondary"
-          routerLink="/patients">
-
+          routerLink="/patients"
+          [disabled]="isLoading"
+        >
           {{ t('common.cancel') }}
-
         </button>
+
 
         <button
           type="submit"
           class="btn-primary"
-          [disabled]="isLoading">
+          [disabled]="isLoading"
+        >
 
-          {{
-            isLoading
-              ? t('patients.saving')
-              : t('patients.savePatient')
-          }}
+          <app-loading
+            *ngIf="isLoading"
+            [message]="t('patients.saving')"
+            size="small"
+            [inline]="true"
+          ></app-loading>
+
+          <span *ngIf="!isLoading">
+            {{ t('patients.savePatient') }}
+          </span>
 
         </button>
 
@@ -189,4 +264,5 @@
     </form>
 
   </div>
+
 </div>

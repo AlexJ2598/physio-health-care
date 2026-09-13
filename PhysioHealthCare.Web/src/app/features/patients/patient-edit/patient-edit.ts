@@ -14,6 +14,8 @@ import {
 import { PatientService } from '../../../core/services/patient';
 import { ToastService } from '../../../core/services/toast';
 import { TranslationService } from '../../../core/services/translation';
+
+import { LoadingComponent } from '../../../shared/components/loading/loading';
 import { UpdatePatient } from '../../../shared/models/patient';
 
 @Component({
@@ -22,7 +24,8 @@ import { UpdatePatient } from '../../../shared/models/patient';
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink
+    RouterLink,
+    LoadingComponent
   ],
   templateUrl: './patient-edit.html',
   styleUrl: './patient-edit.scss',
@@ -102,7 +105,6 @@ export class PatientEditComponent implements OnInit {
 
           this.cdr.detectChanges();
         },
-
         error: (error) => {
           console.error(
             'Load patient error',
@@ -112,9 +114,7 @@ export class PatientEditComponent implements OnInit {
           this.isLoading = false;
 
           if (error.status === 404) {
-            this.router.navigate([
-              '/not-found'
-            ]);
+            this.router.navigate(['/not-found']);
             return;
           }
 
@@ -145,6 +145,7 @@ export class PatientEditComponent implements OnInit {
         );
 
       this.cdr.detectChanges();
+
       return;
     }
 
@@ -170,7 +171,6 @@ export class PatientEditComponent implements OnInit {
             '/patients'
           ]);
         },
-
         error: (error) => {
           console.error(
             'Update patient error',
@@ -188,4 +188,5 @@ export class PatientEditComponent implements OnInit {
         }
       });
   }
+
 }

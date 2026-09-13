@@ -10,6 +10,8 @@ import { RouterLink } from '@angular/router';
 import { PatientService } from '../../../core/services/patient';
 import { ToastService } from '../../../core/services/toast';
 import { TranslationService } from '../../../core/services/translation';
+
+import { LoadingComponent } from '../../../shared/components/loading/loading';
 import { Patient } from '../../../shared/models/patient';
 
 @Component({
@@ -18,7 +20,8 @@ import { Patient } from '../../../shared/models/patient';
   imports: [
     CommonModule,
     RouterLink,
-    FormsModule
+    FormsModule,
+    LoadingComponent
   ],
   templateUrl: './patient-list.html',
   styleUrl: './patient-list.scss',
@@ -59,7 +62,6 @@ export class PatientListComponent implements OnInit {
 
           this.cdr.detectChanges();
         },
-
         error: (error) => {
           console.error(
             'Load patients error',
@@ -112,7 +114,6 @@ export class PatientListComponent implements OnInit {
 
           this.cdr.detectChanges();
         },
-
         error: (error) => {
           console.error(
             'Delete patient error',
@@ -156,4 +157,5 @@ export class PatientListComponent implements OnInit {
   t(key: string): string {
     return this.translationService.translate(key);
   }
+
 }

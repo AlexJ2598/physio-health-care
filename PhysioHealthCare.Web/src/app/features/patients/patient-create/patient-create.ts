@@ -12,6 +12,8 @@ import {
 import { PatientService } from '../../../core/services/patient';
 import { ToastService } from '../../../core/services/toast';
 import { TranslationService } from '../../../core/services/translation';
+
+import { LoadingComponent } from '../../../shared/components/loading/loading';
 import { CreatePatient } from '../../../shared/models/patient';
 
 @Component({
@@ -20,7 +22,8 @@ import { CreatePatient } from '../../../shared/models/patient';
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink
+    RouterLink,
+    LoadingComponent
   ],
   templateUrl: './patient-create.html',
   styleUrl: './patient-create.scss',
@@ -72,6 +75,7 @@ export class PatientCreateComponent {
         this.t('patients.validation.requiredFields');
 
       this.cdr.detectChanges();
+
       return;
     }
 
@@ -94,7 +98,6 @@ export class PatientCreateComponent {
             '/patients'
           ]);
         },
-
         error: (error) => {
           console.error(
             'Create patient error',
@@ -112,4 +115,5 @@ export class PatientCreateComponent {
         }
       });
   }
+
 }

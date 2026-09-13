@@ -1,62 +1,112 @@
 <div class="page">
 
   <header class="page-header">
-
     <div>
-      <h1>{{ t('patients.title') }}</h1>
-      <p>{{ t('patients.subtitle') }}</p>
+      <h1>
+        {{ t('patients.title') }}
+      </h1>
+
+      <p>
+        {{ t('patients.subtitle') }}
+      </p>
     </div>
 
     <div class="header-actions">
       <a
         routerLink="/patients/create"
-        class="btn-primary">
+        class="btn-primary"
+      >
         {{ t('patients.new') }}
       </a>
     </div>
-
   </header>
 
-  <p *ngIf="isLoading">
-    {{ t('common.loading') }}
-  </p>
+
+  <!-- =========================================
+       Loading
+       ========================================= -->
+
+  <app-loading
+    *ngIf="isLoading"
+    [message]="t('common.loading')"
+    size="large"
+    [fullPage]="true"
+  ></app-loading>
+
+
+  <!-- =========================================
+       Error
+       ========================================= -->
 
   <p
     class="error"
-    *ngIf="errorMessage">
+    *ngIf="errorMessage"
+  >
     {{ errorMessage }}
   </p>
 
+
+  <!-- =========================================
+       Search
+       ========================================= -->
+
   <div
     class="search-card"
-    *ngIf="!isLoading && patients.length > 0">
-
+    *ngIf="!isLoading && patients.length > 0"
+  >
     <input
       type="text"
       [(ngModel)]="searchTerm"
       [placeholder]="t('patients.search')"
     />
-
   </div>
 
-  <table
-    *ngIf="!isLoading && filteredPatients.length > 0">
 
+  <!-- =========================================
+       Patients table
+       ========================================= -->
+
+  <table
+    *ngIf="
+      !isLoading &&
+      filteredPatients.length > 0
+    "
+  >
     <thead>
       <tr>
-        <th>{{ t('patients.columns.name') }}</th>
-        <th>{{ t('patients.columns.birthDate') }}</th>
-        <th>{{ t('patients.columns.gender') }}</th>
-        <th>{{ t('patients.columns.phone') }}</th>
-        <th>{{ t('patients.columns.email') }}</th>
-        <th>{{ t('patients.columns.actions') }}</th>
+        <th>
+          {{ t('patients.columns.name') }}
+        </th>
+
+        <th>
+          {{ t('patients.columns.birthDate') }}
+        </th>
+
+        <th>
+          {{ t('patients.columns.gender') }}
+        </th>
+
+        <th>
+          {{ t('patients.columns.phone') }}
+        </th>
+
+        <th>
+          {{ t('patients.columns.email') }}
+        </th>
+
+        <th>
+          {{ t('patients.columns.actions') }}
+        </th>
       </tr>
     </thead>
 
     <tbody>
-      <tr *ngFor="let patient of filteredPatients">
-
-        <td>{{ patient.fullName }}</td>
+      <tr
+        *ngFor="let patient of filteredPatients"
+      >
+        <td>
+          {{ patient.fullName }}
+        </td>
 
         <td>
           {{ patient.birthDate | date:'mediumDate' }}
@@ -78,34 +128,51 @@
 
           <a
             class="btn-small btn-edit"
-            [routerLink]="['/patients/edit', patient.id]">
+            [routerLink]="[
+              '/patients/edit',
+              patient.id
+            ]"
+          >
             {{ t('common.edit') }}
           </a>
 
           <button
             type="button"
             class="btn-small btn-delete"
-            (click)="openDeleteModal(patient)">
+            (click)="openDeleteModal(patient)"
+          >
             {{ t('common.delete') }}
           </button>
 
         </td>
-
       </tr>
     </tbody>
-
   </table>
+
+
+  <!-- =========================================
+       Empty state
+       ========================================= -->
 
   <div
     class="empty"
-    *ngIf="!isLoading && filteredPatients.length === 0">
+    *ngIf="
+      !isLoading &&
+      filteredPatients.length === 0
+    "
+  >
     {{ t('patients.empty') }}
   </div>
 
+
+  <!-- =========================================
+       Delete modal
+       ========================================= -->
+
   <div
     class="modal-backdrop"
-    *ngIf="showDeleteModal">
-
+    *ngIf="showDeleteModal"
+  >
     <div class="modal">
 
       <h2>
@@ -114,6 +181,7 @@
 
       <p>
         {{ t('patients.deleteQuestion') }}
+
         <strong>
           {{ selectedPatient?.fullName }}
         </strong>?
@@ -129,7 +197,8 @@
           type="button"
           class="btn-secondary"
           (click)="closeDeleteModal()"
-          [disabled]="isDeleting">
+          [disabled]="isDeleting"
+        >
           {{ t('common.cancel') }}
         </button>
 
@@ -137,7 +206,8 @@
           type="button"
           class="btn-danger"
           (click)="confirmDelete()"
-          [disabled]="isDeleting">
+          [disabled]="isDeleting"
+        >
           {{
             isDeleting
               ? t('patients.deleting')
@@ -146,9 +216,7 @@
         </button>
 
       </div>
-
     </div>
-
   </div>
 
 </div>

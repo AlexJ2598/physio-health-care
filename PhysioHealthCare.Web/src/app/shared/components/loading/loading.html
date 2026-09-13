@@ -1,0 +1,20 @@
+<div
+  class="loading-container"
+  [class.loading-container--full-page]="fullPage"
+  [class.loading-container--inline]="inline"
+>
+  <div
+    class="spinner"
+    [class.spinner--small]="size === 'small'"
+    [class.spinner--medium]="size === 'medium'"
+    [class.spinner--large]="size === 'large'"
+    aria-hidden="true"
+  ></div>
+
+  <p
+    *ngIf="message"
+    class="loading-message"
+  >
+    {{ message }}
+  </p>
+</div>
