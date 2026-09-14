@@ -1,9 +1,12 @@
 import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectorRef,
   Component
 } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
+
 import {
   Router,
   RouterLink
@@ -19,19 +22,23 @@ import { CreatePatient } from '../../../shared/models/patient';
 @Component({
   selector: 'app-patient-create',
   standalone: true,
+
   imports: [
     CommonModule,
     FormsModule,
     RouterLink,
     LoadingComponent
   ],
+
   templateUrl: './patient-create.html',
   styleUrl: './patient-create.scss',
 })
 export class PatientCreateComponent {
 
   isLoading = false;
+
   errorMessage = '';
+
   formSubmitted = false;
 
   patient: CreatePatient = {
@@ -57,7 +64,29 @@ export class PatientCreateComponent {
     return this.translationService.translate(key);
   }
 
+  get maxBirthDate(): string {
+    const yesterday = new Date();
+
+    yesterday.setDate(
+      yesterday.getDate() - 1
+    );
+
+    const year =
+      yesterday.getFullYear();
+
+    const month = String(
+      yesterday.getMonth() + 1
+    ).padStart(2, '0');
+
+    const day = String(
+      yesterday.getDate()
+    ).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  }
+
   createPatient(): void {
+
     this.formSubmitted = true;
 
     if (this.isLoading) {
@@ -68,11 +97,29 @@ export class PatientCreateComponent {
       !this.patient.firstName.trim() ||
       !this.patient.lastName.trim() ||
       !this.patient.birthDate ||
-      !this.patient.gender ||
-      !this.patient.email?.trim()
+      !this.isValidGender(
+        this.patient.gender
+      )
     ) {
       this.errorMessage =
-        this.t('patients.validation.requiredFields');
+        this.t(
+          'patients.validation.requiredFields'
+        );
+
+      this.cdr.detectChanges();
+
+      return;
+    }
+
+    if (
+      !this.isBirthDateValid(
+        this.patient.birthDate
+      )
+    ) {
+      this.errorMessage =
+        this.t(
+          'patients.validation.birthDatePast'
+        );
 
       this.cdr.detectChanges();
 
@@ -80,6 +127,7 @@ export class PatientCreateComponent {
     }
 
     this.errorMessage = '';
+
     this.isLoading = true;
 
     this.cdr.detectChanges();
@@ -88,17 +136,22 @@ export class PatientCreateComponent {
       .create(this.patient)
       .subscribe({
         next: () => {
+
           this.isLoading = false;
 
           this.toastService.success(
-            this.t('patients.create.success')
+            this.t(
+              'patients.create.success'
+            )
           );
 
           this.router.navigate([
             '/patients'
           ]);
         },
+
         error: (error) => {
+
           console.error(
             'Create patient error',
             error
@@ -109,11 +162,66 @@ export class PatientCreateComponent {
           this.errorMessage =
             error.error?.message ||
             error.error?.Message ||
-            this.t('patients.create.error');
+            this.t(
+              'patients.create.error'
+            );
 
           this.cdr.detectChanges();
         }
       });
   }
 
+  private isBirthDateValid(
+    birthDateValue: string
+  ): boolean {
+
+    const parts =
+      birthDateValue
+        .split('-')
+        .map(Number);
+
+    if (parts.length !== 3) {
+      return false;
+    }
+
+    const [
+      year,
+      month,
+      day
+    ] = parts;
+
+    if (
+      !year ||
+      !month ||
+      !day
+    ) {
+      return false;
+    }
+
+    const birthDate = new Date(
+      year,
+      month - 1,
+      day
+    );
+
+    const now = new Date();
+
+    const today = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
+    return birthDate < today;
+  }
+
+  private isValidGender(
+    gender: number
+  ): boolean {
+
+    return (
+      gender >= 1 &&
+      gender <= 3
+    );
+  }
 }

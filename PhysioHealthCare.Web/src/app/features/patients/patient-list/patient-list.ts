@@ -1,39 +1,55 @@
 import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectorRef,
   Component,
   OnInit
 } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
+
 import { RouterLink } from '@angular/router';
 
 import { PatientService } from '../../../core/services/patient';
+
 import { ToastService } from '../../../core/services/toast';
+
 import { TranslationService } from '../../../core/services/translation';
 
 import { LoadingComponent } from '../../../shared/components/loading/loading';
+
 import { Patient } from '../../../shared/models/patient';
 
 @Component({
   selector: 'app-patient-list',
+
   standalone: true,
+
   imports: [
     CommonModule,
     RouterLink,
     FormsModule,
     LoadingComponent
   ],
+
   templateUrl: './patient-list.html',
+
   styleUrl: './patient-list.scss',
 })
 export class PatientListComponent implements OnInit {
 
   patients: Patient[] = [];
+
   isLoading = false;
+
   errorMessage = '';
+
   showDeleteModal = false;
+
   selectedPatient: Patient | null = null;
+
   isDeleting = false;
+
   searchTerm = '';
 
   constructor(
@@ -48,7 +64,9 @@ export class PatientListComponent implements OnInit {
   }
 
   loadPatients(): void {
+
     this.isLoading = true;
+
     this.errorMessage = '';
 
     this.cdr.detectChanges();
@@ -57,19 +75,25 @@ export class PatientListComponent implements OnInit {
       .getAll()
       .subscribe({
         next: (patients) => {
+
           this.patients = patients;
+
           this.isLoading = false;
 
           this.cdr.detectChanges();
         },
+
         error: (error) => {
+
           console.error(
             'Load patients error',
             error
           );
 
           this.errorMessage =
-            this.t('patients.loadError');
+            this.t(
+              'patients.loadError'
+            );
 
           this.isLoading = false;
 
@@ -79,16 +103,21 @@ export class PatientListComponent implements OnInit {
   }
 
   openDeleteModal(patient: Patient): void {
+
     this.selectedPatient = patient;
+
     this.showDeleteModal = true;
   }
 
   closeDeleteModal(): void {
+
     this.selectedPatient = null;
+
     this.showDeleteModal = false;
   }
 
   confirmDelete(): void {
+
     if (
       !this.selectedPatient ||
       this.isDeleting
@@ -99,22 +128,29 @@ export class PatientListComponent implements OnInit {
     this.isDeleting = true;
 
     this.patientService
-      .delete(this.selectedPatient.id)
+      .delete(
+        this.selectedPatient.id
+      )
       .subscribe({
         next: () => {
+
           this.isDeleting = false;
 
           this.closeDeleteModal();
 
           this.toastService.success(
-            this.t('patients.deletedSuccess')
+            this.t(
+              'patients.deletedSuccess'
+            )
           );
 
           this.loadPatients();
 
           this.cdr.detectChanges();
         },
+
         error: (error) => {
+
           console.error(
             'Delete patient error',
             error
@@ -123,7 +159,9 @@ export class PatientListComponent implements OnInit {
           this.isDeleting = false;
 
           this.toastService.error(
-            this.t('patients.deleteError')
+            this.t(
+              'patients.deleteError'
+            )
           );
 
           this.cdr.detectChanges();
@@ -132,6 +170,7 @@ export class PatientListComponent implements OnInit {
   }
 
   get filteredPatients(): Patient[] {
+
     const term =
       this.searchTerm
         .trim()
@@ -141,21 +180,52 @@ export class PatientListComponent implements OnInit {
       return this.patients;
     }
 
-    return this.patients.filter(patient =>
-      patient.fullName
-        .toLowerCase()
-        .includes(term) ||
-      patient.email
-        ?.toLowerCase()
-        .includes(term) ||
-      patient.phoneNumber
-        ?.toLowerCase()
-        .includes(term)
+    return this.patients.filter(
+      patient =>
+        patient.fullName
+          .toLowerCase()
+          .includes(term) ||
+
+        patient.email
+          ?.toLowerCase()
+          .includes(term) ||
+
+        patient.phoneNumber
+          ?.toLowerCase()
+          .includes(term)
     );
+  }
+
+  getGenderTranslation(
+    gender: string | number
+  ): string {
+
+    switch (gender) {
+
+      case 1:
+      case 'Male':
+        return this.t(
+          'patients.gender.male'
+        );
+
+      case 2:
+      case 'Female':
+        return this.t(
+          'patients.gender.female'
+        );
+
+      case 3:
+      case 'Other':
+        return this.t(
+          'patients.gender.other'
+        );
+
+      default:
+        return String(gender);
+    }
   }
 
   t(key: string): string {
     return this.translationService.translate(key);
   }
-
 }

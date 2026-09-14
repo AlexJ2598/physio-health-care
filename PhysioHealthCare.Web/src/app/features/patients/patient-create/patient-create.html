@@ -3,6 +3,7 @@
   <div class="card">
 
     <div class="card-header">
+
       <h1>
         {{ t('patients.create.title') }}
       </h1>
@@ -10,8 +11,8 @@
       <p>
         {{ t('patients.create.subtitle') }}
       </p>
-    </div>
 
+    </div>
 
     <form
       #patientForm="ngForm"
@@ -21,6 +22,7 @@
       <div class="grid">
 
         <div class="form-group">
+
           <label>
             {{ t('patients.fields.firstName') }}
           </label>
@@ -30,6 +32,7 @@
             name="firstName"
             [(ngModel)]="patient.firstName"
             required
+            maxlength="100"
             #firstName="ngModel"
             [class.invalid]="
               formSubmitted &&
@@ -41,7 +44,7 @@
             class="field-error"
             *ngIf="
               formSubmitted &&
-              firstName.invalid
+              firstName.errors?.['required']
             "
           >
             {{
@@ -50,10 +53,11 @@
               )
             }}
           </span>
+
         </div>
 
-
         <div class="form-group">
+
           <label>
             {{ t('patients.fields.lastName') }}
           </label>
@@ -63,6 +67,7 @@
             name="lastName"
             [(ngModel)]="patient.lastName"
             required
+            maxlength="100"
             #lastName="ngModel"
             [class.invalid]="
               formSubmitted &&
@@ -74,7 +79,7 @@
             class="field-error"
             *ngIf="
               formSubmitted &&
-              lastName.invalid
+              lastName.errors?.['required']
             "
           >
             {{
@@ -83,10 +88,11 @@
               )
             }}
           </span>
+
         </div>
 
-
         <div class="form-group">
+
           <label>
             {{ t('patients.fields.birthDate') }}
           </label>
@@ -96,6 +102,7 @@
             name="birthDate"
             [(ngModel)]="patient.birthDate"
             required
+            [max]="maxBirthDate"
             #birthDate="ngModel"
             [class.invalid]="
               formSubmitted &&
@@ -107,7 +114,7 @@
             class="field-error"
             *ngIf="
               formSubmitted &&
-              birthDate.invalid
+              birthDate.errors?.['required']
             "
           >
             {{
@@ -116,10 +123,25 @@
               )
             }}
           </span>
+
+          <span
+            class="field-error"
+            *ngIf="
+              formSubmitted &&
+              birthDate.errors?.['max']
+            "
+          >
+            {{
+              t(
+                'patients.validation.birthDatePast'
+              )
+            }}
+          </span>
+
         </div>
 
-
         <div class="form-group">
+
           <label>
             {{ t('patients.fields.gender') }}
           </label>
@@ -127,7 +149,14 @@
           <select
             name="gender"
             [(ngModel)]="patient.gender"
+            required
+            #gender="ngModel"
+            [class.invalid]="
+              formSubmitted &&
+              gender.invalid
+            "
           >
+
             <option [ngValue]="1">
               {{ t('patients.gender.male') }}
             </option>
@@ -135,11 +164,17 @@
             <option [ngValue]="2">
               {{ t('patients.gender.female') }}
             </option>
+
+            <option [ngValue]="3">
+              {{ t('patients.gender.other') }}
+            </option>
+
           </select>
+
         </div>
 
-
         <div class="form-group">
+
           <label>
             {{ t('patients.fields.phone') }}
           </label>
@@ -148,12 +183,14 @@
             type="text"
             name="phoneNumber"
             [(ngModel)]="patient.phoneNumber"
+            maxlength="20"
             placeholder="555-123-4567"
           >
+
         </div>
 
-
         <div class="form-group">
+
           <label>
             {{ t('patients.fields.email') }}
           </label>
@@ -162,7 +199,7 @@
             type="email"
             name="email"
             [(ngModel)]="patient.email"
-            required
+            maxlength="150"
             #email="ngModel"
             [class.invalid]="
               formSubmitted &&
@@ -174,21 +211,22 @@
             class="field-error"
             *ngIf="
               formSubmitted &&
-              email.invalid
+              email.errors?.['email']
             "
           >
             {{
               t(
-                'patients.validation.emailRequired'
+                'patients.validation.emailInvalid'
               )
             }}
           </span>
+
         </div>
 
       </div>
 
-
       <div class="form-group">
+
         <label>
           {{ t('patients.fields.address') }}
         </label>
@@ -197,11 +235,13 @@
           type="text"
           name="address"
           [(ngModel)]="patient.address"
+          maxlength="250"
         >
+
       </div>
 
-
       <div class="form-group">
+
         <label>
           {{ t('patients.fields.notes') }}
         </label>
@@ -210,14 +250,16 @@
           rows="4"
           name="notes"
           [(ngModel)]="patient.notes"
+          maxlength="500"
         ></textarea>
-      </div>
 
+      </div>
 
       <div
         class="error-banner"
         *ngIf="errorMessage"
       >
+
         <strong>
           ⚠ {{ t('patients.validation.title') }}
         </strong>
@@ -225,8 +267,8 @@
         <p>
           {{ errorMessage }}
         </p>
-      </div>
 
+      </div>
 
       <div class="buttons">
 
@@ -239,11 +281,13 @@
           {{ t('common.cancel') }}
         </button>
 
-
         <button
           type="submit"
           class="btn-primary"
-          [disabled]="isLoading"
+          [disabled]="
+            isLoading ||
+            patientForm.invalid
+          "
         >
 
           <app-loading
