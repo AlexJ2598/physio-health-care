@@ -5,6 +5,8 @@
   "common.loading": "Cargando...",
   "common.logout": "Cerrar sesión",
   "common.save": "Guardar",
+  "common.previous": "Anterior",
+  "common.next": "Siguiente",
   "login.email": "Correo electrónico",
   "login.emailPlaceholder": "email",
   "login.invalidCredentials": "Correo o contraseña incorrectos.",
@@ -66,6 +68,7 @@
   "patients.validation.firstNameRequired": "El nombre es obligatorio.",
   "patients.validation.genderRequired": "El género es obligatorio.",
   "patients.validation.lastNameRequired": "El apellido es obligatorio.",
-  "patients.validation.title": "Error de validación"
+  "patients.validation.title": "Error de validación",
+  "patients.pagination.total": "Total de pacientes:"
   
 }

@@ -55,15 +55,13 @@
 
   <div
     class="search-card"
-    *ngIf="
-      !isLoading &&
-      patients.length > 0
-    "
+    *ngIf="!isLoading"
   >
 
     <input
       type="text"
       [(ngModel)]="searchTerm"
+      (ngModelChange)="onSearchChange()"
       [placeholder]="t('patients.search')"
     />
 
@@ -76,7 +74,7 @@
   <table
     *ngIf="
       !isLoading &&
-      filteredPatients.length > 0
+      patients.length > 0
     "
   >
 
@@ -117,7 +115,7 @@
       <tr
         *ngFor="
           let patient
-          of filteredPatients
+          of patients
         "
       >
 
@@ -181,6 +179,75 @@
   </table>
 
   <!-- =========================================
+       Pagination
+       ========================================= -->
+
+  <div
+    class="pagination"
+    *ngIf="
+      !isLoading &&
+      patients.length > 0 &&
+      totalPages > 1
+    "
+  >
+
+    <button
+      type="button"
+      class="pagination-button"
+      (click)="previousPage()"
+      [disabled]="
+        pageNumber === 1 ||
+        isLoading
+      "
+    >
+      {{ t('common.previous') }}
+    </button>
+
+    <button
+      *ngFor="let page of pages"
+      type="button"
+      class="pagination-button"
+      [class.active]="
+        page === pageNumber
+      "
+      (click)="goToPage(page)"
+      [disabled]="isLoading"
+    >
+      {{ page }}
+    </button>
+
+    <button
+      type="button"
+      class="pagination-button"
+      (click)="nextPage()"
+      [disabled]="
+        pageNumber === totalPages ||
+        isLoading
+      "
+    >
+      {{ t('common.next') }}
+    </button>
+
+  </div>
+
+  <!-- =========================================
+       Pagination info
+       ========================================= -->
+
+  <div
+    class="pagination-info"
+    *ngIf="
+      !isLoading &&
+      totalCount > 0
+    "
+  >
+    {{
+      t('patients.pagination.total')
+    }}
+    {{ totalCount }}
+  </div>
+
+  <!-- =========================================
        Empty state
        ========================================= -->
 
@@ -188,7 +255,7 @@
     class="empty"
     *ngIf="
       !isLoading &&
-      filteredPatients.length === 0
+      patients.length === 0
     "
   >
     {{ t('patients.empty') }}

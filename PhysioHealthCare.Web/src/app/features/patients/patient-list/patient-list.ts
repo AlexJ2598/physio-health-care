@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
+  OnDestroy,
   OnInit
 } from '@angular/core';
 
@@ -36,7 +37,8 @@ import { Patient } from '../../../shared/models/patient';
 
   styleUrl: './patient-list.scss',
 })
-export class PatientListComponent implements OnInit {
+export class PatientListComponent
+  implements OnInit, OnDestroy {
 
   patients: Patient[] = [];
 
@@ -52,6 +54,17 @@ export class PatientListComponent implements OnInit {
 
   searchTerm = '';
 
+  pageNumber = 1;
+
+  pageSize = 10;
+
+  totalCount = 0;
+
+  totalPages = 0;
+
+  private searchTimeout:
+    ReturnType<typeof setTimeout> | null = null;
+
   constructor(
     private patientService: PatientService,
     private cdr: ChangeDetectorRef,
@@ -63,6 +76,15 @@ export class PatientListComponent implements OnInit {
     this.loadPatients();
   }
 
+  ngOnDestroy(): void {
+
+    if (this.searchTimeout) {
+      clearTimeout(
+        this.searchTimeout
+      );
+    }
+  }
+
   loadPatients(): void {
 
     this.isLoading = true;
@@ -72,11 +94,28 @@ export class PatientListComponent implements OnInit {
     this.cdr.detectChanges();
 
     this.patientService
-      .getAll()
+      .getAll(
+        this.pageNumber,
+        this.pageSize,
+        this.searchTerm
+      )
       .subscribe({
-        next: (patients) => {
+        next: (result) => {
 
-          this.patients = patients;
+          this.patients =
+            result.items;
+
+          this.pageNumber =
+            result.pageNumber;
+
+          this.pageSize =
+            result.pageSize;
+
+          this.totalCount =
+            result.totalCount;
+
+          this.totalPages =
+            result.totalPages;
 
           this.isLoading = false;
 
@@ -102,7 +141,84 @@ export class PatientListComponent implements OnInit {
       });
   }
 
-  openDeleteModal(patient: Patient): void {
+  onSearchChange(): void {
+
+    if (this.searchTimeout) {
+      clearTimeout(
+        this.searchTimeout
+      );
+    }
+
+    this.searchTimeout =
+      setTimeout(() => {
+
+        this.pageNumber = 1;
+
+        this.loadPatients();
+
+      }, 400);
+  }
+
+  previousPage(): void {
+
+    if (
+      this.pageNumber <= 1 ||
+      this.isLoading
+    ) {
+      return;
+    }
+
+    this.pageNumber--;
+
+    this.loadPatients();
+  }
+
+  nextPage(): void {
+
+    if (
+      this.pageNumber >= this.totalPages ||
+      this.isLoading
+    ) {
+      return;
+    }
+
+    this.pageNumber++;
+
+    this.loadPatients();
+  }
+
+  goToPage(
+    page: number
+  ): void {
+
+    if (
+      page < 1 ||
+      page > this.totalPages ||
+      page === this.pageNumber ||
+      this.isLoading
+    ) {
+      return;
+    }
+
+    this.pageNumber = page;
+
+    this.loadPatients();
+  }
+
+  get pages(): number[] {
+
+    return Array.from(
+      {
+        length: this.totalPages
+      },
+      (_, index) =>
+        index + 1
+    );
+  }
+
+  openDeleteModal(
+    patient: Patient
+  ): void {
 
     this.selectedPatient = patient;
 
@@ -144,6 +260,13 @@ export class PatientListComponent implements OnInit {
             )
           );
 
+          if (
+            this.patients.length === 1 &&
+            this.pageNumber > 1
+          ) {
+            this.pageNumber--;
+          }
+
           this.loadPatients();
 
           this.cdr.detectChanges();
@@ -167,33 +290,6 @@ export class PatientListComponent implements OnInit {
           this.cdr.detectChanges();
         }
       });
-  }
-
-  get filteredPatients(): Patient[] {
-
-    const term =
-      this.searchTerm
-        .trim()
-        .toLowerCase();
-
-    if (!term) {
-      return this.patients;
-    }
-
-    return this.patients.filter(
-      patient =>
-        patient.fullName
-          .toLowerCase()
-          .includes(term) ||
-
-        patient.email
-          ?.toLowerCase()
-          .includes(term) ||
-
-        patient.phoneNumber
-          ?.toLowerCase()
-          .includes(term)
-    );
   }
 
   getGenderTranslation(
@@ -225,7 +321,11 @@ export class PatientListComponent implements OnInit {
     }
   }
 
-  t(key: string): string {
-    return this.translationService.translate(key);
+  t(
+    key: string
+  ): string {
+
+    return this.translationService
+      .translate(key);
   }
 }

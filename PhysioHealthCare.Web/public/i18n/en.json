@@ -5,6 +5,8 @@
   "common.loading": "Loading...",
   "common.logout": "Logout",
   "common.save": "Save",
+  "common.previous": "Previous",
+  "common.next": "Next",
   "login.email": "Email",
   "login.emailPlaceholder": "email",
   "login.invalidCredentials": "Invalid email or password.",
@@ -66,5 +68,6 @@
   "patients.validation.firstNameRequired": "First name is required.",
   "patients.validation.genderRequired": "Gender is required.",
   "patients.validation.lastNameRequired": "Last name is required.",
-  "patients.validation.title": "Validation Error"
+  "patients.validation.title": "Validation Error",
+  "patients.pagination.total": "Total patients:"
 }
