@@ -1,6 +1,7 @@
 ﻿namespace PhysioHealthCare.Application.Services
 {
     using Microsoft.Extensions.Logging;
+    using PhysioHealthCare.Application.DTOs.Common;
     using PhysioHealthCare.Application.DTOs.Patients;
     using PhysioHealthCare.Application.Exceptions;
     using PhysioHealthCare.Application.Interfaces;
@@ -143,6 +144,37 @@
                 Gender = patient.Gender.ToString(),
                 PhoneNumber = patient.PhoneNumber,
                 Email = patient.Email
+            };
+        }
+
+        public async Task<PagedResult<PatientResponseDto>> GetPagedAsync(int pageNumber,int pageSize,string? search)
+        {
+            _logger.LogInformation(
+                "Getting paged patients. PageNumber: {PageNumber}, PageSize: {PageSize}, Search: {Search}",
+                pageNumber,
+                pageSize,
+                search);
+
+            var result = await _patientRepository.GetPagedAsync(
+                pageNumber,
+                pageSize,
+                search);
+
+            var items = result.Items
+                .Select(MapToResponse)
+                .ToList();
+
+            _logger.LogInformation(
+                "Retrieved {PatientCount} patients from {TotalCount} total matches",
+                items.Count,
+                result.TotalCount);
+
+            return new PagedResult<PatientResponseDto>
+            {
+                Items = items,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = result.TotalCount
             };
         }
     }

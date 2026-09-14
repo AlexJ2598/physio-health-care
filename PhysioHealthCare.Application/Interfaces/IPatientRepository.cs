@@ -7,6 +7,11 @@
 
         Task<Patient?> GetByIdAsync(Guid id);
 
+        Task<(IReadOnlyList<Patient> Items, int TotalCount)> GetPagedAsync(
+            int pageNumber,
+            int pageSize,
+            string? search);
+
         Task<Patient> CreateAsync(Patient patient);
 
         Task<Patient> UpdateAsync(Patient patient);

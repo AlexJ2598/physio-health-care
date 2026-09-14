@@ -2,6 +2,7 @@
 {
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using PhysioHealthCare.Application.DTOs.Common;
     using PhysioHealthCare.Application.DTOs.Patients;
     using PhysioHealthCare.Application.Interfaces;
 
@@ -18,11 +19,27 @@
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<PatientResponseDto>>> GetAll()
+        public async Task<ActionResult<PagedResult<PatientResponseDto>>> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10,
+            [FromQuery] string? search = null)
         {
-            var patients = await _patientService.GetAllAsync();
+            if (pageNumber < 1)
+            {
+                return BadRequest(
+                    "Page number must be greater than or equal to 1.");
+            }
 
-            return Ok(patients);
+            if (pageSize < 1 || pageSize > 100)
+            {
+                return BadRequest(
+                    "Page size must be between 1 and 100.");
+            }
+
+            var result = await _patientService.GetPagedAsync(
+                pageNumber,
+                pageSize,
+                search);
+
+            return Ok(result);
         }
 
         [HttpPost]

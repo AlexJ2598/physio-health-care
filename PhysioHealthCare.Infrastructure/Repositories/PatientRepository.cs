@@ -69,5 +69,34 @@
             return true;
 
         }
+
+        public async Task<(IReadOnlyList<Patient> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize, string? search)
+        {
+            var query = _context.Patients
+                .AsNoTracking()
+                .Where(patient => patient.IsActive);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var searchTerm = search.Trim();
+
+                query = query.Where(patient =>
+                    patient.FirstName.Contains(searchTerm) ||
+                    patient.LastName.Contains(searchTerm) ||
+                    patient.Email.Contains(searchTerm) ||
+                    patient.PhoneNumber.Contains(searchTerm));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var patients = await query
+                .OrderBy(patient => patient.FirstName)
+                .ThenBy(patient => patient.LastName)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (patients, totalCount);
+        }
     }
 }
