@@ -24,6 +24,8 @@
                 .AsNoTracking()
                 .Where(patient => patient.IsActive)
                 .OrderBy(patient => patient.FirstName)
+                .ThenBy(patient => patient.LastName)
+                .ThenBy(patient => patient.Id)
                 .ToListAsync();
         }
 
@@ -106,6 +108,8 @@
                 query = query.Where(patient =>
                     patient.FirstName.Contains(searchTerm) ||
                     patient.LastName.Contains(searchTerm) ||
+                    (patient.FirstName + " " + patient.LastName)
+                        .Contains(searchTerm) ||
                     patient.Email.Contains(searchTerm) ||
                     patient.PhoneNumber.Contains(searchTerm));
             }
@@ -133,12 +137,24 @@
                             .ThenBy(
                                 patient => patient.FirstName
                             )
+                            .ThenBy(
+                                patient => patient.LastName
+                            )
+                            .ThenBy(
+                                patient => patient.Id
+                            )
                         : query
                             .OrderBy(
                                 patient => patient.BirthDate
                             )
                             .ThenBy(
                                 patient => patient.FirstName
+                            )
+                            .ThenBy(
+                                patient => patient.LastName
+                            )
+                            .ThenBy(
+                                patient => patient.Id
                             ),
 
                 "gender" =>
@@ -150,12 +166,24 @@
                             .ThenBy(
                                 patient => patient.FirstName
                             )
+                            .ThenBy(
+                                patient => patient.LastName
+                            )
+                            .ThenBy(
+                                patient => patient.Id
+                            )
                         : query
                             .OrderBy(
                                 patient => patient.Gender
                             )
                             .ThenBy(
                                 patient => patient.FirstName
+                            )
+                            .ThenBy(
+                                patient => patient.LastName
+                            )
+                            .ThenBy(
+                                patient => patient.Id
                             ),
 
                 "email" =>
@@ -167,12 +195,24 @@
                             .ThenBy(
                                 patient => patient.FirstName
                             )
+                            .ThenBy(
+                                patient => patient.LastName
+                            )
+                            .ThenBy(
+                                patient => patient.Id
+                            )
                         : query
                             .OrderBy(
                                 patient => patient.Email
                             )
                             .ThenBy(
                                 patient => patient.FirstName
+                            )
+                            .ThenBy(
+                                patient => patient.LastName
+                            )
+                            .ThenBy(
+                                patient => patient.Id
                             ),
 
                 "phonenumber" =>
@@ -184,12 +224,24 @@
                             .ThenBy(
                                 patient => patient.FirstName
                             )
+                            .ThenBy(
+                                patient => patient.LastName
+                            )
+                            .ThenBy(
+                                patient => patient.Id
+                            )
                         : query
                             .OrderBy(
                                 patient => patient.PhoneNumber
                             )
                             .ThenBy(
                                 patient => patient.FirstName
+                            )
+                            .ThenBy(
+                                patient => patient.LastName
+                            )
+                            .ThenBy(
+                                patient => patient.Id
                             ),
 
                 "fullname" =>
@@ -201,12 +253,18 @@
                             .ThenByDescending(
                                 patient => patient.LastName
                             )
+                            .ThenBy(
+                                patient => patient.Id
+                            )
                         : query
                             .OrderBy(
                                 patient => patient.FirstName
                             )
                             .ThenBy(
                                 patient => patient.LastName
+                            )
+                            .ThenBy(
+                                patient => patient.Id
                             ),
 
                 _ =>
@@ -216,6 +274,9 @@
                         )
                         .ThenBy(
                             patient => patient.LastName
+                        )
+                        .ThenBy(
+                            patient => patient.Id
                         )
             };
 

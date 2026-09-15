@@ -19,7 +19,12 @@ import { TranslationService } from '../../../core/services/translation';
 
 import { LoadingComponent } from '../../../shared/components/loading/loading';
 
-import { Patient } from '../../../shared/models/patient';
+import {
+  Patient,
+  PatientGender,
+  PatientSortField,
+  SortDirection
+} from '../../../shared/models/patient';
 
 @Component({
   selector: 'app-patient-list',
@@ -62,9 +67,9 @@ export class PatientListComponent
 
   totalPages = 0;
 
-  sortBy = '';
+  sortBy?: PatientSortField;
 
-  sortDirection: 'asc' | 'desc' = 'asc';
+  sortDirection: SortDirection = 'asc';
 
   private searchTimeout:
     ReturnType<typeof setTimeout> | null = null;
@@ -166,7 +171,7 @@ export class PatientListComponent
   }
 
   sort(
-    field: string
+    field: PatientSortField
   ): void {
 
     if (this.isLoading) {
@@ -193,7 +198,7 @@ export class PatientListComponent
   }
 
   getSortIndicator(
-    field: string
+    field: PatientSortField
   ): string {
 
     if (this.sortBy !== field) {
@@ -339,31 +344,25 @@ export class PatientListComponent
   }
 
   getGenderTranslation(
-    gender: string | number
+    gender: PatientGender
   ): string {
 
     switch (gender) {
 
-      case 1:
       case 'Male':
         return this.t(
           'patients.gender.male'
         );
 
-      case 2:
       case 'Female':
         return this.t(
           'patients.gender.female'
         );
 
-      case 3:
       case 'Other':
         return this.t(
           'patients.gender.other'
         );
-
-      default:
-        return String(gender);
     }
   }
 

@@ -13,14 +13,21 @@ import {
 } from '@angular/router';
 
 import { PatientService } from '../../../core/services/patient';
+
 import { ToastService } from '../../../core/services/toast';
+
 import { TranslationService } from '../../../core/services/translation';
 
 import { LoadingComponent } from '../../../shared/components/loading/loading';
-import { CreatePatient } from '../../../shared/models/patient';
+
+import {
+  CreatePatient,
+  PatientGenderValue
+} from '../../../shared/models/patient';
 
 @Component({
   selector: 'app-patient-create',
+
   standalone: true,
 
   imports: [
@@ -31,6 +38,7 @@ import { CreatePatient } from '../../../shared/models/patient';
   ],
 
   templateUrl: './patient-create.html',
+
   styleUrl: './patient-create.scss',
 })
 export class PatientCreateComponent {
@@ -60,11 +68,16 @@ export class PatientCreateComponent {
     private toastService: ToastService
   ) {}
 
-  t(key: string): string {
-    return this.translationService.translate(key);
+  t(
+    key: string
+  ): string {
+
+    return this.translationService
+      .translate(key);
   }
 
   get maxBirthDate(): string {
+
     const yesterday = new Date();
 
     yesterday.setDate(
@@ -101,6 +114,7 @@ export class PatientCreateComponent {
         this.patient.gender
       )
     ) {
+
       this.errorMessage =
         this.t(
           'patients.validation.requiredFields'
@@ -116,6 +130,7 @@ export class PatientCreateComponent {
         this.patient.birthDate
       )
     ) {
+
       this.errorMessage =
         this.t(
           'patients.validation.birthDatePast'
@@ -216,7 +231,7 @@ export class PatientCreateComponent {
   }
 
   private isValidGender(
-    gender: number
+    gender: PatientGenderValue
   ): boolean {
 
     return (

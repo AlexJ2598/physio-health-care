@@ -13,6 +13,8 @@ import {
   CreatePatient,
   Patient,
   PatientDetail,
+  PatientSortField,
+  SortDirection,
   UpdatePatient
 } from '../../shared/models/patient';
 
@@ -31,8 +33,8 @@ export class PatientService {
     pageNumber: number = 1,
     pageSize: number = 10,
     search?: string,
-    sortBy?: string,
-    sortDirection: 'asc' | 'desc' = 'asc'
+    sortBy?: PatientSortField,
+    sortDirection: SortDirection = 'asc'
   ): Observable<PagedResult<Patient>> {
 
     let params = new HttpParams()
@@ -52,11 +54,11 @@ export class PatientService {
       );
     }
 
-    if (sortBy?.trim()) {
+    if (sortBy) {
       params = params
         .set(
           'sortBy',
-          sortBy.trim()
+          sortBy
         )
         .set(
           'sortDirection',

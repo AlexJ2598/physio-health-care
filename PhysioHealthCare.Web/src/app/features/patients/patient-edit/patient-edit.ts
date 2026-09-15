@@ -15,14 +15,21 @@ import {
 } from '@angular/router';
 
 import { PatientService } from '../../../core/services/patient';
+
 import { ToastService } from '../../../core/services/toast';
+
 import { TranslationService } from '../../../core/services/translation';
 
 import { LoadingComponent } from '../../../shared/components/loading/loading';
-import { UpdatePatient } from '../../../shared/models/patient';
+
+import {
+  PatientGenderValue,
+  UpdatePatient
+} from '../../../shared/models/patient';
 
 @Component({
   selector: 'app-patient-edit',
+
   standalone: true,
 
   imports: [
@@ -33,6 +40,7 @@ import { UpdatePatient } from '../../../shared/models/patient';
   ],
 
   templateUrl: './patient-edit.html',
+
   styleUrl: './patient-edit.scss',
 })
 export class PatientEditComponent implements OnInit {
@@ -84,8 +92,12 @@ export class PatientEditComponent implements OnInit {
     this.loadPatient();
   }
 
-  t(key: string): string {
-    return this.translationService.translate(key);
+  t(
+    key: string
+  ): string {
+
+    return this.translationService
+      .translate(key);
   }
 
   get maxBirthDate(): string {
@@ -121,23 +133,18 @@ export class PatientEditComponent implements OnInit {
     this.patientService
       .getById(this.patientId)
       .subscribe({
-        next: (patient: any) => {
-
-          console.log(
-            'Patient loaded:',
-            patient
-          );
+        next: (patient) => {
 
           this.patient = {
             firstName:
-              patient.firstName ?? '',
+              patient.firstName,
 
             lastName:
-              patient.lastName ?? '',
+              patient.lastName,
 
             birthDate:
               patient.birthDate
-                ?.substring(0, 10) ?? '',
+                .substring(0, 10),
 
             gender:
               patient.gender,
@@ -204,6 +211,7 @@ export class PatientEditComponent implements OnInit {
         this.patient.gender
       )
     ) {
+
       this.errorMessage =
         this.t(
           'patients.validation.requiredFields'
@@ -219,6 +227,7 @@ export class PatientEditComponent implements OnInit {
         this.patient.birthDate
       )
     ) {
+
       this.errorMessage =
         this.t(
           'patients.validation.birthDatePast'
@@ -322,7 +331,7 @@ export class PatientEditComponent implements OnInit {
   }
 
   private isValidGender(
-    gender: number
+    gender: PatientGenderValue
   ): boolean {
 
     return (
