@@ -10,12 +10,16 @@
         Task<(IReadOnlyList<Patient> Items, int TotalCount)> GetPagedAsync(
             int pageNumber,
             int pageSize,
-            string? search);
+            string? search,
+            string? sortBy,
+            string? sortDirection);
 
         Task<Patient> CreateAsync(Patient patient);
 
         Task<Patient> UpdateAsync(Patient patient);
+
         Task<Patient?> GetByIdForUpdateAsync(Guid id);
+
         Task<bool> SoftDeleteAsync(Guid id);
     }
 }

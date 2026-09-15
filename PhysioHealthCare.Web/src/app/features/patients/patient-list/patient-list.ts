@@ -62,6 +62,10 @@ export class PatientListComponent
 
   totalPages = 0;
 
+  sortBy = '';
+
+  sortDirection: 'asc' | 'desc' = 'asc';
+
   private searchTimeout:
     ReturnType<typeof setTimeout> | null = null;
 
@@ -97,7 +101,9 @@ export class PatientListComponent
       .getAll(
         this.pageNumber,
         this.pageSize,
-        this.searchTerm
+        this.searchTerm,
+        this.sortBy,
+        this.sortDirection
       )
       .subscribe({
         next: (result) => {
@@ -157,6 +163,46 @@ export class PatientListComponent
         this.loadPatients();
 
       }, 400);
+  }
+
+  sort(
+    field: string
+  ): void {
+
+    if (this.isLoading) {
+      return;
+    }
+
+    if (this.sortBy === field) {
+
+      this.sortDirection =
+        this.sortDirection === 'asc'
+          ? 'desc'
+          : 'asc';
+
+    } else {
+
+      this.sortBy = field;
+
+      this.sortDirection = 'asc';
+    }
+
+    this.pageNumber = 1;
+
+    this.loadPatients();
+  }
+
+  getSortIndicator(
+    field: string
+  ): string {
+
+    if (this.sortBy !== field) {
+      return '';
+    }
+
+    return this.sortDirection === 'asc'
+      ? '↑'
+      : '↓';
   }
 
   previousPage(): void {

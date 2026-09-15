@@ -31,14 +31,21 @@
 
             var patients = await _patientRepository.GetAllAsync();
 
-            _logger.LogInformation("Retrieved {PatientCount} active patients", patients.Count);
+            _logger.LogInformation(
+                "Retrieved {PatientCount} active patients",
+                patients.Count);
 
-            return patients.Select(MapToResponse).ToList();
+            return patients
+                .Select(MapToResponse)
+                .ToList();
         }
 
-        public async Task<PatientResponseDto> CreateAsync(CreatePatientDto dto)
+        public async Task<PatientResponseDto> CreateAsync(
+            CreatePatientDto dto)
         {
-            _logger.LogInformation("Creating patient with email: {Email}", dto.Email);
+            _logger.LogInformation(
+                "Creating patient with email: {Email}",
+                dto.Email);
 
             var patient = new Patient
             {
@@ -55,69 +62,118 @@
                 IsActive = true
             };
 
-            var newPatient = await _patientRepository.CreateAsync(patient);
+            var newPatient =
+                await _patientRepository.CreateAsync(patient);
 
-            _logger.LogInformation("Patient created successfully. PatientId: {PatientId}", newPatient.Id);
+            _logger.LogInformation(
+                "Patient created successfully. PatientId: {PatientId}",
+                newPatient.Id);
 
             return MapToResponse(newPatient);
         }
 
-        public async Task<PatientResponseDto?> UpdateAsync(Guid id, UpdatePatientDto dto)
+        public async Task<PatientResponseDto?> UpdateAsync(
+            Guid id,
+            UpdatePatientDto dto)
         {
-            _logger.LogInformation("Updating patient. PatientId: {PatientId}", id);
+            _logger.LogInformation(
+                "Updating patient. PatientId: {PatientId}",
+                id);
 
-            var patient = await _patientRepository.GetByIdForUpdateAsync(id);
+            var patient =
+                await _patientRepository.GetByIdForUpdateAsync(id);
 
             if (patient == null)
             {
-                _logger.LogWarning("Cannot update patient because it does not exist. PatientId: {PatientId}", id);
-                throw new BadRequestException("Patient does not exist.");
+                _logger.LogWarning(
+                    "Cannot update patient because it does not exist. PatientId: {PatientId}",
+                    id);
+
+                throw new BadRequestException(
+                    "Patient does not exist.");
             }
 
-            patient.FirstName = dto.FirstName.Trim();
-            patient.LastName = dto.LastName.Trim();
-            patient.BirthDate = dto.BirthDate;
-            patient.Gender = (Gender)dto.Gender;
-            patient.PhoneNumber = dto.PhoneNumber?.Trim() ?? string.Empty;
-            patient.Email = dto.Email?.Trim() ?? string.Empty;
-            patient.Address = dto.Address?.Trim() ?? string.Empty;
-            patient.Notes = dto.Notes?.Trim() ?? string.Empty;
-            patient.UpdatedAt = DateTime.UtcNow;
+            patient.FirstName =
+                dto.FirstName.Trim();
 
-            var updatedPatient = await _patientRepository.UpdateAsync(patient);
+            patient.LastName =
+                dto.LastName.Trim();
 
-            _logger.LogInformation("Patient updated successfully. PatientId: {PatientId}", updatedPatient.Id);
+            patient.BirthDate =
+                dto.BirthDate;
+
+            patient.Gender =
+                (Gender)dto.Gender;
+
+            patient.PhoneNumber =
+                dto.PhoneNumber?.Trim() ?? string.Empty;
+
+            patient.Email =
+                dto.Email?.Trim() ?? string.Empty;
+
+            patient.Address =
+                dto.Address?.Trim() ?? string.Empty;
+
+            patient.Notes =
+                dto.Notes?.Trim() ?? string.Empty;
+
+            patient.UpdatedAt =
+                DateTime.UtcNow;
+
+            var updatedPatient =
+                await _patientRepository.UpdateAsync(patient);
+
+            _logger.LogInformation(
+                "Patient updated successfully. PatientId: {PatientId}",
+                updatedPatient.Id);
 
             return MapToResponse(updatedPatient);
         }
 
         public async Task<bool> SoftDeleteAsync(Guid id)
         {
-            _logger.LogInformation("Soft deleting patient. PatientId: {PatientId}", id);
+            _logger.LogInformation(
+                "Soft deleting patient. PatientId: {PatientId}",
+                id);
 
-            var deleted = await _patientRepository.SoftDeleteAsync(id);
+            var deleted =
+                await _patientRepository.SoftDeleteAsync(id);
 
             if (!deleted)
             {
-                _logger.LogWarning("Cannot soft delete patient because it does not exist. PatientId: {PatientId}", id);
-                throw new NotFoundException("Patient not found.");
+                _logger.LogWarning(
+                    "Cannot soft delete patient because it does not exist. PatientId: {PatientId}",
+                    id);
+
+                throw new NotFoundException(
+                    "Patient not found.");
             }
 
-            _logger.LogInformation("Patient soft deleted successfully. PatientId: {PatientId}", id);
+            _logger.LogInformation(
+                "Patient soft deleted successfully. PatientId: {PatientId}",
+                id);
 
             return deleted;
         }
 
-        public async Task<PatientDetailDto> GetByIdAsync(Guid id)
+        public async Task<PatientDetailDto> GetByIdAsync(
+            Guid id)
         {
-            _logger.LogInformation("Getting patient by id. PatientId: {PatientId}", id);
+            _logger.LogInformation(
+                "Getting patient by id. PatientId: {PatientId}",
+                id);
 
-            var patient = await _patientRepository.GetByIdAsync(id);
+            var patient =
+                await _patientRepository.GetByIdAsync(id);
 
             if (patient == null)
             {
-                _logger.LogWarning("Patient not found. PatientId: {PatientId}", id);
-                throw new NotFoundException("Patient not found.");
+                _logger.LogWarning(
+                    "Patient not found. PatientId: {PatientId}",
+                    id);
+
+                throw new NotFoundException(
+                    "Patient not found.");
             }
 
             return new PatientDetailDto
@@ -131,34 +187,31 @@
                 Email = patient.Email,
                 Address = patient.Address,
                 Notes = patient.Notes
-            }; 
-        }
-
-        private static PatientResponseDto MapToResponse(Patient patient)
-        {
-            return new PatientResponseDto
-            {
-                Id = patient.Id,
-                FullName = $"{patient.FirstName} {patient.LastName}",
-                BirthDate = patient.BirthDate,
-                Gender = patient.Gender.ToString(),
-                PhoneNumber = patient.PhoneNumber,
-                Email = patient.Email
             };
         }
 
-        public async Task<PagedResult<PatientResponseDto>> GetPagedAsync(int pageNumber,int pageSize,string? search)
+        public async Task<PagedResult<PatientResponseDto>> GetPagedAsync(
+            int pageNumber,
+            int pageSize,
+            string? search,
+            string? sortBy,
+            string? sortDirection)
         {
             _logger.LogInformation(
-                "Getting paged patients. PageNumber: {PageNumber}, PageSize: {PageSize}, Search: {Search}",
+                "Getting paged patients. PageNumber: {PageNumber}, PageSize: {PageSize}, Search: {Search}, SortBy: {SortBy}, SortDirection: {SortDirection}",
                 pageNumber,
                 pageSize,
-                search);
+                search,
+                sortBy,
+                sortDirection);
 
-            var result = await _patientRepository.GetPagedAsync(
-                pageNumber,
-                pageSize,
-                search);
+            var result =
+                await _patientRepository.GetPagedAsync(
+                    pageNumber,
+                    pageSize,
+                    search,
+                    sortBy,
+                    sortDirection);
 
             var items = result.Items
                 .Select(MapToResponse)
@@ -175,6 +228,21 @@
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 TotalCount = result.TotalCount
+            };
+        }
+
+        private static PatientResponseDto MapToResponse(
+            Patient patient)
+        {
+            return new PatientResponseDto
+            {
+                Id = patient.Id,
+                FullName =
+                    $"{patient.FirstName} {patient.LastName}",
+                BirthDate = patient.BirthDate,
+                Gender = patient.Gender.ToString(),
+                PhoneNumber = patient.PhoneNumber,
+                Email = patient.Email
             };
         }
     }

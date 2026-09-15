@@ -3,7 +3,6 @@
   <header class="page-header">
 
     <div>
-
       <h1>
         {{ t('patients.title') }}
       </h1>
@@ -11,7 +10,6 @@
       <p>
         {{ t('patients.subtitle') }}
       </p>
-
     </div>
 
     <div class="header-actions">
@@ -83,23 +81,108 @@
       <tr>
 
         <th>
-          {{ t('patients.columns.name') }}
+          <button
+            type="button"
+            class="sort-button"
+            (click)="sort('fullName')"
+          >
+            <span>
+              {{ t('patients.columns.name') }}
+            </span>
+
+            <span
+              class="sort-indicator"
+              [class.active]="sortBy === 'fullName'"
+            >
+              {{
+                getSortIndicator('fullName') || '↕'
+              }}
+            </span>
+          </button>
         </th>
 
         <th>
-          {{ t('patients.columns.birthDate') }}
+          <button
+            type="button"
+            class="sort-button"
+            (click)="sort('birthDate')"
+          >
+            <span>
+              {{ t('patients.columns.birthDate') }}
+            </span>
+
+            <span
+              class="sort-indicator"
+              [class.active]="sortBy === 'birthDate'"
+            >
+              {{
+                getSortIndicator('birthDate') || '↕'
+              }}
+            </span>
+          </button>
         </th>
 
         <th>
-          {{ t('patients.columns.gender') }}
+          <button
+            type="button"
+            class="sort-button"
+            (click)="sort('gender')"
+          >
+            <span>
+              {{ t('patients.columns.gender') }}
+            </span>
+
+            <span
+              class="sort-indicator"
+              [class.active]="sortBy === 'gender'"
+            >
+              {{
+                getSortIndicator('gender') || '↕'
+              }}
+            </span>
+          </button>
         </th>
 
         <th>
-          {{ t('patients.columns.phone') }}
+          <button
+            type="button"
+            class="sort-button"
+            (click)="sort('phoneNumber')"
+          >
+            <span>
+              {{ t('patients.columns.phone') }}
+            </span>
+
+            <span
+              class="sort-indicator"
+              [class.active]="sortBy === 'phoneNumber'"
+            >
+              {{
+                getSortIndicator('phoneNumber') || '↕'
+              }}
+            </span>
+          </button>
         </th>
 
         <th>
-          {{ t('patients.columns.email') }}
+          <button
+            type="button"
+            class="sort-button"
+            (click)="sort('email')"
+          >
+            <span>
+              {{ t('patients.columns.email') }}
+            </span>
+
+            <span
+              class="sort-indicator"
+              [class.active]="sortBy === 'email'"
+            >
+              {{
+                getSortIndicator('email') || '↕'
+              }}
+            </span>
+          </button>
         </th>
 
         <th>
@@ -161,11 +244,7 @@
           <button
             type="button"
             class="btn-small btn-delete"
-            (click)="
-              openDeleteModal(
-                patient
-              )
-            "
+            (click)="openDeleteModal(patient)"
           >
             {{ t('common.delete') }}
           </button>
@@ -241,9 +320,7 @@
       totalCount > 0
     "
   >
-    {{
-      t('patients.pagination.total')
-    }}
+    {{ t('patients.pagination.total') }}
     {{ totalCount }}
   </div>
 
@@ -277,13 +354,11 @@
       </h2>
 
       <p>
-
         {{ t('patients.deleteQuestion') }}
 
         <strong>
           {{ selectedPatient?.fullName }}
         </strong>?
-
       </p>
 
       <p class="modal-warning">
@@ -307,13 +382,11 @@
           (click)="confirmDelete()"
           [disabled]="isDeleting"
         >
-
           {{
             isDeleting
               ? t('patients.deleting')
               : t('common.delete')
           }}
-
         </button>
 
       </div>

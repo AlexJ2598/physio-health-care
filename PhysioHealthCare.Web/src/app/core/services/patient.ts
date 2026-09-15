@@ -30,7 +30,9 @@ export class PatientService {
   getAll(
     pageNumber: number = 1,
     pageSize: number = 10,
-    search?: string
+    search?: string,
+    sortBy?: string,
+    sortDirection: 'asc' | 'desc' = 'asc'
   ): Observable<PagedResult<Patient>> {
 
     let params = new HttpParams()
@@ -48,6 +50,18 @@ export class PatientService {
         'search',
         search.trim()
       );
+    }
+
+    if (sortBy?.trim()) {
+      params = params
+        .set(
+          'sortBy',
+          sortBy.trim()
+        )
+        .set(
+          'sortDirection',
+          sortDirection
+        );
     }
 
     return this.http.get<PagedResult<Patient>>(
