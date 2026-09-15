@@ -11,6 +11,11 @@ import { FormsModule } from '@angular/forms';
 
 import { RouterLink } from '@angular/router';
 
+import {
+  Subject,
+  takeUntil
+} from 'rxjs';
+
 import { PatientService } from '../../../core/services/patient';
 
 import { ToastService } from '../../../core/services/toast';
@@ -71,8 +76,13 @@ export class PatientListComponent
 
   sortDirection: SortDirection = 'asc';
 
+  currentLocale = 'es-MX';
+
   private searchTimeout:
     ReturnType<typeof setTimeout> | null = null;
+
+  private readonly destroy$ =
+    new Subject<void>();
 
   constructor(
     private patientService: PatientService,
@@ -82,16 +92,36 @@ export class PatientListComponent
   ) {}
 
   ngOnInit(): void {
+
+    this.translationService.language$
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe(language => {
+
+        this.currentLocale =
+          language === 'es'
+            ? 'es-MX'
+            : 'en-US';
+
+        this.cdr.detectChanges();
+      });
+
     this.loadPatients();
   }
 
   ngOnDestroy(): void {
 
     if (this.searchTimeout) {
+
       clearTimeout(
         this.searchTimeout
       );
     }
+
+    this.destroy$.next();
+
+    this.destroy$.complete();
   }
 
   loadPatients(): void {
@@ -155,6 +185,7 @@ export class PatientListComponent
   onSearchChange(): void {
 
     if (this.searchTimeout) {
+
       clearTimeout(
         this.searchTimeout
       );
@@ -350,16 +381,19 @@ export class PatientListComponent
     switch (gender) {
 
       case 'Male':
+
         return this.t(
           'patients.gender.male'
         );
 
       case 'Female':
+
         return this.t(
           'patients.gender.female'
         );
 
       case 'Other':
+
         return this.t(
           'patients.gender.other'
         );

@@ -2,7 +2,9 @@ import { CommonModule } from '@angular/common';
 
 import {
   ChangeDetectorRef,
-  Component
+  Component,
+  OnDestroy,
+  OnInit
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -11,6 +13,11 @@ import {
   Router,
   RouterLink
 } from '@angular/router';
+
+import {
+  Subject,
+  takeUntil
+} from 'rxjs';
 
 import { PatientService } from '../../../core/services/patient';
 
@@ -41,7 +48,8 @@ import {
 
   styleUrl: './patient-create.scss',
 })
-export class PatientCreateComponent {
+export class PatientCreateComponent
+  implements OnInit, OnDestroy {
 
   isLoading = false;
 
@@ -60,6 +68,9 @@ export class PatientCreateComponent {
     notes: ''
   };
 
+  private readonly destroy$ =
+    new Subject<void>();
+
   constructor(
     private patientService: PatientService,
     private router: Router,
@@ -67,6 +78,25 @@ export class PatientCreateComponent {
     private translationService: TranslationService,
     private toastService: ToastService
   ) {}
+
+  ngOnInit(): void {
+
+    this.translationService.language$
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+
+        this.cdr.detectChanges();
+      });
+  }
+
+  ngOnDestroy(): void {
+
+    this.destroy$.next();
+
+    this.destroy$.complete();
+  }
 
   t(
     key: string

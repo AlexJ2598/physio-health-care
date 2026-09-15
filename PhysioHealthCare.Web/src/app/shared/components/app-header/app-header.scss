@@ -23,7 +23,6 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-
   flex-shrink: 0;
 
   color: inherit;
@@ -37,6 +36,7 @@
   object-fit: contain;
 
   border-radius: var(--radius-md);
+
   background: var(--color-surface);
 }
 
@@ -47,17 +47,15 @@
 
 .brand-text strong {
   color: var(--color-text-primary);
-
-  font-size: 17px;
+  font-size: var(--font-size-lg);
   font-weight: 700;
 }
 
 .brand-text span {
-  margin-top: 2px;
+  margin-top: var(--space-1);
 
   color: var(--color-text-muted);
-
-  font-size: 12px;
+  font-size: var(--font-size-xs);
 }
 
 .navigation {
@@ -69,19 +67,22 @@
 }
 
 .navigation a {
-  padding: 10px 14px;
+  padding:
+    var(--space-2)
+    var(--space-3);
 
-  border-radius: 10px;
+  border-radius: var(--radius-md);
 
   color: var(--color-text-secondary);
+
   text-decoration: none;
 
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
 
   transition:
-    background-color 0.2s,
-    color 0.2s;
+    background-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .navigation a:hover {
@@ -100,36 +101,116 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+
+  flex-shrink: 0;
 }
 
-.logout-button {
-  padding: 10px 16px;
+.language-selector {
+  display: inline-flex;
+  align-items: center;
 
-  border: 1px solid var(--color-border-strong);
-  border-radius: 10px;
+  padding: var(--space-1);
 
-  background: var(--color-surface);
-  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 
-  font-size: 14px;
+  background: var(--color-surface-soft);
+}
+
+.language-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    var(--space-2)
+    var(--space-3);
+
+  border: none;
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+
+  color: var(--color-text-muted);
+
+  font-family: inherit;
+  font-size: var(--font-size-sm);
   font-weight: 600;
 
   cursor: pointer;
 
   transition:
-    background-color 0.2s,
-    border-color 0.2s;
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.language-button:hover {
+  color: var(--color-primary-dark);
+  background: var(--color-surface);
+}
+
+.language-button.active {
+  color: var(--color-primary-dark);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.language-button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring-primary);
+}
+
+.language-divider {
+  color: var(--color-border-strong);
+  font-size: var(--font-size-sm);
+
+  user-select: none;
+}
+
+.logout-button {
+  padding:
+    var(--space-2)
+    var(--space-4);
+
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+
+  background: var(--color-surface);
+
+  color: var(--color-text-secondary);
+
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .logout-button:hover {
+  color: var(--color-text-primary);
   background: var(--color-background);
   border-color: var(--color-border-hover);
 }
 
+.logout-button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring-primary);
+}
+
 @media (max-width: 900px) {
+
   .header-container {
     min-height: auto;
-    padding: 14px var(--space-5);
+
+    padding:
+      var(--space-3)
+      var(--space-5);
 
     flex-wrap: wrap;
   }
@@ -145,6 +226,11 @@
 }
 
 @media (max-width: 600px) {
+
+  .header-container {
+    gap: var(--space-3);
+  }
+
   .brand-text span {
     display: none;
   }
@@ -154,7 +240,23 @@
     height: 48px;
   }
 
+  .header-actions {
+    gap: var(--space-2);
+  }
+
+  .language-selector {
+    padding: 0;
+  }
+
+  .language-button {
+    padding:
+      var(--space-2)
+      var(--space-2);
+  }
+
   .logout-button {
-    padding: 9px var(--space-3);
+    padding:
+      var(--space-2)
+      var(--space-3);
   }
 }

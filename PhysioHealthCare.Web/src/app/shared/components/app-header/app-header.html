@@ -42,6 +42,37 @@
 
     <div class="header-actions">
 
+      <div
+        class="language-selector"
+        role="group"
+        aria-label="Language">
+
+        <button
+          type="button"
+          class="language-button"
+          [class.active]="currentLanguage === 'es'"
+          [attr.aria-pressed]="currentLanguage === 'es'"
+          (click)="changeLanguage('es')">
+          ES
+        </button>
+
+        <span
+          class="language-divider"
+          aria-hidden="true">
+          |
+        </span>
+
+        <button
+          type="button"
+          class="language-button"
+          [class.active]="currentLanguage === 'en'"
+          [attr.aria-pressed]="currentLanguage === 'en'"
+          (click)="changeLanguage('en')">
+          EN
+        </button>
+
+      </div>
+
       <button
         type="button"
         class="logout-button"

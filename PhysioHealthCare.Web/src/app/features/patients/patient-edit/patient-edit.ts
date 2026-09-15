@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
+  OnDestroy,
   OnInit
 } from '@angular/core';
 
@@ -13,6 +14,11 @@ import {
   Router,
   RouterLink
 } from '@angular/router';
+
+import {
+  Subject,
+  takeUntil
+} from 'rxjs';
 
 import { PatientService } from '../../../core/services/patient';
 
@@ -43,7 +49,8 @@ import {
 
   styleUrl: './patient-edit.scss',
 })
-export class PatientEditComponent implements OnInit {
+export class PatientEditComponent
+  implements OnInit, OnDestroy {
 
   patientId = '';
 
@@ -66,6 +73,9 @@ export class PatientEditComponent implements OnInit {
     notes: ''
   };
 
+  private readonly destroy$ =
+    new Subject<void>();
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -76,6 +86,15 @@ export class PatientEditComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+
+    this.translationService.language$
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+
+        this.cdr.detectChanges();
+      });
 
     this.patientId =
       this.route.snapshot.paramMap.get('id') ?? '';
@@ -90,6 +109,13 @@ export class PatientEditComponent implements OnInit {
     }
 
     this.loadPatient();
+  }
+
+  ngOnDestroy(): void {
+
+    this.destroy$.next();
+
+    this.destroy$.complete();
   }
 
   t(
