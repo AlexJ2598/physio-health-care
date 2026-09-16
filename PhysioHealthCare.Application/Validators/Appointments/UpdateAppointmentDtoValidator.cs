@@ -2,16 +2,27 @@
 {
     using FluentValidation;
     using PhysioHealthCare.Application.DTOs.Appointments;
+    using PhysioHealthCare.Domain.Enums;
 
-    public class UpdateAppointmentDtoValidator : AbstractValidator<UpdateAppointmentDto>
+    public class UpdateAppointmentDtoValidator
+        : AbstractValidator<UpdateAppointmentDto>
     {
         public UpdateAppointmentDtoValidator()
         {
-            RuleFor(x => x.AppointmentDate).GreaterThan(DateTime.Now);
+            RuleFor(x => x.AppointmentDate)
+                .GreaterThan(DateTime.Now);
 
-            RuleFor(x => x.Reason).NotEmpty().MaximumLength(250);
+            RuleFor(x => x.Reason)
+                .NotEmpty()
+                .MaximumLength(250);
 
-            RuleFor(x => x.Notes).MaximumLength(500).When(x => !string.IsNullOrEmpty(x.Notes));
+            RuleFor(x => x.Notes)
+                .MaximumLength(500)
+                .When(x =>
+                    !string.IsNullOrWhiteSpace(x.Notes));
+
+            RuleFor(x => x.Status)
+                .IsInEnum();
         }
     }
 }

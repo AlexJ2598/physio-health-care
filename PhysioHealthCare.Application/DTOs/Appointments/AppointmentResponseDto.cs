@@ -14,6 +14,6 @@
 
         public string? Notes { get; set; }
 
-        public bool IsCompleted { get; set; }
+        public string Status { get; set; } = string.Empty;
     }
 }

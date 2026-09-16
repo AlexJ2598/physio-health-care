@@ -5,9 +5,7 @@
     using PhysioHealthCare.Application.Exceptions;
     using PhysioHealthCare.Application.Interfaces;
     using PhysioHealthCare.Domain.Entities;
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
+    using PhysioHealthCare.Domain.Enums;
 
     public class AppointmentService : IAppointmentService
     {
@@ -25,7 +23,8 @@
                 ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<AppointmentResponseDto?> CreateAsync(CreateAppointmentDto dto)
+        public async Task<AppointmentResponseDto?> CreateAsync(
+            CreateAppointmentDto dto)
         {
             _logger.LogInformation(
                 "Creating appointment for PatientId: {PatientId}",
@@ -38,25 +37,30 @@
                 AppointmentDate = dto.AppointmentDate,
                 Reason = dto.Reason.Trim(),
                 Notes = dto.Notes?.Trim() ?? string.Empty,
-                IsCompleted = false,
+                Status = AppointmentStatus.Scheduled,
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true
             };
 
-            await _appointmentsRepository.CreateAsync(appointment);
+            await _appointmentsRepository.CreateAsync(
+                appointment);
 
             _logger.LogInformation(
                 "Appointment created successfully. AppointmentId: {AppointmentId}",
                 appointment.Id);
 
-            return await _appointmentsRepository.GetByIdAsync(appointment.Id);
+            return await _appointmentsRepository
+                .GetByIdAsync(appointment.Id);
         }
 
-        public async Task<IReadOnlyList<AppointmentResponseDto>> GetAllAsync()
+        public async Task<IReadOnlyList<AppointmentResponseDto>>
+            GetAllAsync()
         {
-            _logger.LogInformation("Getting all appointments");
+            _logger.LogInformation(
+                "Getting all appointments");
 
-            var appointments = await _appointmentsRepository.GetAllAsync();
+            var appointments =
+                await _appointmentsRepository.GetAllAsync();
 
             _logger.LogInformation(
                 "Retrieved {AppointmentCount} appointments",
@@ -65,13 +69,15 @@
             return appointments;
         }
 
-        public async Task<AppointmentResponseDto?> GetByIdAsync(Guid id)
+        public async Task<AppointmentResponseDto?>
+            GetByIdAsync(Guid id)
         {
             _logger.LogInformation(
                 "Getting appointment. AppointmentId: {AppointmentId}",
                 id);
 
-            var appointment = await _appointmentsRepository.GetByIdAsync(id);
+            var appointment =
+                await _appointmentsRepository.GetByIdAsync(id);
 
             if (appointment == null)
             {
@@ -79,7 +85,8 @@
                     "Appointment not found. AppointmentId: {AppointmentId}",
                     id);
 
-                throw new NotFoundException("Appointment not found.");
+                throw new NotFoundException(
+                    "Appointment not found.");
             }
 
             return appointment;
@@ -91,7 +98,8 @@
                 "Soft deleting appointment. AppointmentId: {AppointmentId}",
                 id);
 
-            var deleted = await _appointmentsRepository.SoftDeleteAsync(id);
+            var deleted =
+                await _appointmentsRepository.SoftDeleteAsync(id);
 
             if (!deleted)
             {
@@ -99,7 +107,8 @@
                     "Cannot delete appointment because it does not exist. AppointmentId: {AppointmentId}",
                     id);
 
-                throw new NotFoundException("Appointment not found.");
+                throw new NotFoundException(
+                    "Appointment not found.");
             }
 
             _logger.LogInformation(
@@ -109,13 +118,17 @@
             return deleted;
         }
 
-        public async Task<AppointmentResponseDto?> UpdateAsync(Guid id, UpdateAppointmentDto dto)
+        public async Task<AppointmentResponseDto?> UpdateAsync(
+            Guid id,
+            UpdateAppointmentDto dto)
         {
             _logger.LogInformation(
                 "Updating appointment. AppointmentId: {AppointmentId}",
                 id);
 
-            var appointment = await _appointmentsRepository.GetByIdForUpdateAsync(id);
+            var appointment =
+                await _appointmentsRepository
+                    .GetByIdForUpdateAsync(id);
 
             if (appointment == null)
             {
@@ -123,22 +136,34 @@
                     "Cannot update appointment because it does not exist. AppointmentId: {AppointmentId}",
                     id);
 
-                throw new NotFoundException("Appointment not found.");
+                throw new NotFoundException(
+                    "Appointment not found.");
             }
 
-            appointment.AppointmentDate = dto.AppointmentDate;
-            appointment.Reason = dto.Reason.Trim();
-            appointment.Notes = dto.Notes?.Trim() ?? string.Empty;
-            appointment.IsCompleted = dto.IsCompleted;
-            appointment.UpdatedAt = DateTime.UtcNow;
+            appointment.AppointmentDate =
+                dto.AppointmentDate;
 
-            await _appointmentsRepository.UpdateAsync(appointment);
+            appointment.Reason =
+                dto.Reason.Trim();
+
+            appointment.Notes =
+                dto.Notes?.Trim() ?? string.Empty;
+
+            appointment.Status =
+                dto.Status;
+
+            appointment.UpdatedAt =
+                DateTime.UtcNow;
+
+            await _appointmentsRepository
+                .UpdateAsync(appointment);
 
             _logger.LogInformation(
                 "Appointment updated successfully. AppointmentId: {AppointmentId}",
                 id);
 
-            return await _appointmentsRepository.GetByIdAsync(id);
+            return await _appointmentsRepository
+                .GetByIdAsync(id);
         }
     }
 }
