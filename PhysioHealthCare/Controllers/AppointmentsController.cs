@@ -3,6 +3,7 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using PhysioHealthCare.Application.DTOs.Appointments;
+    using PhysioHealthCare.Application.DTOs.Common;
     using PhysioHealthCare.Application.Interfaces;
 
     [ApiController]
@@ -20,12 +21,28 @@
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<AppointmentResponseDto>>> GetAll()
+        public async Task<ActionResult<PagedResult<AppointmentResponseDto>>> GetAll(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var appointments =
-                await _appointmentService.GetAllAsync();
+            if (pageNumber < 1)
+            {
+                return BadRequest(
+                    "Page number must be greater than or equal to 1.");
+            }
 
-            return Ok(appointments);
+            if (pageSize < 1 || pageSize > 100)
+            {
+                return BadRequest(
+                    "Page size must be between 1 and 100.");
+            }
+
+            var result =
+                await _appointmentService.GetPagedAsync(
+                    pageNumber,
+                    pageSize);
+
+            return Ok(result);
         }
 
         [HttpGet("{id:guid}")]

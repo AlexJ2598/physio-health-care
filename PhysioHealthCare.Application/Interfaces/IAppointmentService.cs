@@ -1,10 +1,14 @@
-﻿using PhysioHealthCare.Application.DTOs.Appointments;
-
-namespace PhysioHealthCare.Application.Interfaces
+﻿namespace PhysioHealthCare.Application.Interfaces
 {
+    using PhysioHealthCare.Application.DTOs.Appointments;
+    using PhysioHealthCare.Application.DTOs.Common;
     public interface IAppointmentService
     {
         Task<IReadOnlyList<AppointmentResponseDto>> GetAllAsync();
+
+        Task<PagedResult<AppointmentResponseDto>> GetPagedAsync(
+         int pageNumber,
+         int pageSize);
 
         Task<AppointmentResponseDto?> GetByIdAsync(Guid id);
 

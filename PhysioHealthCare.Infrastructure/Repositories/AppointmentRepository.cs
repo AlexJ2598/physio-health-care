@@ -112,6 +112,55 @@
                         && appointment.Id == id);
         }
 
+        public async Task<(IReadOnlyList<AppointmentResponseDto> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize)
+        {
+            var query =
+                _context.Appointments
+                    .AsNoTracking()
+                    .Where(appointment =>
+                        appointment.IsActive);
+
+            var totalCount =
+                await query.CountAsync();
+
+            var items =
+                await query
+                    .OrderBy(appointment =>
+                        appointment.AppointmentDate)
+                    .Skip(
+                        (pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(appointment =>
+                        new AppointmentResponseDto
+                        {
+                            Id =
+                                appointment.Id,
+
+                            PatientId =
+                                appointment.PatientId,
+
+                            PatientName =
+                                appointment.Patient.FirstName
+                                + " "
+                                + appointment.Patient.LastName,
+
+                            AppointmentDate =
+                                appointment.AppointmentDate,
+
+                            Reason =
+                                appointment.Reason,
+
+                            Notes =
+                                appointment.Notes,
+
+                            Status =
+                                appointment.Status.ToString()
+                        })
+                    .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public async Task<bool>
             SoftDeleteAsync(Guid id)
         {

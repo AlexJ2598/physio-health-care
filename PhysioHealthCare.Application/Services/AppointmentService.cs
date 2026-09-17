@@ -2,6 +2,7 @@
 {
     using Microsoft.Extensions.Logging;
     using PhysioHealthCare.Application.DTOs.Appointments;
+    using PhysioHealthCare.Application.DTOs.Common;
     using PhysioHealthCare.Application.Exceptions;
     using PhysioHealthCare.Application.Interfaces;
     using PhysioHealthCare.Domain.Entities;
@@ -255,6 +256,27 @@
                 AppointmentStatus.Cancelled => false,
 
                 _ => false
+            };
+        }
+
+        public async Task<PagedResult<AppointmentResponseDto>> GetPagedAsync(int pageNumber, int pageSize)
+        {
+            _logger.LogInformation(
+                "Getting paged appointments. PageNumber: {PageNumber}, PageSize: {PageSize}",
+                pageNumber,
+                pageSize);
+
+            var result =
+                await _appointmentsRepository.GetPagedAsync(
+                    pageNumber,
+                    pageSize);
+
+            return new PagedResult<AppointmentResponseDto>
+            {
+                Items = result.Items,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = result.TotalCount
             };
         }
     }
