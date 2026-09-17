@@ -5,6 +5,7 @@
     using PhysioHealthCare.Application.DTOs.Appointments;
     using PhysioHealthCare.Application.DTOs.Common;
     using PhysioHealthCare.Application.Interfaces;
+    using PhysioHealthCare.Domain.Enums;
 
     [ApiController]
     [Route("api/[controller]")]
@@ -22,8 +23,12 @@
 
         [HttpGet]
         public async Task<ActionResult<PagedResult<AppointmentResponseDto>>> GetAll(
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] Guid? patientId = null,
+        [FromQuery] AppointmentStatus? status = null,
+        [FromQuery] DateTime? dateFrom = null,
+        [FromQuery] DateTime? dateTo = null)
         {
             if (pageNumber < 1)
             {
@@ -37,10 +42,39 @@
                     "Page size must be between 1 and 100.");
             }
 
+            if (
+                dateFrom.HasValue &&
+                dateFrom.Value.Kind != DateTimeKind.Utc)
+            {
+                return BadRequest(
+                    "Date from must be in UTC.");
+            }
+
+            if (
+                dateTo.HasValue &&
+                dateTo.Value.Kind != DateTimeKind.Utc)
+            {
+                return BadRequest(
+                    "Date to must be in UTC.");
+            }
+
+            if (
+                dateFrom.HasValue &&
+                dateTo.HasValue &&
+                dateFrom.Value > dateTo.Value)
+            {
+                return BadRequest(
+                    "Date from must be less than or equal to date to.");
+            }
+
             var result =
                 await _appointmentService.GetPagedAsync(
                     pageNumber,
-                    pageSize);
+                    pageSize,
+                    patientId,
+                    status,
+                    dateFrom,
+                    dateTo);
 
             return Ok(result);
         }

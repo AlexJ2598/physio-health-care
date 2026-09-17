@@ -2,13 +2,19 @@
 {
     using PhysioHealthCare.Application.DTOs.Appointments;
     using PhysioHealthCare.Domain.Entities;
+    using PhysioHealthCare.Domain.Enums;
+
     public interface IAppointmentRepository
     {
         Task<IReadOnlyList<AppointmentResponseDto>> GetAllAsync();
 
         Task<(IReadOnlyList<AppointmentResponseDto> Items, int TotalCount)> GetPagedAsync(
             int pageNumber,
-            int pageSize);
+            int pageSize,
+            Guid? patientId,
+            AppointmentStatus? status,
+            DateTime? dateFrom,
+            DateTime? dateTo);
 
         Task<AppointmentResponseDto?> GetByIdAsync(Guid id);
 

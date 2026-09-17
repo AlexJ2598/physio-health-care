@@ -259,17 +259,26 @@
             };
         }
 
-        public async Task<PagedResult<AppointmentResponseDto>> GetPagedAsync(int pageNumber, int pageSize)
+        public async Task<PagedResult<AppointmentResponseDto>> GetPagedAsync(int pageNumber,int pageSize,Guid? patientId, AppointmentStatus? status,
+            DateTime? dateFrom, DateTime? dateTo)
         {
             _logger.LogInformation(
-                "Getting paged appointments. PageNumber: {PageNumber}, PageSize: {PageSize}",
+                "Getting paged appointments. PageNumber: {PageNumber}, PageSize: {PageSize}, PatientId: {PatientId}, Status: {Status}, DateFrom: {DateFrom}, DateTo: {DateTo}",
                 pageNumber,
-                pageSize);
+                pageSize,
+                patientId,
+                status,
+                dateFrom,
+                dateTo);
 
             var result =
                 await _appointmentsRepository.GetPagedAsync(
                     pageNumber,
-                    pageSize);
+                    pageSize,
+                    patientId,
+                    status,
+                    dateFrom,
+                    dateTo);
 
             return new PagedResult<AppointmentResponseDto>
             {

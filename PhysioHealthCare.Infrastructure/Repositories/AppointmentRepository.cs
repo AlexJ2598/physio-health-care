@@ -4,6 +4,7 @@
     using PhysioHealthCare.Application.DTOs.Appointments;
     using PhysioHealthCare.Application.Interfaces;
     using PhysioHealthCare.Domain.Entities;
+    using PhysioHealthCare.Domain.Enums;
     using PhysioHealthCare.Infrastructure.Data;
 
     public class AppointmentRepository : IAppointmentRepository
@@ -112,13 +113,44 @@
                         && appointment.Id == id);
         }
 
-        public async Task<(IReadOnlyList<AppointmentResponseDto> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize)
+        public async Task<(IReadOnlyList<AppointmentResponseDto> Items, int TotalCount)> GetPagedAsync(
+        int pageNumber,
+        int pageSize,
+        Guid? patientId,
+        AppointmentStatus? status,
+        DateTime? dateFrom,
+        DateTime? dateTo)
         {
             var query =
                 _context.Appointments
                     .AsNoTracking()
                     .Where(appointment =>
                         appointment.IsActive);
+
+            if (patientId.HasValue)
+            {
+                query =
+                    query.Where(appointment =>
+                        appointment.PatientId ==
+                        patientId.Value);
+            }
+
+            if (status.HasValue)
+            {
+                query =
+                    query.Where(appointment =>
+                        appointment.Status ==
+                        status.Value);
+            }
+
+            if (dateFrom.HasValue)
+            {
+                query = query.Where(d => d.AppointmentDate >= dateFrom.Value);
+            }
+            if (dateTo.HasValue)
+            {
+                query = query.Where(x => x.AppointmentDate <= dateTo.Value);
+            }
 
             var totalCount =
                 await query.CountAsync();
@@ -161,8 +193,7 @@
             return (items, totalCount);
         }
 
-        public async Task<bool>
-            SoftDeleteAsync(Guid id)
+        public async Task<bool>SoftDeleteAsync(Guid id)
         {
             var appointment =
                 await _context.Appointments
