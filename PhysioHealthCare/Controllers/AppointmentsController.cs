@@ -11,24 +11,29 @@
     {
         private readonly IAppointmentService _appointmentService;
 
-        public AppointmentsController(IAppointmentService appointmentService)
+        public AppointmentsController(
+            IAppointmentService appointmentService)
         {
             _appointmentService = appointmentService
-                ?? throw new ArgumentNullException(nameof(appointmentService));
+                ?? throw new ArgumentNullException(
+                    nameof(appointmentService));
         }
 
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<AppointmentResponseDto>>> GetAll()
         {
-            var appointments = await _appointmentService.GetAllAsync();
+            var appointments =
+                await _appointmentService.GetAllAsync();
 
             return Ok(appointments);
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<AppointmentResponseDto>> GetById(Guid id)
+        public async Task<ActionResult<AppointmentResponseDto>> GetById(
+            Guid id)
         {
-            var appointment = await _appointmentService.GetByIdAsync(id);
+            var appointment =
+                await _appointmentService.GetByIdAsync(id);
 
             if (appointment == null)
             {
@@ -40,9 +45,11 @@
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<AppointmentResponseDto>> Create(CreateAppointmentDto dto)
+        public async Task<ActionResult<AppointmentResponseDto>> Create(
+            CreateAppointmentDto dto)
         {
-            var appointment = await _appointmentService.CreateAsync(dto);
+            var appointment =
+                await _appointmentService.CreateAsync(dto);
 
             return CreatedAtAction(
                 nameof(GetById),
@@ -57,7 +64,9 @@
             UpdateAppointmentDto dto)
         {
             var appointment =
-                await _appointmentService.UpdateAsync(id, dto);
+                await _appointmentService.UpdateAsync(
+                    id,
+                    dto);
 
             if (appointment == null)
             {
@@ -67,9 +76,24 @@
             return Ok(appointment);
         }
 
+        [HttpPatch("{id:guid}/status")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<AppointmentResponseDto>> UpdateStatus(
+            Guid id,
+            UpdateAppointmentStatusDto dto)
+        {
+            var appointment =
+                await _appointmentService.UpdateStatusAsync(
+                    id,
+                    dto);
+
+            return Ok(appointment);
+        }
+
         [HttpDelete("{id:guid}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(
+            Guid id)
         {
             var deleted =
                 await _appointmentService.SoftDeleteAsync(id);

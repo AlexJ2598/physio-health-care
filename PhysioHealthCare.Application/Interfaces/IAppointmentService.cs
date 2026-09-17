@@ -8,9 +8,16 @@ namespace PhysioHealthCare.Application.Interfaces
 
         Task<AppointmentResponseDto?> GetByIdAsync(Guid id);
 
-        Task<AppointmentResponseDto?> CreateAsync(CreateAppointmentDto dto);
+        Task<AppointmentResponseDto?> CreateAsync(
+            CreateAppointmentDto dto);
 
-        Task<AppointmentResponseDto?> UpdateAsync(Guid id, UpdateAppointmentDto dto);
+        Task<AppointmentResponseDto?> UpdateAsync(
+            Guid id,
+            UpdateAppointmentDto dto);
+
+        Task<AppointmentResponseDto?> UpdateStatusAsync(
+            Guid id,
+            UpdateAppointmentStatusDto dto);
 
         Task<bool> SoftDeleteAsync(Guid id);
     }

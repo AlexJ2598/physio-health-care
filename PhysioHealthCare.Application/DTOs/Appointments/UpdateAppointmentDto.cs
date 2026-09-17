@@ -1,6 +1,4 @@
-﻿using PhysioHealthCare.Domain.Enums;
-
-namespace PhysioHealthCare.Application.DTOs.Appointments
+﻿namespace PhysioHealthCare.Application.DTOs.Appointments
 {
     public class UpdateAppointmentDto
     {
@@ -9,7 +7,5 @@ namespace PhysioHealthCare.Application.DTOs.Appointments
         public string Reason { get; set; } = string.Empty;
 
         public string? Notes { get; set; }
-
-        public AppointmentStatus Status { get; set; }
     }
 }

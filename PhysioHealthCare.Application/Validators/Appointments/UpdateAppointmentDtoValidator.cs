@@ -2,7 +2,6 @@
 {
     using FluentValidation;
     using PhysioHealthCare.Application.DTOs.Appointments;
-    using PhysioHealthCare.Domain.Enums;
 
     public class UpdateAppointmentDtoValidator
         : AbstractValidator<UpdateAppointmentDto>
@@ -10,7 +9,13 @@
         public UpdateAppointmentDtoValidator()
         {
             RuleFor(x => x.AppointmentDate)
-                .GreaterThan(DateTime.Now);
+                .Must(appointmentDate =>
+                    appointmentDate.Kind == DateTimeKind.Utc)
+                .WithMessage(
+                    "Appointment date must be in UTC.")
+                .GreaterThan(DateTime.UtcNow)
+                .WithMessage(
+                    "Appointment date must be in the future.");
 
             RuleFor(x => x.Reason)
                 .NotEmpty()
@@ -20,9 +25,6 @@
                 .MaximumLength(500)
                 .When(x =>
                     !string.IsNullOrWhiteSpace(x.Notes));
-
-            RuleFor(x => x.Status)
-                .IsInEnum();
         }
     }
 }

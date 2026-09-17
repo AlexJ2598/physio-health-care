@@ -1,7 +1,7 @@
 ﻿namespace PhysioHealthCare.Middleware
 {
-    using PhysioHealthCare.Application.Responses;
     using PhysioHealthCare.Application.Exceptions;
+    using PhysioHealthCare.Application.Responses;
     using System.Net;
     using System.Text.Json;
 
@@ -26,20 +26,33 @@
             }
             catch (Exception exception)
             {
-                await HandleExceptionAsync(context, exception);
+                await HandleExceptionAsync(
+                    context,
+                    exception);
             }
         }
 
-        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private async Task HandleExceptionAsync(
+            HttpContext context,
+            Exception exception)
         {
             var statusCode = exception switch
             {
-                NotFoundException => HttpStatusCode.NotFound,
-                BadRequestException => HttpStatusCode.BadRequest,
-                _ => HttpStatusCode.InternalServerError
+                NotFoundException =>
+                    HttpStatusCode.NotFound,
+
+                BadRequestException =>
+                    HttpStatusCode.BadRequest,
+
+                ConflictException =>
+                    HttpStatusCode.Conflict,
+
+                _ =>
+                    HttpStatusCode.InternalServerError
             };
 
-            if (statusCode == HttpStatusCode.InternalServerError)
+            if (statusCode ==
+                HttpStatusCode.InternalServerError)
             {
                 _logger.LogError(
                     exception,
@@ -62,21 +75,32 @@
             var response = new ErrorResponse
             {
                 StatusCode = (int)statusCode,
-                Message = statusCode == HttpStatusCode.InternalServerError
-                ? "An unexpected error occurred."
-                : exception.Message,
+
+                Message =
+                    statusCode ==
+                    HttpStatusCode.InternalServerError
+                        ? "An unexpected error occurred."
+                        : exception.Message,
+
                 Path = context.Request.Path,
                 Method = context.Request.Method,
                 TraceId = context.TraceIdentifier
             };
 
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)statusCode;
+            context.Response.ContentType =
+                "application/json";
 
-            var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+            context.Response.StatusCode =
+                (int)statusCode;
+
+            var json =
+                JsonSerializer.Serialize(
+                    response,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy =
+                            JsonNamingPolicy.CamelCase
+                    });
 
             await context.Response.WriteAsync(json);
         }

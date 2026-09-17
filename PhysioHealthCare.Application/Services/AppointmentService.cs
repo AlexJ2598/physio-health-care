@@ -6,21 +6,30 @@
     using PhysioHealthCare.Application.Interfaces;
     using PhysioHealthCare.Domain.Entities;
     using PhysioHealthCare.Domain.Enums;
+    using PhysioHealthCare.Infrastructure.Repositories;
 
     public class AppointmentService : IAppointmentService
     {
         private readonly IAppointmentRepository _appointmentsRepository;
+        private readonly IPatientRepository _patientRepository;
         private readonly ILogger<AppointmentService> _logger;
 
         public AppointmentService(
             IAppointmentRepository appointmentRepository,
+            IPatientRepository patientRepository,
             ILogger<AppointmentService> logger)
         {
             _appointmentsRepository = appointmentRepository
-                ?? throw new ArgumentNullException(nameof(appointmentRepository));
+                ?? throw new ArgumentNullException(
+                    nameof(appointmentRepository));
+
+            _patientRepository = patientRepository
+                ?? throw new ArgumentNullException(
+                    nameof(patientRepository));
 
             _logger = logger
-                ?? throw new ArgumentNullException(nameof(logger));
+                ?? throw new ArgumentNullException(
+                    nameof(logger));
         }
 
         public async Task<AppointmentResponseDto?> CreateAsync(
@@ -29,6 +38,19 @@
             _logger.LogInformation(
                 "Creating appointment for PatientId: {PatientId}",
                 dto.PatientId);
+
+            var patient =
+                await _patientRepository.GetByIdAsync(dto.PatientId);
+
+            if (patient == null)
+            {
+                _logger.LogWarning(
+                    "Cannot create appointment because patient does not exist or is inactive. PatientId: {PatientId}",
+                    dto.PatientId);
+
+                throw new NotFoundException(
+                    "Patient not found.");
+            }
 
             var appointment = new Appointment
             {
@@ -149,9 +171,6 @@
             appointment.Notes =
                 dto.Notes?.Trim() ?? string.Empty;
 
-            appointment.Status =
-                dto.Status;
-
             appointment.UpdatedAt =
                 DateTime.UtcNow;
 
@@ -164,6 +183,79 @@
 
             return await _appointmentsRepository
                 .GetByIdAsync(id);
+        }
+
+        public async Task<AppointmentResponseDto?> UpdateStatusAsync(Guid id, UpdateAppointmentStatusDto dto)
+        {
+            _logger.LogInformation(
+                "Updating status for AppointmentId: {AppointmentId} to {Status}",
+                id,
+                dto.Status);
+
+            var appointment = await _appointmentsRepository.GetByIdForUpdateAsync(id);
+
+            if (appointment == null)
+            {
+                _logger.LogWarning(
+                    "Appointment not found. AppointmentId: {AppointmentId}",
+                    id);
+
+                throw new NotFoundException(
+                    "Appointment not found.");
+            }
+
+            if (!IsValidStatusTransition(
+                    appointment.Status,
+                    dto.Status))
+            {
+                _logger.LogWarning(
+                    "Invalid appointment status transition. AppointmentId: {AppointmentId}, CurrentStatus: {CurrentStatus}, NewStatus: {NewStatus}",
+                    id,
+                    appointment.Status,
+                    dto.Status);
+
+                throw new ConflictException(
+                    $"Cannot change appointment status from {appointment.Status} to {dto.Status}.");
+            }
+
+            appointment.Status = dto.Status;
+            appointment.UpdatedAt = DateTime.UtcNow;
+
+            await _appointmentsRepository.UpdateAsync(appointment);
+
+            _logger.LogInformation(
+                "Appointment status updated successfully. AppointmentId: {AppointmentId}, Status: {Status}",
+                id,
+                appointment.Status);
+
+            return await _appointmentsRepository.GetByIdAsync(id);
+        }
+
+        private static bool IsValidStatusTransition(AppointmentStatus currentStatus,AppointmentStatus newStatus)
+        {
+            if (currentStatus == newStatus)
+            {
+                return true;
+            }
+
+            return currentStatus switch
+            {
+                AppointmentStatus.Scheduled =>
+                    newStatus is
+                        AppointmentStatus.InProgress or
+                        AppointmentStatus.Cancelled,
+
+                AppointmentStatus.InProgress =>
+                    newStatus is
+                        AppointmentStatus.Completed or
+                        AppointmentStatus.Cancelled,
+
+                AppointmentStatus.Completed => false,
+
+                AppointmentStatus.Cancelled => false,
+
+                _ => false
+            };
         }
     }
 }

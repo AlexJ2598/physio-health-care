@@ -9,11 +9,15 @@
     using PhysioHealthCare.Application.Services;
     using PhysioHealthCare.Domain.Entities;
     using PhysioHealthCare.Domain.Enums;
+    using PhysioHealthCare.Infrastructure.Repositories;
 
     public class AppointmentServiceTests
     {
         private readonly Mock<IAppointmentRepository>
             _appointmentRepositoryMock;
+
+        private readonly Mock<IPatientRepository>
+            _patientRepositoryMock;
 
         private readonly Mock<ILogger<AppointmentService>>
             _loggerMock;
@@ -26,12 +30,16 @@
             _appointmentRepositoryMock =
                 new Mock<IAppointmentRepository>();
 
+            _patientRepositoryMock =
+                new Mock<IPatientRepository>();
+
             _loggerMock =
                 new Mock<ILogger<AppointmentService>>();
 
             _appointmentService =
                 new AppointmentService(
                     _appointmentRepositoryMock.Object,
+                    _patientRepositoryMock.Object,
                     _loggerMock.Object);
         }
 
@@ -188,7 +196,7 @@
 
         [Fact]
         public async Task
-            CreateAsync_WhenDtoIsValid_ShouldCreateAppointmentAndReturnResponseDto()
+            CreateAsync_WhenPatientExists_ShouldCreateAppointmentAndReturnResponseDto()
         {
             // Arrange
             var patientId = Guid.NewGuid();
@@ -202,6 +210,18 @@
                     Reason = "Test",
                     Notes = "Test"
                 };
+
+            _patientRepositoryMock
+                .Setup(repository =>
+                    repository.GetByIdAsync(patientId))
+                .ReturnsAsync(
+                    new Patient
+                    {
+                        Id = patientId,
+                        FirstName = "Alexis",
+                        LastName = "Hernandez",
+                        IsActive = true
+                    });
 
             _appointmentRepositoryMock
                 .Setup(repository =>
@@ -252,6 +272,13 @@
                         .Scheduled
                         .ToString());
 
+            _patientRepositoryMock
+                .Verify(
+                    repository =>
+                        repository.GetByIdAsync(
+                            patientId),
+                    Times.Once);
+
             _appointmentRepositoryMock
                 .Verify(
                     repository =>
@@ -272,6 +299,55 @@
 
         [Fact]
         public async Task
+            CreateAsync_WhenPatientDoesNotExist_ShouldThrowNotFoundException()
+        {
+            // Arrange
+            var patientId = Guid.NewGuid();
+
+            var dto =
+                new CreateAppointmentDto
+                {
+                    PatientId = patientId,
+                    AppointmentDate =
+                        DateTime.UtcNow,
+                    Reason = "Test",
+                    Notes = "Test"
+                };
+
+            _patientRepositoryMock
+                .Setup(repository =>
+                    repository.GetByIdAsync(patientId))
+                .ReturnsAsync(
+                    (Patient?)null);
+
+            // Act
+            var act = async () =>
+                await _appointmentService
+                    .CreateAsync(dto);
+
+            // Assert
+            await act.Should()
+                .ThrowAsync<NotFoundException>()
+                .WithMessage(
+                    "Patient not found.");
+
+            _patientRepositoryMock
+                .Verify(
+                    repository =>
+                        repository.GetByIdAsync(
+                            patientId),
+                    Times.Once);
+
+            _appointmentRepositoryMock
+                .Verify(
+                    repository =>
+                        repository.CreateAsync(
+                            It.IsAny<Appointment>()),
+                    Times.Never);
+        }
+
+        [Fact]
+        public async Task
             UpdateAsync_WhenAppointmentDoesNotExist_ShouldThrowNotFoundException()
         {
             // Arrange
@@ -286,10 +362,7 @@
                     Reason =
                         "Update Test",
                     Notes =
-                        "Update",
-                    Status =
-                        AppointmentStatus
-                            .Scheduled
+                        "Update"
                 };
 
             _appointmentRepositoryMock
@@ -312,6 +385,210 @@
                 .ThrowAsync<NotFoundException>()
                 .WithMessage(
                     "Appointment not found.");
+        }
+
+        [Fact]
+        public async Task
+    UpdateStatusAsync_WhenTransitionIsValid_ShouldUpdateStatus()
+        {
+            // Arrange
+            var appointmentId =
+                Guid.NewGuid();
+
+            var appointment =
+                new Appointment
+                {
+                    Id = appointmentId,
+                    PatientId = Guid.NewGuid(),
+                    AppointmentDate =
+                        DateTime.UtcNow.AddHours(1),
+                    Reason = "Test",
+                    Notes = "Test",
+                    Status =
+                        AppointmentStatus.Scheduled,
+                    IsActive = true
+                };
+
+            var dto =
+                new UpdateAppointmentStatusDto
+                {
+                    Status =
+                        AppointmentStatus.InProgress
+                };
+
+            _appointmentRepositoryMock
+                .Setup(repository =>
+                    repository.GetByIdForUpdateAsync(
+                        appointmentId))
+                .ReturnsAsync(appointment);
+
+            _appointmentRepositoryMock
+                .Setup(repository =>
+                    repository.UpdateAsync(
+                        It.IsAny<Appointment>()))
+                .ReturnsAsync(
+                    (Appointment updatedAppointment) =>
+                        updatedAppointment);
+
+            _appointmentRepositoryMock
+                .Setup(repository =>
+                    repository.GetByIdAsync(
+                        appointmentId))
+                .ReturnsAsync(
+                    new AppointmentResponseDto
+                    {
+                        Id = appointmentId,
+                        PatientId =
+                            appointment.PatientId,
+                        AppointmentDate =
+                            appointment.AppointmentDate,
+                        Reason =
+                            appointment.Reason,
+                        Notes =
+                            appointment.Notes,
+                        Status =
+                            AppointmentStatus
+                                .InProgress
+                                .ToString()
+                    });
+
+            // Act
+            var result =
+                await _appointmentService
+                    .UpdateStatusAsync(
+                        appointmentId,
+                        dto);
+
+            // Assert
+            result.Should().NotBeNull();
+
+            result!.Status.Should()
+                .Be(
+                    AppointmentStatus
+                        .InProgress
+                        .ToString());
+
+            appointment.Status.Should()
+                .Be(AppointmentStatus.InProgress);
+
+            appointment.UpdatedAt.Should()
+                .NotBeNull();
+
+            _appointmentRepositoryMock
+                .Verify(
+                    repository =>
+                        repository.UpdateAsync(
+                            It.Is<Appointment>(
+                                updatedAppointment =>
+                                    updatedAppointment.Status
+                                        == AppointmentStatus
+                                            .InProgress)),
+                    Times.Once);
+        }
+        [Fact]
+        public async Task UpdateStatusAsync_WhenTransitionIsInvalid_ShouldThrowConflictException()
+        {
+            // Arrange
+            var appointmentId =
+                Guid.NewGuid();
+
+            var appointment =
+                new Appointment
+                {
+                    Id = appointmentId,
+                    PatientId = Guid.NewGuid(),
+                    AppointmentDate =
+                        DateTime.UtcNow.AddHours(1),
+                    Reason = "Test",
+                    Notes = "Test",
+                    Status =
+                        AppointmentStatus.Scheduled,
+                    IsActive = true
+                };
+
+            var dto =
+                new UpdateAppointmentStatusDto
+                {
+                    Status =
+                        AppointmentStatus.Completed
+                };
+
+            _appointmentRepositoryMock
+                .Setup(repository =>
+                    repository.GetByIdForUpdateAsync(
+                        appointmentId))
+                .ReturnsAsync(appointment);
+
+            // Act
+            var act = async () =>
+                await _appointmentService
+                    .UpdateStatusAsync(
+                        appointmentId,
+                        dto);
+
+            // Assert
+            await act.Should()
+                .ThrowAsync<ConflictException>()
+                .WithMessage(
+                    "Cannot change appointment status from Scheduled to Completed.");
+
+            appointment.Status.Should()
+                .Be(AppointmentStatus.Scheduled);
+
+            _appointmentRepositoryMock
+                .Verify(
+                    repository =>
+                        repository.UpdateAsync(
+                            It.IsAny<Appointment>()),
+                    Times.Never);
+        }
+        [Fact]
+        public async Task UpdateStatusAsync_WhenAppointmentDoesNotExist_ShouldThrowNotFoundException()
+        {
+            // Arrange
+            var appointmentId =
+                Guid.NewGuid();
+
+            var dto =
+                new UpdateAppointmentStatusDto
+                {
+                    Status =
+                        AppointmentStatus.InProgress
+                };
+
+            _appointmentRepositoryMock
+                .Setup(repository =>
+                    repository.GetByIdForUpdateAsync(
+                        appointmentId))
+                .ReturnsAsync(
+                    (Appointment?)null);
+
+            // Act
+            var act = async () =>
+                await _appointmentService
+                    .UpdateStatusAsync(
+                        appointmentId,
+                        dto);
+
+            // Assert
+            await act.Should()
+                .ThrowAsync<NotFoundException>()
+                .WithMessage(
+                    "Appointment not found.");
+
+            _appointmentRepositoryMock
+                .Verify(
+                    repository =>
+                        repository.UpdateAsync(
+                            It.IsAny<Appointment>()),
+                    Times.Never);
+
+            _appointmentRepositoryMock
+                .Verify(
+                    repository =>
+                        repository.GetByIdAsync(
+                            It.IsAny<Guid>()),
+                    Times.Never);
         }
     }
 }
