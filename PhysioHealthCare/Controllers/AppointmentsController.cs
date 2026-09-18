@@ -28,7 +28,8 @@
         [FromQuery] Guid? patientId = null,
         [FromQuery] AppointmentStatus? status = null,
         [FromQuery] DateTime? dateFrom = null,
-        [FromQuery] DateTime? dateTo = null)
+        [FromQuery] DateTime? dateTo = null,
+        [FromQuery] string? search = null)
         {
             if (pageNumber < 1)
             {
@@ -74,7 +75,8 @@
                     patientId,
                     status,
                     dateFrom,
-                    dateTo);
+                    dateTo,
+                    search);
 
             return Ok(result);
         }

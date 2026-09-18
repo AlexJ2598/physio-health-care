@@ -119,7 +119,8 @@
         Guid? patientId,
         AppointmentStatus? status,
         DateTime? dateFrom,
-        DateTime? dateTo)
+        DateTime? dateTo,
+        string? search)
         {
             var query =
                 _context.Appointments
@@ -150,6 +151,20 @@
             if (dateTo.HasValue)
             {
                 query = query.Where(x => x.AppointmentDate <= dateTo.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+
+                query =
+                    query.Where(appointment =>
+                        appointment.Reason.Contains(search) ||
+                        appointment.Notes.Contains(search) ||
+                        appointment.Patient.FirstName.Contains(search) ||
+                        appointment.Patient.LastName.Contains(search) ||
+                        (appointment.Patient.FirstName + " " +
+                         appointment.Patient.LastName).Contains(search));
             }
 
             var totalCount =

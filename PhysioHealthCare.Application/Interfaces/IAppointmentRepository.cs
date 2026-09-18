@@ -14,7 +14,8 @@
             Guid? patientId,
             AppointmentStatus? status,
             DateTime? dateFrom,
-            DateTime? dateTo);
+            DateTime? dateTo,
+            string? search);
 
         Task<AppointmentResponseDto?> GetByIdAsync(Guid id);
 
