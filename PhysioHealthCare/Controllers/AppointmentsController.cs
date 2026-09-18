@@ -29,7 +29,9 @@
         [FromQuery] AppointmentStatus? status = null,
         [FromQuery] DateTime? dateFrom = null,
         [FromQuery] DateTime? dateTo = null,
-        [FromQuery] string? search = null)
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string sortDirection = "asc")
         {
             if (pageNumber < 1)
             {
@@ -68,6 +70,38 @@
                     "Date from must be less than or equal to date to.");
             }
 
+            var allowedSortFields = new[]
+            {
+               "appointmentDate",
+               "patientName",
+               "status",
+               "reason"
+            };
+
+            if (
+                !string.IsNullOrWhiteSpace(sortBy) &&
+                !allowedSortFields.Contains(
+                    sortBy,
+                    StringComparer.OrdinalIgnoreCase))
+            {
+                return BadRequest(
+                    "Invalid sort field.");
+            }
+
+            if (
+                !string.Equals(
+                    sortDirection,
+                    "asc",
+                    StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(
+                    sortDirection,
+                    "desc",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest(
+                    "Sort direction must be 'asc' or 'desc'.");
+            }
+
             var result =
                 await _appointmentService.GetPagedAsync(
                     pageNumber,
@@ -76,7 +110,9 @@
                     status,
                     dateFrom,
                     dateTo,
-                    search);
+                    search,
+                    sortBy,
+                    sortDirection);
 
             return Ok(result);
         }

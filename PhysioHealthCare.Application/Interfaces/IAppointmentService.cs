@@ -15,7 +15,9 @@
          AppointmentStatus? status,
          DateTime? dateFrom,
          DateTime? dateTo,
-         string? search);
+         string? search,
+         string? sortBy,
+         string? sortDirection);
 
         Task<AppointmentResponseDto?> GetByIdAsync(Guid id);
 

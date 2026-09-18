@@ -113,14 +113,17 @@
                         && appointment.Id == id);
         }
 
-        public async Task<(IReadOnlyList<AppointmentResponseDto> Items, int TotalCount)> GetPagedAsync(
+        public async Task<(
+    IReadOnlyList<AppointmentResponseDto> Items,int TotalCount)> GetPagedAsync(
         int pageNumber,
         int pageSize,
         Guid? patientId,
         AppointmentStatus? status,
         DateTime? dateFrom,
         DateTime? dateTo,
-        string? search)
+        string? search,
+        string? sortBy,
+        string? sortDirection)
         {
             var query =
                 _context.Appointments
@@ -146,11 +149,18 @@
 
             if (dateFrom.HasValue)
             {
-                query = query.Where(d => d.AppointmentDate >= dateFrom.Value);
+                query =
+                    query.Where(appointment =>
+                        appointment.AppointmentDate >=
+                        dateFrom.Value);
             }
+
             if (dateTo.HasValue)
             {
-                query = query.Where(x => x.AppointmentDate <= dateTo.Value);
+                query =
+                    query.Where(appointment =>
+                        appointment.AppointmentDate <=
+                        dateTo.Value);
             }
 
             if (!string.IsNullOrWhiteSpace(search))
@@ -170,10 +180,61 @@
             var totalCount =
                 await query.CountAsync();
 
+            var orderedQuery =
+                sortBy?.ToLower() switch
+                {
+                    "appointmentdate" =>
+                        sortDirection?.ToLower() == "desc"
+                            ? query.OrderByDescending(
+                                appointment =>
+                                    appointment.AppointmentDate)
+                            : query.OrderBy(
+                                appointment =>
+                                    appointment.AppointmentDate),
+
+                    "patientname" =>
+                        sortDirection?.ToLower() == "desc"
+                            ? query
+                                .OrderByDescending(
+                                    appointment =>
+                                        appointment.Patient.FirstName)
+                                .ThenByDescending(
+                                    appointment =>
+                                        appointment.Patient.LastName)
+                            : query
+                                .OrderBy(
+                                    appointment =>
+                                        appointment.Patient.FirstName)
+                                .ThenBy(
+                                    appointment =>
+                                        appointment.Patient.LastName),
+
+                    "status" =>
+                        sortDirection?.ToLower() == "desc"
+                            ? query.OrderByDescending(
+                                appointment =>
+                                    appointment.Status)
+                            : query.OrderBy(
+                                appointment =>
+                                    appointment.Status),
+
+                    "reason" =>
+                        sortDirection?.ToLower() == "desc"
+                            ? query.OrderByDescending(
+                                appointment =>
+                                    appointment.Reason)
+                            : query.OrderBy(
+                                appointment =>
+                                    appointment.Reason),
+
+                    _ =>
+                        query.OrderBy(
+                            appointment =>
+                                appointment.AppointmentDate)
+                };
+
             var items =
-                await query
-                    .OrderBy(appointment =>
-                        appointment.AppointmentDate)
+                await orderedQuery
                     .Skip(
                         (pageNumber - 1) * pageSize)
                     .Take(pageSize)
