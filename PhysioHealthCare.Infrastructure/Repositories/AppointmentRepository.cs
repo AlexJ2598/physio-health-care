@@ -1,7 +1,6 @@
 ﻿namespace PhysioHealthCare.Infrastructure.Repositories
 {
     using Microsoft.EntityFrameworkCore;
-    using PhysioHealthCare.Application.DTOs.Appointments;
     using PhysioHealthCare.Application.Interfaces;
     using PhysioHealthCare.Domain.Entities;
     using PhysioHealthCare.Domain.Enums;
@@ -30,77 +29,33 @@
             return appointment;
         }
 
-        public async Task<IReadOnlyList<AppointmentResponseDto>>
+        public async Task<IReadOnlyList<Appointment>>
             GetAllAsync()
         {
             return await _context.Appointments
                 .AsNoTracking()
+                .Include(appointment =>
+                    appointment.Patient)
                 .Where(appointment =>
                     appointment.IsActive)
                 .OrderBy(appointment =>
                     appointment.AppointmentDate)
-                .Select(appointment =>
-                    new AppointmentResponseDto
-                    {
-                        Id = appointment.Id,
-
-                        PatientId =
-                            appointment.PatientId,
-
-                        PatientName =
-                            appointment.Patient.FirstName
-                            + " "
-                            + appointment.Patient.LastName,
-
-                        AppointmentDate =
-                            appointment.AppointmentDate,
-
-                        Reason =
-                            appointment.Reason,
-
-                        Notes =
-                            appointment.Notes,
-
-                        Status =
-                            appointment.Status.ToString()
-                    })
+                .ThenBy(appointment =>
+                    appointment.Id)
                 .ToListAsync();
         }
 
-        public async Task<AppointmentResponseDto?>
+        public async Task<Appointment?>
             GetByIdAsync(Guid id)
         {
             return await _context.Appointments
                 .AsNoTracking()
-                .Where(appointment =>
-                    appointment.IsActive
-                    && appointment.Id == id)
-                .Select(appointment =>
-                    new AppointmentResponseDto
-                    {
-                        Id = appointment.Id,
-
-                        PatientId =
-                            appointment.PatientId,
-
-                        PatientName =
-                            appointment.Patient.FirstName
-                            + " "
-                            + appointment.Patient.LastName,
-
-                        AppointmentDate =
-                            appointment.AppointmentDate,
-
-                        Reason =
-                            appointment.Reason,
-
-                        Notes =
-                            appointment.Notes,
-
-                        Status =
-                            appointment.Status.ToString()
-                    })
-                .FirstOrDefaultAsync();
+                .Include(appointment =>
+                    appointment.Patient)
+                .FirstOrDefaultAsync(
+                    appointment =>
+                        appointment.IsActive &&
+                        appointment.Id == id);
         }
 
         public async Task<Appointment?>
@@ -109,25 +64,28 @@
             return await _context.Appointments
                 .FirstOrDefaultAsync(
                     appointment =>
-                        appointment.IsActive
-                        && appointment.Id == id);
+                        appointment.IsActive &&
+                        appointment.Id == id);
         }
 
         public async Task<(
-    IReadOnlyList<AppointmentResponseDto> Items,int TotalCount)> GetPagedAsync(
-        int pageNumber,
-        int pageSize,
-        Guid? patientId,
-        AppointmentStatus? status,
-        DateTime? dateFrom,
-        DateTime? dateTo,
-        string? search,
-        string? sortBy,
-        string? sortDirection)
+            IReadOnlyList<Appointment> Items,
+            int TotalCount)> GetPagedAsync(
+                int pageNumber,
+                int pageSize,
+                Guid? patientId,
+                AppointmentStatus? status,
+                DateTime? dateFrom,
+                DateTime? dateTo,
+                string? search,
+                string? sortBy,
+                string? sortDirection)
         {
             var query =
                 _context.Appointments
                     .AsNoTracking()
+                    .Include(appointment =>
+                        appointment.Patient)
                     .Where(appointment =>
                         appointment.IsActive);
 
@@ -165,35 +123,58 @@
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                search = search.Trim();
+                var searchTerm =
+                    search.Trim();
 
                 query =
                     query.Where(appointment =>
-                        appointment.Reason.Contains(search) ||
-                        appointment.Notes.Contains(search) ||
-                        appointment.Patient.FirstName.Contains(search) ||
-                        appointment.Patient.LastName.Contains(search) ||
+                        appointment.Reason.Contains(
+                            searchTerm) ||
+                        appointment.Notes.Contains(
+                            searchTerm) ||
+                        appointment.Patient.FirstName.Contains(
+                            searchTerm) ||
+                        appointment.Patient.LastName.Contains(
+                            searchTerm) ||
                         (appointment.Patient.FirstName + " " +
-                         appointment.Patient.LastName).Contains(search));
+                         appointment.Patient.LastName).Contains(
+                            searchTerm));
             }
 
             var totalCount =
                 await query.CountAsync();
 
+            var normalizedSortBy =
+                sortBy?.Trim().ToLowerInvariant();
+
+            var descending =
+                string.Equals(
+                    sortDirection,
+                    "desc",
+                    StringComparison.OrdinalIgnoreCase);
+
             var orderedQuery =
-                sortBy?.ToLower() switch
+                normalizedSortBy switch
                 {
                     "appointmentdate" =>
-                        sortDirection?.ToLower() == "desc"
-                            ? query.OrderByDescending(
-                                appointment =>
-                                    appointment.AppointmentDate)
-                            : query.OrderBy(
-                                appointment =>
-                                    appointment.AppointmentDate),
+                        descending
+                            ? query
+                                .OrderByDescending(
+                                    appointment =>
+                                        appointment.AppointmentDate)
+                                .ThenBy(
+                                    appointment =>
+                                        appointment.Id)
+                            : query
+                                .OrderBy(
+                                    appointment =>
+                                        appointment.AppointmentDate)
+                                .ThenBy(
+                                    appointment =>
+                                        appointment.Id),
 
                     "patientname" =>
-                        sortDirection?.ToLower() == "desc"
+                        descending
                             ? query
                                 .OrderByDescending(
                                     appointment =>
@@ -201,82 +182,98 @@
                                 .ThenByDescending(
                                     appointment =>
                                         appointment.Patient.LastName)
+                                .ThenBy(
+                                    appointment =>
+                                        appointment.Id)
                             : query
                                 .OrderBy(
                                     appointment =>
                                         appointment.Patient.FirstName)
                                 .ThenBy(
                                     appointment =>
-                                        appointment.Patient.LastName),
+                                        appointment.Patient.LastName)
+                                .ThenBy(
+                                    appointment =>
+                                        appointment.Id),
 
                     "status" =>
-                        sortDirection?.ToLower() == "desc"
-                            ? query.OrderByDescending(
-                                appointment =>
-                                    appointment.Status)
-                            : query.OrderBy(
-                                appointment =>
-                                    appointment.Status),
+                        descending
+                            ? query
+                                .OrderByDescending(
+                                    appointment =>
+                                        appointment.Status)
+                                .ThenBy(
+                                    appointment =>
+                                        appointment.AppointmentDate)
+                                .ThenBy(
+                                    appointment =>
+                                        appointment.Id)
+                            : query
+                                .OrderBy(
+                                    appointment =>
+                                        appointment.Status)
+                                .ThenBy(
+                                    appointment =>
+                                        appointment.AppointmentDate)
+                                .ThenBy(
+                                    appointment =>
+                                        appointment.Id),
 
                     "reason" =>
-                        sortDirection?.ToLower() == "desc"
-                            ? query.OrderByDescending(
-                                appointment =>
-                                    appointment.Reason)
-                            : query.OrderBy(
-                                appointment =>
-                                    appointment.Reason),
+                        descending
+                            ? query
+                                .OrderByDescending(
+                                    appointment =>
+                                        appointment.Reason)
+                                .ThenBy(
+                                    appointment =>
+                                        appointment.AppointmentDate)
+                                .ThenBy(
+                                    appointment =>
+                                        appointment.Id)
+                            : query
+                                .OrderBy(
+                                    appointment =>
+                                        appointment.Reason)
+                                .ThenBy(
+                                    appointment =>
+                                        appointment.AppointmentDate)
+                                .ThenBy(
+                                    appointment =>
+                                        appointment.Id),
 
                     _ =>
-                        query.OrderBy(
-                            appointment =>
-                                appointment.AppointmentDate)
+                        query
+                            .OrderBy(
+                                appointment =>
+                                    appointment.AppointmentDate)
+                            .ThenBy(
+                                appointment =>
+                                    appointment.Id)
                 };
 
             var items =
                 await orderedQuery
                     .Skip(
-                        (pageNumber - 1) * pageSize)
+                        (pageNumber - 1) *
+                        pageSize)
                     .Take(pageSize)
-                    .Select(appointment =>
-                        new AppointmentResponseDto
-                        {
-                            Id =
-                                appointment.Id,
-
-                            PatientId =
-                                appointment.PatientId,
-
-                            PatientName =
-                                appointment.Patient.FirstName
-                                + " "
-                                + appointment.Patient.LastName,
-
-                            AppointmentDate =
-                                appointment.AppointmentDate,
-
-                            Reason =
-                                appointment.Reason,
-
-                            Notes =
-                                appointment.Notes,
-
-                            Status =
-                                appointment.Status.ToString()
-                        })
                     .ToListAsync();
 
-            return (items, totalCount);
+            return (
+                items,
+                totalCount);
         }
 
-        public async Task<bool>SoftDeleteAsync(Guid id)
+        public async Task<bool>
+            SoftDeleteAsync(Guid id)
         {
             var appointment =
                 await _context.Appointments
                     .FirstOrDefaultAsync(
                         appointment =>
-                            appointment.IsActive
-                            && appointment.Id == id);
+                            appointment.IsActive &&
+                            appointment.Id == id);
 
             if (appointment == null)
             {

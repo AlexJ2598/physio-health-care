@@ -2,6 +2,7 @@
 {
     using Microsoft.EntityFrameworkCore;
     using PhysioHealthCare.Domain.Entities;
+    using PhysioHealthCare.Application.Interfaces;
     using PhysioHealthCare.Infrastructure.Data;
 
     public class PatientRepository : IPatientRepository

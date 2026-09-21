@@ -7,7 +7,7 @@
     using PhysioHealthCare.Application.Interfaces;
     using PhysioHealthCare.Domain.Entities;
     using PhysioHealthCare.Domain.Enums;
-    using PhysioHealthCare.Infrastructure.Repositories;
+    
 
     public class PatientService : IPatientService
     {

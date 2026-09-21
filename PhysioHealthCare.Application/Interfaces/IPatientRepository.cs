@@ -1,4 +1,4 @@
-﻿namespace PhysioHealthCare.Infrastructure.Repositories
+﻿namespace PhysioHealthCare.Application.Interfaces
 {
     using PhysioHealthCare.Domain.Entities;
     public interface IPatientRepository

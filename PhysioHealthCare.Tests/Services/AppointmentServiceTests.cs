@@ -9,7 +9,7 @@
     using PhysioHealthCare.Application.Services;
     using PhysioHealthCare.Domain.Entities;
     using PhysioHealthCare.Domain.Enums;
-    using PhysioHealthCare.Infrastructure.Repositories;
+    
 
     public class AppointmentServiceTests
     {
@@ -55,7 +55,7 @@
                     repository.GetByIdAsync(
                         appointmentId))
                 .ReturnsAsync(
-                    (AppointmentResponseDto?)null);
+                    (Appointment?)null);
 
             // Act
             var act = async () =>
@@ -77,21 +77,28 @@
             var appointmentId = Guid.NewGuid();
             var patientId = Guid.NewGuid();
 
+            var patient =
+                new Patient
+                {
+                    Id = patientId,
+                    FirstName = "Alexis",
+                    LastName = "Hernandez",
+                    IsActive = true
+                };
+
             var appointment =
-                new AppointmentResponseDto
+                new Appointment
                 {
                     Id = appointmentId,
                     PatientId = patientId,
-                    PatientName =
-                        "Alexis Hernandez",
+                    Patient = patient,
                     AppointmentDate =
                         DateTime.UtcNow,
                     Reason = "Chequeo",
                     Notes = "Pruebas",
                     Status =
-                        AppointmentStatus
-                            .Scheduled
-                            .ToString()
+                        AppointmentStatus.Scheduled,
+                    IsActive = true
                 };
 
             _appointmentRepositoryMock
@@ -134,41 +141,59 @@
         public async Task GetAllAsync_Test()
         {
             // Arrange
-            var appointments =
-                new List<AppointmentResponseDto>
+            var firstPatient =
+                new Patient
                 {
-                    new AppointmentResponseDto
+                    Id = Guid.NewGuid(),
+                    FirstName = "Alexis",
+                    LastName = "Hernandez",
+                    IsActive = true
+                };
+
+            var secondPatient =
+                new Patient
+                {
+                    Id = Guid.NewGuid(),
+                    FirstName = "Test",
+                    LastName = "User",
+                    IsActive = true
+                };
+
+            var appointments =
+                new List<Appointment>
+                {
+                    new Appointment
                     {
                         Id = Guid.NewGuid(),
                         PatientId =
-                            Guid.NewGuid(),
-                        PatientName =
-                            "Alexis Hernandez",
+                            firstPatient.Id,
+                        Patient =
+                            firstPatient,
                         AppointmentDate =
                             DateTime.UtcNow,
                         Reason = "Prueba",
                         Notes = "Prueba",
                         Status =
                             AppointmentStatus
-                                .Scheduled
-                                .ToString()
+                                .Scheduled,
+                        IsActive = true
                     },
 
-                    new AppointmentResponseDto
+                    new Appointment
                     {
                         Id = Guid.NewGuid(),
                         PatientId =
-                            Guid.NewGuid(),
-                        PatientName =
-                            "Test User",
+                            secondPatient.Id,
+                        Patient =
+                            secondPatient,
                         AppointmentDate =
                             DateTime.UtcNow,
                         Reason = "Prueba",
                         Notes = "Prueba",
                         Status =
                             AppointmentStatus
-                                .Scheduled
-                                .ToString()
+                                .Scheduled,
+                        IsActive = true
                     }
                 };
 
@@ -211,17 +236,19 @@
                     Notes = "Test"
                 };
 
+            var patient =
+                new Patient
+                {
+                    Id = patientId,
+                    FirstName = "Alexis",
+                    LastName = "Hernandez",
+                    IsActive = true
+                };
+
             _patientRepositoryMock
                 .Setup(repository =>
                     repository.GetByIdAsync(patientId))
-                .ReturnsAsync(
-                    new Patient
-                    {
-                        Id = patientId,
-                        FirstName = "Alexis",
-                        LastName = "Hernandez",
-                        IsActive = true
-                    });
+                .ReturnsAsync(patient);
 
             _appointmentRepositoryMock
                 .Setup(repository =>
@@ -236,20 +263,19 @@
                     repository.GetByIdAsync(
                         It.IsAny<Guid>()))
                 .ReturnsAsync(
-                    new AppointmentResponseDto
+                    new Appointment
                     {
                         Id = Guid.NewGuid(),
                         PatientId = patientId,
-                        PatientName =
-                            "Alexis Hernandez",
+                        Patient = patient,
                         AppointmentDate =
                             dto.AppointmentDate,
                         Reason = dto.Reason,
-                        Notes = dto.Notes,
+                        Notes =
+                            dto.Notes ?? string.Empty,
                         Status =
-                            AppointmentStatus
-                                .Scheduled
-                                .ToString()
+                            AppointmentStatus.Scheduled,
+                        IsActive = true
                     });
 
             // Act
@@ -265,6 +291,9 @@
 
             result.Notes.Should()
                 .Be("Test");
+
+            result.PatientName.Should()
+                .Be("Alexis Hernandez");
 
             result.Status.Should()
                 .Be(
@@ -389,17 +418,27 @@
 
         [Fact]
         public async Task
-    UpdateStatusAsync_WhenTransitionIsValid_ShouldUpdateStatus()
+            UpdateStatusAsync_WhenTransitionIsValid_ShouldUpdateStatus()
         {
             // Arrange
             var appointmentId =
                 Guid.NewGuid();
 
+            var patient =
+                new Patient
+                {
+                    Id = Guid.NewGuid(),
+                    FirstName = "Alexis",
+                    LastName = "Hernandez",
+                    IsActive = true
+                };
+
             var appointment =
                 new Appointment
                 {
                     Id = appointmentId,
-                    PatientId = Guid.NewGuid(),
+                    PatientId = patient.Id,
+                    Patient = patient,
                     AppointmentDate =
                         DateTime.UtcNow.AddHours(1),
                     Reason = "Test",
@@ -435,11 +474,11 @@
                     repository.GetByIdAsync(
                         appointmentId))
                 .ReturnsAsync(
-                    new AppointmentResponseDto
+                    new Appointment
                     {
                         Id = appointmentId,
-                        PatientId =
-                            appointment.PatientId,
+                        PatientId = patient.Id,
+                        Patient = patient,
                         AppointmentDate =
                             appointment.AppointmentDate,
                         Reason =
@@ -447,9 +486,8 @@
                         Notes =
                             appointment.Notes,
                         Status =
-                            AppointmentStatus
-                                .InProgress
-                                .ToString()
+                            AppointmentStatus.InProgress,
+                        IsActive = true
                     });
 
             // Act
@@ -468,6 +506,9 @@
                         .InProgress
                         .ToString());
 
+            result.PatientName.Should()
+                .Be("Alexis Hernandez");
+
             appointment.Status.Should()
                 .Be(AppointmentStatus.InProgress);
 
@@ -485,8 +526,10 @@
                                             .InProgress)),
                     Times.Once);
         }
+
         [Fact]
-        public async Task UpdateStatusAsync_WhenTransitionIsInvalid_ShouldThrowConflictException()
+        public async Task
+            UpdateStatusAsync_WhenTransitionIsInvalid_ShouldThrowConflictException()
         {
             // Arrange
             var appointmentId =
@@ -542,8 +585,10 @@
                             It.IsAny<Appointment>()),
                     Times.Never);
         }
+
         [Fact]
-        public async Task UpdateStatusAsync_WhenAppointmentDoesNotExist_ShouldThrowNotFoundException()
+        public async Task
+            UpdateStatusAsync_WhenAppointmentDoesNotExist_ShouldThrowNotFoundException()
         {
             // Arrange
             var appointmentId =

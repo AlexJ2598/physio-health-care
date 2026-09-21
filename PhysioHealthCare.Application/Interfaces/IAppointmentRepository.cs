@@ -1,14 +1,13 @@
 ﻿namespace PhysioHealthCare.Application.Interfaces
 {
-    using PhysioHealthCare.Application.DTOs.Appointments;
     using PhysioHealthCare.Domain.Entities;
     using PhysioHealthCare.Domain.Enums;
 
     public interface IAppointmentRepository
     {
-        Task<IReadOnlyList<AppointmentResponseDto>> GetAllAsync();
+        Task<IReadOnlyList<Appointment>> GetAllAsync();
 
-        Task<(IReadOnlyList<AppointmentResponseDto> Items, int TotalCount)> GetPagedAsync(
+        Task<(IReadOnlyList<Appointment> Items, int TotalCount)> GetPagedAsync(
             int pageNumber,
             int pageSize,
             Guid? patientId,
@@ -19,7 +18,7 @@
             string? sortBy,
             string? sortDirection);
 
-        Task<AppointmentResponseDto?> GetByIdAsync(Guid id);
+        Task<Appointment?> GetByIdAsync(Guid id);
 
         Task<Appointment?> GetByIdForUpdateAsync(Guid id);
 

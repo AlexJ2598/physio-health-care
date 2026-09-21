@@ -7,7 +7,6 @@
     using PhysioHealthCare.Application.Interfaces;
     using PhysioHealthCare.Domain.Entities;
     using PhysioHealthCare.Domain.Enums;
-    using PhysioHealthCare.Infrastructure.Repositories;
 
     public class AppointmentService : IAppointmentService
     {
@@ -33,7 +32,7 @@
                     nameof(logger));
         }
 
-        public async Task<AppointmentResponseDto?> CreateAsync(
+        public async Task<AppointmentResponseDto> CreateAsync(
             CreateAppointmentDto dto)
         {
             _logger.LogInformation(
@@ -72,12 +71,21 @@
                 "Appointment created successfully. AppointmentId: {AppointmentId}",
                 appointment.Id);
 
-            return await _appointmentsRepository
+            var createdAppointment =
+                await _appointmentsRepository
                 .GetByIdAsync(appointment.Id);
+
+            if (createdAppointment == null)
+            {
+                throw new NotFoundException(
+                    "Appointment not found.");
+            }
+
+            return MapToResponse(
+                createdAppointment);
         }
 
-        public async Task<IReadOnlyList<AppointmentResponseDto>>
-            GetAllAsync()
+        public async Task<IReadOnlyList<AppointmentResponseDto>>GetAllAsync()
         {
             _logger.LogInformation(
                 "Getting all appointments");
@@ -85,15 +93,19 @@
             var appointments =
                 await _appointmentsRepository.GetAllAsync();
 
+            var items =
+                appointments
+                    .Select(MapToResponse)
+                    .ToList();
+
             _logger.LogInformation(
                 "Retrieved {AppointmentCount} appointments",
-                appointments.Count);
+                items.Count);
 
-            return appointments;
+            return items;
         }
 
-        public async Task<AppointmentResponseDto?>
-            GetByIdAsync(Guid id)
+        public async Task<AppointmentResponseDto>GetByIdAsync(Guid id)
         {
             _logger.LogInformation(
                 "Getting appointment. AppointmentId: {AppointmentId}",
@@ -112,10 +124,10 @@
                     "Appointment not found.");
             }
 
-            return appointment;
+            return MapToResponse(appointment);
         }
 
-        public async Task<bool> SoftDeleteAsync(Guid id)
+        public async Task SoftDeleteAsync(Guid id)
         {
             _logger.LogInformation(
                 "Soft deleting appointment. AppointmentId: {AppointmentId}",
@@ -137,11 +149,9 @@
             _logger.LogInformation(
                 "Appointment deleted successfully. AppointmentId: {AppointmentId}",
                 id);
-
-            return deleted;
         }
 
-        public async Task<AppointmentResponseDto?> UpdateAsync(
+        public async Task<AppointmentResponseDto> UpdateAsync(
             Guid id,
             UpdateAppointmentDto dto)
         {
@@ -182,11 +192,21 @@
                 "Appointment updated successfully. AppointmentId: {AppointmentId}",
                 id);
 
-            return await _appointmentsRepository
-                .GetByIdAsync(id);
+            var updatedAppointment =
+            await _appointmentsRepository
+            .GetByIdAsync(appointment.Id);
+
+            if (updatedAppointment == null)
+            {
+                throw new NotFoundException(
+                    "Appointment not found.");
+            }
+
+            return MapToResponse(
+                updatedAppointment);
         }
 
-        public async Task<AppointmentResponseDto?> UpdateStatusAsync(Guid id, UpdateAppointmentStatusDto dto)
+        public async Task<AppointmentResponseDto> UpdateStatusAsync(Guid id, UpdateAppointmentStatusDto dto)
         {
             _logger.LogInformation(
                 "Updating status for AppointmentId: {AppointmentId} to {Status}",
@@ -229,7 +249,18 @@
                 id,
                 appointment.Status);
 
-            return await _appointmentsRepository.GetByIdAsync(id);
+            var updatedAppointment =
+             await _appointmentsRepository
+            .GetByIdAsync(id);
+
+            if (updatedAppointment == null)
+            {
+                throw new NotFoundException(
+                    "Appointment not found.");
+            }
+
+            return MapToResponse(
+                updatedAppointment);
         }
 
         private static bool IsValidStatusTransition(AppointmentStatus currentStatus,AppointmentStatus newStatus)
@@ -259,11 +290,19 @@
             };
         }
 
-        public async Task<PagedResult<AppointmentResponseDto>> GetPagedAsync(int pageNumber,int pageSize,Guid? patientId, AppointmentStatus? status,
-            DateTime? dateFrom, DateTime? dateTo, string? search, string? sortBy, string? sortDirection)
+        public async Task<PagedResult<AppointmentResponseDto>>GetPagedAsync(
+        int pageNumber,
+        int pageSize,
+        Guid? patientId,
+        AppointmentStatus? status,
+        DateTime? dateFrom,
+        DateTime? dateTo,
+        string? search,
+        string? sortBy,
+        string? sortDirection)
         {
             _logger.LogInformation(
-               "Getting paged appointments. PageNumber: {PageNumber}, PageSize: {PageSize}, PatientId: {PatientId}, Status: {Status}, DateFrom: {DateFrom}, DateTo: {DateTo}, Search: {Search}, SortBy: {SortBy}, SortDirection: {SortDirection}",
+                "Getting paged appointments. PageNumber: {PageNumber}, PageSize: {PageSize}, PatientId: {PatientId}, Status: {Status}, DateFrom: {DateFrom}, DateTo: {DateTo}, Search: {Search}, SortBy: {SortBy}, SortDirection: {SortDirection}",
                 pageNumber,
                 pageSize,
                 patientId,
@@ -286,12 +325,44 @@
                     sortBy,
                     sortDirection);
 
+            var items =
+                result.Items
+                    .Select(MapToResponse)
+                    .ToList();
+
             return new PagedResult<AppointmentResponseDto>
             {
-                Items = result.Items,
+                Items = items,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 TotalCount = result.TotalCount
+            };
+        }
+
+        private static AppointmentResponseDto MapToResponse(Appointment appointment)
+        {
+            return new AppointmentResponseDto
+            {
+                Id = appointment.Id,
+
+                PatientId = appointment.PatientId,
+
+                PatientName =
+                    appointment.Patient.FirstName
+                    + " "
+                    + appointment.Patient.LastName,
+
+                AppointmentDate =
+                    appointment.AppointmentDate,
+
+                Reason =
+                    appointment.Reason,
+
+                Notes =
+                    appointment.Notes,
+
+                Status =
+                    appointment.Status.ToString()
             };
         }
     }

@@ -9,7 +9,7 @@
     using PhysioHealthCare.Application.Services;
     using PhysioHealthCare.Domain.Entities;
     using PhysioHealthCare.Domain.Enums;
-    using PhysioHealthCare.Infrastructure.Repositories;
+    
 
     public class PatientServiceTests
     {

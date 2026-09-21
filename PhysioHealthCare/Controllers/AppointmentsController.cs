@@ -22,16 +22,16 @@
         }
 
         [HttpGet]
-        public async Task<ActionResult<PagedResult<AppointmentResponseDto>>> GetAll(
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 10,
-        [FromQuery] Guid? patientId = null,
-        [FromQuery] AppointmentStatus? status = null,
-        [FromQuery] DateTime? dateFrom = null,
-        [FromQuery] DateTime? dateTo = null,
-        [FromQuery] string? search = null,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] string sortDirection = "asc")
+        public async Task<ActionResult<PagedResult<AppointmentResponseDto>>>GetAll(
+                [FromQuery] int pageNumber = 1,
+                [FromQuery] int pageSize = 10,
+                [FromQuery] Guid? patientId = null,
+                [FromQuery] AppointmentStatus? status = null,
+                [FromQuery] DateTime? dateFrom = null,
+                [FromQuery] DateTime? dateTo = null,
+                [FromQuery] string? search = null,
+                [FromQuery] string? sortBy = null,
+                [FromQuery] string sortDirection = "asc")
         {
             if (pageNumber < 1)
             {
@@ -72,10 +72,10 @@
 
             var allowedSortFields = new[]
             {
-               "appointmentDate",
-               "patientName",
-               "status",
-               "reason"
+                "appointmentDate",
+                "patientName",
+                "status",
+                "reason"
             };
 
             if (
@@ -118,58 +118,46 @@
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<AppointmentResponseDto>> GetById(
-            Guid id)
+        public async Task<ActionResult<AppointmentResponseDto>>GetById(Guid id)
         {
             var appointment =
                 await _appointmentService.GetByIdAsync(id);
-
-            if (appointment == null)
-            {
-                return NotFound();
-            }
 
             return Ok(appointment);
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<AppointmentResponseDto>> Create(
-            CreateAppointmentDto dto)
+        public async Task<ActionResult<AppointmentResponseDto>>Create(CreateAppointmentDto dto)
         {
             var appointment =
                 await _appointmentService.CreateAsync(dto);
 
             return CreatedAtAction(
                 nameof(GetById),
-                new { id = appointment!.Id },
+                new { id = appointment.Id },
                 appointment);
         }
 
         [HttpPut("{id:guid}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<AppointmentResponseDto>> Update(
-            Guid id,
-            UpdateAppointmentDto dto)
+        public async Task<ActionResult<AppointmentResponseDto>>Update(
+                Guid id,
+                UpdateAppointmentDto dto)
         {
             var appointment =
                 await _appointmentService.UpdateAsync(
                     id,
                     dto);
 
-            if (appointment == null)
-            {
-                return NotFound();
-            }
-
             return Ok(appointment);
         }
 
         [HttpPatch("{id:guid}/status")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<AppointmentResponseDto>> UpdateStatus(
-            Guid id,
-            UpdateAppointmentStatusDto dto)
+        public async Task<ActionResult<AppointmentResponseDto>>UpdateStatus(
+                Guid id,
+                UpdateAppointmentStatusDto dto)
         {
             var appointment =
                 await _appointmentService.UpdateStatusAsync(
@@ -184,13 +172,8 @@
         public async Task<IActionResult> Delete(
             Guid id)
         {
-            var deleted =
-                await _appointmentService.SoftDeleteAsync(id);
-
-            if (!deleted)
-            {
-                return NotFound();
-            }
+            await _appointmentService
+                .SoftDeleteAsync(id);
 
             return NoContent();
         }
