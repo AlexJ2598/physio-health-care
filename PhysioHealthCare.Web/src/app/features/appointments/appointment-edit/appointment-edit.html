@@ -1,0 +1,112 @@
+<section class="appointment-edit">
+  <div class="page-header">
+    <div>
+      <h1>
+        {{ t('appointments.edit.title') }}
+      </h1>
+
+      <p class="page-subtitle">
+        {{ t('appointments.edit.subtitle') }}
+      </p>
+    </div>
+  </div>
+
+  <app-loading
+    *ngIf="isLoading"
+    [message]="t('appointments.edit.loading')"
+    size="medium">
+  </app-loading>
+
+  <div
+    *ngIf="!isLoading && errorMessage"
+    class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <form
+    *ngIf="!isLoading"
+    #appointmentForm="ngForm"
+    class="appointment-form"
+    (ngSubmit)="updateAppointment()">
+
+    <div class="form-group">
+      <label>
+        {{ t('appointments.edit.patient') }}
+      </label>
+
+      <div class="readonly-field">
+        {{ patientName }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="appointmentDate">
+        {{ t('appointments.edit.date') }}
+      </label>
+
+      <input
+        id="appointmentDate"
+        name="appointmentDate"
+        type="datetime-local"
+        [(ngModel)]="appointmentDate"
+        [disabled]="isSaving"
+        required />
+    </div>
+
+    <div class="form-group">
+      <label for="reason">
+        {{ t('appointments.edit.reason') }}
+      </label>
+
+      <input
+        id="reason"
+        name="reason"
+        type="text"
+        [(ngModel)]="reason"
+        [disabled]="isSaving"
+        [placeholder]="
+          t('appointments.edit.reasonPlaceholder')
+        "
+        required />
+    </div>
+
+    <div class="form-group">
+      <label for="notes">
+        {{ t('appointments.edit.notes') }}
+      </label>
+
+      <textarea
+        id="notes"
+        name="notes"
+        [(ngModel)]="notes"
+        [disabled]="isSaving"
+        [placeholder]="
+          t('appointments.edit.notesPlaceholder')
+        "
+        rows="4">
+      </textarea>
+    </div>
+
+    <div class="form-actions">
+      <a
+        class="btn btn-secondary"
+        routerLink="/appointments">
+        {{ t('common.cancel') }}
+      </a>
+
+      <button
+        class="btn btn-primary"
+        type="submit"
+        [disabled]="
+          appointmentForm.invalid ||
+          isSaving
+        ">
+        {{
+          isSaving
+            ? t('appointments.edit.saving')
+            : t('appointments.edit.save')
+        }}
+      </button>
+    </div>
+  </form>
+</section>

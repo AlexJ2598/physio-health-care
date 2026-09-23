@@ -3,6 +3,9 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 import { AppointmentListComponent } from './features/appointments/appointment-list/appointment-list';
 import { AppointmentCreateComponent } from './features/appointments/appointment-create/appointment-create';
+import {
+  AppointmentEditComponent
+} from './features/appointments/appointment-edit/appointment-edit';
 import { LoginComponent } from './features/auth/login/login';
 import { PatientCreateComponent } from './features/patients/patient-create/patient-create';
 import { PatientEditComponent } from './features/patients/patient-edit/patient-edit';
@@ -44,6 +47,10 @@ export const routes: Routes = [
       {
         path: 'appointments/create',
         component: AppointmentCreateComponent
+      },
+      {
+        path: 'appointments/edit/:id',
+        component: AppointmentEditComponent
       }
     ]
   },

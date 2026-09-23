@@ -98,5 +98,19 @@
 "appointments.create.saving": "Guardando...",
 "appointments.create.success": "Cita creada correctamente.",
 "appointments.create.error": "Ocurrió un error al crear la cita.",
-"appointments.validation.requiredFields": "Completa todos los campos obligatorios."
+"appointments.validation.requiredFields": "Completa todos los campos obligatorios.",
+"appointments.edit.title": "Editar cita",
+"appointments.edit.subtitle": "Actualiza la información de la cita.",
+"appointments.edit.loading": "Cargando cita...",
+"appointments.edit.patient": "Paciente",
+"appointments.edit.date": "Fecha y hora",
+"appointments.edit.reason": "Motivo",
+"appointments.edit.reasonPlaceholder": "Ej. Consulta de valoración",
+"appointments.edit.notes": "Notas",
+"appointments.edit.notesPlaceholder": "Agrega notas adicionales sobre la cita...",
+"appointments.edit.save": "Guardar cambios",
+"appointments.edit.saving": "Guardando...",
+"appointments.edit.success": "Cita actualizada correctamente.",
+"appointments.edit.error": "Ocurrió un error al actualizar la cita.",
+"appointments.edit.loadError": "Ocurrió un error al cargar la cita."
 }

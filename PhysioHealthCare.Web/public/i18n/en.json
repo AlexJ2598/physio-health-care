@@ -98,5 +98,19 @@
 "appointments.create.saving": "Saving...",
 "appointments.create.success": "Appointment created successfully.",
 "appointments.create.error": "An error occurred while creating the appointment.",
-"appointments.validation.requiredFields": "Complete all required fields."
+"appointments.validation.requiredFields": "Complete all required fields.",
+"appointments.edit.title": "Edit Appointment",
+"appointments.edit.subtitle": "Update the appointment information.",
+"appointments.edit.loading": "Loading appointment...",
+"appointments.edit.patient": "Patient",
+"appointments.edit.date": "Date and Time",
+"appointments.edit.reason": "Reason",
+"appointments.edit.reasonPlaceholder": "E.g. Initial assessment",
+"appointments.edit.notes": "Notes",
+"appointments.edit.notesPlaceholder": "Add additional notes about the appointment...",
+"appointments.edit.save": "Save Changes",
+"appointments.edit.saving": "Saving...",
+"appointments.edit.success": "Appointment updated successfully.",
+"appointments.edit.error": "An error occurred while updating the appointment.",
+"appointments.edit.loadError": "An error occurred while loading the appointment."
 }
