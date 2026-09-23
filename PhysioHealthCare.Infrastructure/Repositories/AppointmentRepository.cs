@@ -18,8 +18,7 @@
                     nameof(context));
         }
 
-        public async Task<Appointment> CreateAsync(
-            Appointment appointment)
+        public async Task<Appointment> CreateAsync(Appointment appointment)
         {
             _context.Appointments.Add(
                 appointment);

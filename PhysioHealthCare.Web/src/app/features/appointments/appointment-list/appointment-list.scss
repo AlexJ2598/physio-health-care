@@ -1,0 +1,258 @@
+.appointment-list {
+  min-height: 100vh;
+  padding: var(--space-8);
+  background: var(--color-background);
+  font-family: var(--font-family-base);
+}
+
+/* =========================================
+   Header
+   ========================================= */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: var(--font-size-title);
+  color: var(--color-text-primary);
+}
+
+.page-subtitle {
+  margin:
+    var(--space-2)
+    0
+    0;
+  color: var(--color-text-muted);
+}
+
+/* =========================================
+   Buttons
+   ========================================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding:
+    var(--space-3)
+    var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-surface);
+  transition:
+    background-color var(--transition-fast);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+}
+
+.btn-secondary {
+  border:
+    1px solid
+    var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.btn-secondary:hover {
+  background: var(--color-surface-soft);
+  color: var(--color-text-primary);
+}
+
+.btn-small {
+  padding:
+    var(--space-2)
+    var(--space-3);
+}
+
+/* =========================================
+   Table
+   ========================================= */
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+th,
+td {
+  padding: var(--space-4);
+  text-align: left;
+  vertical-align: middle;
+  border-bottom:
+    1px solid
+    var(--color-border);
+}
+
+th {
+  background: var(--color-surface-soft);
+  color: var(--color-text-secondary);
+  font-weight: 700;
+}
+
+td {
+  color: var(--color-text-secondary);
+}
+
+.actions {
+  white-space: nowrap;
+}
+
+/* =========================================
+   Status
+   ========================================= */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding:
+    var(--space-2)
+    var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.status-scheduled {
+  background: var(--color-info-soft);
+  color: var(--color-info);
+}
+
+.status-inprogress {
+  background: var(--color-warning-soft);
+  color: var(--color-warning-dark);
+}
+
+.status-completed {
+  background: var(--color-success-soft);
+  color: var(--color-success-dark);
+}
+
+.status-cancelled {
+  background: var(--color-danger-soft);
+  color: var(--color-danger-dark);
+}
+
+/* =========================================
+   Feedback
+   ========================================= */
+
+.error-message {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.empty-state {
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.empty-state h2 {
+  margin:
+    0
+    0
+    var(--space-2);
+  color: var(--color-text-primary);
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+/* =========================================
+   Responsive
+   ========================================= */
+
+@media (max-width: 768px) {
+
+  .appointment-list {
+    padding: var(--space-4);
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-header .btn {
+    width: 100%;
+  }
+
+  table,
+  thead,
+  tbody,
+  tr,
+  th,
+  td {
+    display: block;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody tr {
+    padding: var(--space-4);
+    border-bottom:
+      1px solid
+      var(--color-border);
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding:
+      var(--space-2)
+      0;
+    border-bottom: none;
+  }
+
+  td::before {
+    content: attr(data-label);
+    color: var(--color-text-primary);
+    font-weight: 700;
+  }
+
+  .actions {
+    white-space: normal;
+  }
+}

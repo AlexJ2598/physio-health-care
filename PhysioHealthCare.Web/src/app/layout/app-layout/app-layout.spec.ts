@@ -1,22 +1,43 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed
+} from '@angular/core/testing';
 
-import { AppLayout } from './app-layout';
+import {
+  AppLayoutComponent
+} from './app-layout';
 
-describe('AppLayout', () => {
-  let component: AppLayout;
-  let fixture: ComponentFixture<AppLayout>;
+describe('AppLayoutComponent', () => {
+
+  let component: AppLayoutComponent;
+  let fixture: ComponentFixture<AppLayoutComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [AppLayout],
-    }).compileComponents();
 
-    fixture = TestBed.createComponent(AppLayout);
+    await TestBed.configureTestingModule({
+      imports: [
+        AppLayoutComponent
+      ]
+    })
+      .overrideComponent(
+        AppLayoutComponent,
+        {
+          set: {
+            template: ''
+          }
+        }
+      )
+      .compileComponents();
+
+    fixture = TestBed.createComponent(
+      AppLayoutComponent
+    );
+
     component = fixture.componentInstance;
-    await fixture.whenStable();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
 });

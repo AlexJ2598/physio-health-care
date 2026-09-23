@@ -1,0 +1,147 @@
+<section class="appointment-list">
+
+  <div class="page-header">
+    <div>
+      <h1>
+        {{ t('appointments.title') }}
+      </h1>
+
+      <p class="page-subtitle">
+        {{ t('appointments.subtitle') }}
+      </p>
+    </div>
+
+    <a
+      class="btn btn-primary"
+      routerLink="/appointments/create">
+      {{ t('appointments.new') }}
+    </a>
+  </div>
+
+  <app-loading
+    *ngIf="isLoading"
+    [message]="t('appointments.loading')"
+    size="medium">
+  </app-loading>
+
+  <div
+    *ngIf="!isLoading && errorMessage"
+    class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div
+    *ngIf="
+      !isLoading &&
+      !errorMessage &&
+      appointments.length === 0
+    "
+    class="empty-state">
+
+    <h2>
+      {{ t('appointments.empty.title') }}
+    </h2>
+
+    <p>
+      {{ t('appointments.empty.message') }}
+    </p>
+
+  </div>
+
+  <div
+    *ngIf="
+      !isLoading &&
+      !errorMessage &&
+      appointments.length > 0
+    "
+    class="table-container">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>
+            {{ t('appointments.patient') }}
+          </th>
+
+          <th>
+            {{ t('appointments.date') }}
+          </th>
+
+          <th>
+            {{ t('appointments.reason') }}
+          </th>
+
+          <th>
+            {{ t('appointments.status') }}
+          </th>
+
+          <th>
+            {{ t('appointments.actions') }}
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr
+          *ngFor="
+            let appointment of appointments
+          ">
+
+          <td
+            data-label="Patient">
+            {{ appointment.patientName }}
+          </td>
+
+          <td
+            data-label="Date">
+            {{
+              appointment.appointmentDate
+                | date:'medium'
+            }}
+          </td>
+
+          <td
+            data-label="Reason">
+            {{ appointment.reason }}
+          </td>
+
+          <td
+            data-label="Status">
+
+            <span
+              class="status-badge"
+              [ngClass]="
+                'status-' +
+                appointment.status.toLowerCase()
+              ">
+              {{ appointment.status }}
+            </span>
+
+          </td>
+
+          <td
+            data-label="Actions"
+            class="actions">
+
+            <a
+              class="btn btn-secondary btn-small"
+              [routerLink]="[
+                '/appointments/edit',
+                appointment.id
+              ]">
+              {{ t('common.edit') }}
+            </a>
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</section>

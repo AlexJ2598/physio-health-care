@@ -5,9 +5,11 @@
     using PhysioHealthCare.Domain.Entities;
     using PhysioHealthCare.Domain.Enums;
 
-    public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
+    public class AppointmentConfiguration
+        : IEntityTypeConfiguration<Appointment>
     {
-        public void Configure(EntityTypeBuilder<Appointment> entity)
+        public void Configure(
+            EntityTypeBuilder<Appointment> entity)
         {
             entity.ToTable("Appointments");
 
@@ -17,6 +19,11 @@
                 .IsRequired();
 
             entity.Property(x => x.AppointmentDate)
+                .HasConversion(
+                    value => value.ToUniversalTime(),
+                    value => DateTime.SpecifyKind(
+                        value,
+                        DateTimeKind.Utc))
                 .IsRequired();
 
             entity.Property(x => x.Reason)
@@ -27,8 +34,8 @@
                 .HasMaxLength(500);
 
             entity.Property(x => x.Status)
-               .IsRequired()
-               .HasConversion<int>();
+                .IsRequired()
+                .HasConversion<int>();
 
             entity.Property(x => x.CreatedAt)
                 .IsRequired();

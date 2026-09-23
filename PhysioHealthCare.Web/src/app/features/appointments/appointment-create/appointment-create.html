@@ -1,0 +1,121 @@
+<section class="appointment-create">
+  <div class="page-header">
+    <div>
+      <h1>
+        {{ t('appointments.create.title') }}
+      </h1>
+
+      <p class="page-subtitle">
+        {{ t('appointments.create.subtitle') }}
+      </p>
+    </div>
+  </div>
+
+  <div
+    *ngIf="errorMessage"
+    class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <form
+    #appointmentForm="ngForm"
+    class="appointment-form"
+    (ngSubmit)="createAppointment()">
+
+    <div class="form-group">
+      <label for="patientId">
+        {{ t('appointments.create.patient') }}
+      </label>
+
+      <select
+        id="patientId"
+        name="patientId"
+        [(ngModel)]="patientId"
+        [disabled]="isLoadingPatients || isSaving"
+        required>
+
+        <option value="" disabled>
+          {{
+            isLoadingPatients
+              ? t('appointments.create.loadingPatients')
+              : t('appointments.create.selectPatient')
+          }}
+        </option>
+
+        <option
+          *ngFor="let patient of patients"
+          [value]="patient.id">
+          {{ patient.fullName }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="appointmentDate">
+        {{ t('appointments.create.date') }}
+      </label>
+
+      <input
+        id="appointmentDate"
+        name="appointmentDate"
+        type="datetime-local"
+        [(ngModel)]="appointmentDate"
+        [disabled]="isSaving"
+        required />
+    </div>
+
+    <div class="form-group">
+      <label for="reason">
+        {{ t('appointments.create.reason') }}
+      </label>
+
+      <input
+        id="reason"
+        name="reason"
+        type="text"
+        [(ngModel)]="reason"
+        [disabled]="isSaving"
+        [placeholder]="t('appointments.create.reasonPlaceholder')"
+        required />
+    </div>
+
+    <div class="form-group">
+      <label for="notes">
+        {{ t('appointments.create.notes') }}
+      </label>
+
+      <textarea
+        id="notes"
+        name="notes"
+        [(ngModel)]="notes"
+        [disabled]="isSaving"
+        [placeholder]="t('appointments.create.notesPlaceholder')"
+        rows="4">
+      </textarea>
+    </div>
+
+    <div class="form-actions">
+      <a
+        class="btn btn-secondary"
+        routerLink="/appointments">
+        {{ t('common.cancel') }}
+      </a>
+
+      <button
+        class="btn btn-primary"
+        type="submit"
+        [disabled]="
+          appointmentForm.invalid ||
+          isLoadingPatients ||
+          isSaving
+        ">
+        {{
+          isSaving
+            ? t('appointments.create.saving')
+            : t('appointments.create.save')
+        }}
+      </button>
+    </div>
+
+  </form>
+</section>
