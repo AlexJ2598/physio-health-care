@@ -15,10 +15,14 @@ import {
   AppointmentService
 } from '../../../core/services/appointment';
 import {
+  ToastService
+} from '../../../core/services/toast';
+import {
   TranslationService
 } from '../../../core/services/translation';
 import {
-  Appointment
+  Appointment,
+  AppointmentStatusValue
 } from '../../../shared/models/appointment';
 import {
   LoadingComponent
@@ -43,6 +47,10 @@ export class AppointmentListComponent
   isLoading = false;
   errorMessage = '';
 
+  updatingAppointmentId: string | null = null;
+
+  appointmentToCancel: Appointment | null = null;
+
   pageNumber = 1;
   pageSize = 10;
   totalCount = 0;
@@ -53,6 +61,7 @@ export class AppointmentListComponent
 
   constructor(
     private appointmentService: AppointmentService,
+    private toastService: ToastService,
     private translationService: TranslationService,
     private cdr: ChangeDetectorRef
   ) {}
@@ -121,6 +130,125 @@ export class AppointmentListComponent
           this.cdr.detectChanges();
         }
       });
+  }
+
+  updateStatus(
+    appointment: Appointment,
+    status: AppointmentStatusValue
+  ): void {
+    if (
+      this.updatingAppointmentId ===
+      appointment.id
+    ) {
+      return;
+    }
+
+    this.updatingAppointmentId =
+      appointment.id;
+
+    this.appointmentService
+      .updateStatus(
+        appointment.id,
+        {
+          status
+        }
+      )
+      .subscribe({
+        next: updatedAppointment => {
+          this.appointments =
+            this.appointments.map(
+              currentAppointment =>
+                currentAppointment.id ===
+                updatedAppointment.id
+                  ? updatedAppointment
+                  : currentAppointment
+            );
+
+          this.updatingAppointmentId =
+            null;
+
+          this.toastService.success(
+            this.t(
+              'appointments.status.success'
+            )
+          );
+
+          this.cdr.detectChanges();
+        },
+
+        error: error => {
+          console.error(
+            'Update appointment status error',
+            error
+          );
+
+          this.updatingAppointmentId =
+            null;
+
+          this.toastService.error(
+            error.error?.message ||
+            error.error?.Message ||
+            this.t(
+              'appointments.status.error'
+            )
+          );
+
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  requestCancellation(
+    appointment: Appointment
+  ): void {
+    if (this.isUpdating(appointment)) {
+      return;
+    }
+
+    this.appointmentToCancel =
+      appointment;
+
+    this.cdr.detectChanges();
+  }
+
+  closeCancellation(): void {
+    if (
+      this.appointmentToCancel &&
+      this.isUpdating(
+        this.appointmentToCancel
+      )
+    ) {
+      return;
+    }
+
+    this.appointmentToCancel = null;
+    this.cdr.detectChanges();
+  }
+
+  confirmCancellation(): void {
+    if (!this.appointmentToCancel) {
+      return;
+    }
+
+    const appointment =
+      this.appointmentToCancel;
+
+    this.updateStatus(
+      appointment,
+      4
+    );
+
+    this.appointmentToCancel = null;
+    this.cdr.detectChanges();
+  }
+
+  isUpdating(
+    appointment: Appointment
+  ): boolean {
+    return (
+      this.updatingAppointmentId ===
+      appointment.id
+    );
   }
 
   t(key: string): string {

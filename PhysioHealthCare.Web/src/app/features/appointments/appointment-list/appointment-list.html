@@ -1,6 +1,7 @@
 <section class="appointment-list">
 
   <div class="page-header">
+
     <div>
       <h1>
         {{ t('appointments.title') }}
@@ -16,6 +17,7 @@
       routerLink="/appointments/create">
       {{ t('appointments.new') }}
     </a>
+
   </div>
 
   <app-loading
@@ -89,26 +91,22 @@
             let appointment of appointments
           ">
 
-          <td
-            data-label="Patient">
+          <td data-label="Patient">
             {{ appointment.patientName }}
           </td>
 
-          <td
-            data-label="Date">
+          <td data-label="Date">
             {{
               appointment.appointmentDate
                 | date:'medium'
             }}
           </td>
 
-          <td
-            data-label="Reason">
+          <td data-label="Reason">
             {{ appointment.reason }}
           </td>
 
-          <td
-            data-label="Status">
+          <td data-label="Status">
 
             <span
               class="status-badge"
@@ -134,6 +132,70 @@
               {{ t('common.edit') }}
             </a>
 
+            <button
+              *ngIf="
+                appointment.status ===
+                'Scheduled'
+              "
+              class="btn btn-primary btn-small"
+              type="button"
+              [disabled]="isUpdating(appointment)"
+              (click)="
+                updateStatus(
+                  appointment,
+                  2
+                )
+              ">
+              {{
+                isUpdating(appointment)
+                  ? t('appointments.status.updating')
+                  : t('appointments.status.start')
+              }}
+            </button>
+
+            <button
+              *ngIf="
+                appointment.status ===
+                'InProgress'
+              "
+              class="btn btn-primary btn-small"
+              type="button"
+              [disabled]="isUpdating(appointment)"
+              (click)="
+                updateStatus(
+                  appointment,
+                  3
+                )
+              ">
+              {{
+                isUpdating(appointment)
+                  ? t('appointments.status.updating')
+                  : t('appointments.status.complete')
+              }}
+            </button>
+
+            <button
+              *ngIf="
+                appointment.status ===
+                  'Scheduled' ||
+                appointment.status ===
+                  'InProgress'
+              "
+              class="btn btn-danger btn-small"
+              type="button"
+              [disabled]="isUpdating(appointment)"
+              (click)="
+                requestCancellation(
+                  appointment
+                )
+              ">
+              {{
+                t(
+                  'appointments.status.cancel'
+                )
+              }}
+            </button>
+
           </td>
 
         </tr>
@@ -141,6 +203,79 @@
       </tbody>
 
     </table>
+
+  </div>
+
+  <div
+    *ngIf="appointmentToCancel"
+    class="modal-backdrop">
+
+    <div
+      class="confirmation-modal"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-labelledby]="
+        'cancel-appointment-title'
+      ">
+
+      <h2 id="cancel-appointment-title">
+        {{
+          t(
+            'appointments.cancel.title'
+          )
+        }}
+      </h2>
+
+      <p>
+        {{
+          t(
+            'appointments.cancel.message'
+          )
+        }}
+      </p>
+
+      <div class="appointment-summary">
+
+        <strong>
+          {{ appointmentToCancel.patientName }}
+        </strong>
+
+        <span>
+          {{
+            appointmentToCancel.appointmentDate
+              | date:'medium'
+          }}
+        </span>
+
+      </div>
+
+      <div class="modal-actions">
+
+        <button
+          class="btn btn-secondary"
+          type="button"
+          (click)="closeCancellation()">
+          {{
+            t(
+              'appointments.cancel.keep'
+            )
+          }}
+        </button>
+
+        <button
+          class="btn btn-danger"
+          type="button"
+          (click)="confirmCancellation()">
+          {{
+            t(
+              'appointments.cancel.confirm'
+            )
+          }}
+        </button>
+
+      </div>
+
+    </div>
 
   </div>
 
