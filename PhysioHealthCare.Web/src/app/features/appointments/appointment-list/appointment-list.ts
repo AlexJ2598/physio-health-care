@@ -23,6 +23,10 @@ import {
 } from '../../../core/services/appointment';
 
 import {
+  PatientService
+} from '../../../core/services/patient';
+
+import {
   ToastService
 } from '../../../core/services/toast';
 
@@ -35,6 +39,10 @@ import {
   AppointmentFilters,
   AppointmentStatusValue
 } from '../../../shared/models/appointment';
+
+import {
+  Patient
+} from '../../../shared/models/patient';
 
 import {
   LoadingComponent
@@ -55,8 +63,11 @@ export class AppointmentListComponent
   implements OnInit, OnDestroy {
 
   appointments: Appointment[] = [];
+  patients: Patient[] = [];
 
   isLoading = false;
+  isLoadingPatients = false;
+
   errorMessage = '';
 
   updatingAppointmentId: string | null = null;
@@ -66,6 +77,8 @@ export class AppointmentListComponent
 
   selectedStatus:
     AppointmentStatusValue | null = null;
+
+  selectedPatientId = '';
 
   pageNumber = 1;
   pageSize = 10;
@@ -77,6 +90,7 @@ export class AppointmentListComponent
 
   constructor(
     private appointmentService: AppointmentService,
+    private patientService: PatientService,
     private toastService: ToastService,
     private translationService: TranslationService,
     private cdr: ChangeDetectorRef
@@ -91,12 +105,46 @@ export class AppointmentListComponent
         this.cdr.detectChanges();
       });
 
+    this.loadPatients();
     this.loadAppointments();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  loadPatients(): void {
+    this.isLoadingPatients = true;
+
+    this.patientService
+      .getAll(
+        1,
+        100,
+        undefined,
+        'fullName',
+        'asc'
+      )
+      .subscribe({
+        next: result => {
+          this.patients = result.items;
+          this.isLoadingPatients = false;
+
+          this.cdr.detectChanges();
+        },
+
+        error: error => {
+          console.error(
+            'Load patients error',
+            error
+          );
+
+          this.patients = [];
+          this.isLoadingPatients = false;
+
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   loadAppointments(): void {
@@ -112,6 +160,10 @@ export class AppointmentListComponent
 
       status:
         this.selectedStatus ??
+        undefined,
+
+      patientId:
+        this.selectedPatientId ||
         undefined
     };
 
@@ -184,6 +236,17 @@ export class AppointmentListComponent
       status
         ? Number(status) as AppointmentStatusValue
         : null;
+
+    this.pageNumber = 1;
+
+    this.loadAppointments();
+  }
+
+  filterByPatient(
+    patientId: string
+  ): void {
+    this.selectedPatientId =
+      patientId;
 
     this.pageNumber = 1;
 
