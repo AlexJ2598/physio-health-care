@@ -32,6 +32,133 @@
 }
 
 /* =========================================
+   Toolbar
+   ========================================= */
+
+.appointment-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+/* =========================================
+   Search
+   ========================================= */
+
+.appointment-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+}
+
+.search-field {
+  flex: 1;
+  max-width: var(--form-card-max-width);
+}
+
+.search-input {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: var(--form-control-padding);
+
+  border:
+    1px solid
+    var(--color-border-strong);
+
+  border-radius: var(--radius-md);
+
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+
+  outline: none;
+
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.search-input:hover {
+  border-color: var(--color-border-hover);
+}
+
+.search-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring-primary);
+}
+
+.search-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* =========================================
+   Filters
+   ========================================= */
+
+.status-filter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.filter-label {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.filter-select {
+  box-sizing: border-box;
+  min-width: var(--filter-control-min-width);
+
+  padding: var(--form-control-padding);
+
+  border:
+    1px solid
+    var(--color-border-strong);
+
+  border-radius: var(--radius-md);
+
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+
+  outline: none;
+  cursor: pointer;
+
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.filter-select:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+}
+
+.filter-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring-primary);
+}
+
+.filter-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* =========================================
    Buttons
    ========================================= */
 
@@ -49,9 +176,12 @@
   padding:
     var(--space-3)
     var(--space-5);
+
   border-radius: var(--radius-md);
+
   font-size: var(--font-size-sm);
   font-weight: 700;
+
   text-decoration: none;
   cursor: pointer;
 }
@@ -60,6 +190,7 @@
   border: none;
   background: var(--color-primary);
   color: var(--color-surface);
+
   transition:
     background-color var(--transition-fast);
 }
@@ -72,8 +203,10 @@
   border:
     1px solid
     var(--color-border-strong);
+
   background: var(--color-surface);
   color: var(--color-text-secondary);
+
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast),
@@ -89,6 +222,7 @@
   border: none;
   background: var(--color-danger);
   color: var(--color-surface);
+
   transition:
     background-color var(--transition-fast);
 }
@@ -121,17 +255,23 @@
 table {
   width: 100%;
   border-collapse: collapse;
+
   background: var(--color-surface);
+
   border-radius: var(--radius-lg);
+
   overflow: hidden;
+
   box-shadow: var(--shadow-md);
 }
 
 th,
 td {
   padding: var(--space-4);
+
   text-align: left;
   vertical-align: middle;
+
   border-bottom:
     1px solid
     var(--color-border);
@@ -161,10 +301,13 @@ td {
 .status-badge {
   display: inline-flex;
   align-items: center;
+
   padding:
     var(--space-2)
     var(--space-3);
+
   border-radius: var(--radius-full);
+
   font-size: var(--font-size-sm);
   font-weight: 700;
 }
@@ -200,10 +343,15 @@ td {
 
 .empty-state {
   padding: var(--space-8);
+
   background: var(--color-surface);
+
   border-radius: var(--radius-lg);
+
   color: var(--color-text-muted);
+
   box-shadow: var(--shadow-md);
+
   text-align: center;
 }
 
@@ -212,6 +360,7 @@ td {
     0
     0
     var(--space-2);
+
   color: var(--color-text-primary);
 }
 
@@ -234,17 +383,13 @@ td {
 
   padding: var(--space-4);
 
-  background:
-    color-mix(
-      in srgb,
-      var(--color-text-primary) 45%,
-      transparent
-    );
+  background: var(--color-overlay);
 }
 
 .confirmation-modal {
   width: 100%;
   max-width: 440px;
+
   box-sizing: border-box;
 
   padding: var(--space-6);
@@ -256,6 +401,7 @@ td {
   border-radius: var(--radius-lg);
 
   background: var(--color-surface);
+
   box-shadow: var(--shadow-md);
 }
 
@@ -275,6 +421,7 @@ td {
     var(--space-5);
 
   color: var(--color-text-secondary);
+
   line-height: 1.5;
 }
 
@@ -284,6 +431,7 @@ td {
   gap: var(--space-2);
 
   margin-bottom: var(--space-6);
+
   padding: var(--space-4);
 
   border:
@@ -329,6 +477,37 @@ td {
     width: 100%;
   }
 
+  .appointment-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .appointment-search {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-field {
+    max-width: none;
+  }
+
+  .search-actions {
+    width: 100%;
+  }
+
+  .search-actions .btn {
+    flex: 1;
+  }
+
+  .status-filter {
+    width: 100%;
+  }
+
+  .filter-select {
+    width: 100%;
+    min-width: 0;
+  }
+
   table,
   thead,
   tbody,
@@ -344,6 +523,7 @@ td {
 
   tbody tr {
     padding: var(--space-4);
+
     border-bottom:
       1px solid
       var(--color-border);
@@ -352,16 +532,21 @@ td {
   td {
     display: flex;
     justify-content: space-between;
+
     gap: var(--space-4);
+
     padding:
       var(--space-2)
       0;
+
     border-bottom: none;
   }
 
   td::before {
     content: attr(data-label);
+
     color: var(--color-text-primary);
+
     font-weight: 700;
   }
 

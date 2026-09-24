@@ -1,7 +1,5 @@
 <section class="appointment-list">
-
   <div class="page-header">
-
     <div>
       <h1>
         {{ t('appointments.title') }}
@@ -17,7 +15,121 @@
       routerLink="/appointments/create">
       {{ t('appointments.new') }}
     </a>
+  </div>
 
+  <!-- Search and filters -->
+  <div class="appointment-toolbar">
+    <div class="appointment-search">
+      <div class="search-field">
+        <input
+          #searchInput
+          class="search-input"
+          type="search"
+          [value]="searchTerm"
+          [placeholder]="
+            t('appointments.search.placeholder')
+          "
+          (input)="
+            searchTerm = searchInput.value
+          "
+          (keydown.enter)="
+            searchAppointments()
+          "
+        />
+      </div>
+
+      <div class="search-actions">
+        <button
+          class="btn btn-primary"
+          type="button"
+          [disabled]="isLoading"
+          (click)="searchAppointments()">
+          {{
+            t(
+              'appointments.search.button'
+            )
+          }}
+        </button>
+
+        <button
+          *ngIf="searchTerm"
+          class="btn btn-secondary"
+          type="button"
+          [disabled]="isLoading"
+          (click)="clearSearch()">
+          {{
+            t(
+              'appointments.search.clear'
+            )
+          }}
+        </button>
+      </div>
+    </div>
+
+    <div class="status-filter">
+      <label
+        class="filter-label"
+        for="appointment-status-filter">
+        {{
+          t(
+            'appointments.filters.status'
+          )
+        }}
+      </label>
+
+      <select
+        #statusSelect
+        id="appointment-status-filter"
+        class="filter-select"
+        [value]="selectedStatus ?? ''"
+        [disabled]="isLoading"
+        (change)="
+          filterByStatus(
+            statusSelect.value
+          )
+        ">
+
+        <option value="">
+          {{
+            t(
+              'appointments.filters.allStatuses'
+            )
+          }}
+        </option>
+
+        <option value="1">
+          {{
+            t(
+              'appointments.status.scheduled'
+            )
+          }}
+        </option>
+
+        <option value="2">
+          {{
+            t(
+              'appointments.status.inProgress'
+            )
+          }}
+        </option>
+
+        <option value="3">
+          {{
+            t(
+              'appointments.status.completed'
+            )
+          }}
+        </option>
+
+        <option value="4">
+          {{
+            t(
+              'appointments.status.cancelled'
+            )
+          }}
+        </option>
+      </select>
+    </div>
   </div>
 
   <app-loading
@@ -47,7 +159,6 @@
     <p>
       {{ t('appointments.empty.message') }}
     </p>
-
   </div>
 
   <div
@@ -59,7 +170,6 @@
     class="table-container">
 
     <table>
-
       <thead>
         <tr>
           <th>
@@ -85,7 +195,6 @@
       </thead>
 
       <tbody>
-
         <tr
           *ngFor="
             let appointment of appointments
@@ -107,7 +216,6 @@
           </td>
 
           <td data-label="Status">
-
             <span
               class="status-badge"
               [ngClass]="
@@ -116,7 +224,6 @@
               ">
               {{ appointment.status }}
             </span>
-
           </td>
 
           <td
@@ -139,7 +246,9 @@
               "
               class="btn btn-primary btn-small"
               type="button"
-              [disabled]="isUpdating(appointment)"
+              [disabled]="
+                isUpdating(appointment)
+              "
               (click)="
                 updateStatus(
                   appointment,
@@ -148,8 +257,12 @@
               ">
               {{
                 isUpdating(appointment)
-                  ? t('appointments.status.updating')
-                  : t('appointments.status.start')
+                  ? t(
+                      'appointments.status.updating'
+                    )
+                  : t(
+                      'appointments.status.start'
+                    )
               }}
             </button>
 
@@ -160,7 +273,9 @@
               "
               class="btn btn-primary btn-small"
               type="button"
-              [disabled]="isUpdating(appointment)"
+              [disabled]="
+                isUpdating(appointment)
+              "
               (click)="
                 updateStatus(
                   appointment,
@@ -169,8 +284,12 @@
               ">
               {{
                 isUpdating(appointment)
-                  ? t('appointments.status.updating')
-                  : t('appointments.status.complete')
+                  ? t(
+                      'appointments.status.updating'
+                    )
+                  : t(
+                      'appointments.status.complete'
+                    )
               }}
             </button>
 
@@ -183,7 +302,9 @@
               "
               class="btn btn-danger btn-small"
               type="button"
-              [disabled]="isUpdating(appointment)"
+              [disabled]="
+                isUpdating(appointment)
+              "
               (click)="
                 requestCancellation(
                   appointment
@@ -195,17 +316,13 @@
                 )
               }}
             </button>
-
           </td>
-
         </tr>
-
       </tbody>
-
     </table>
-
   </div>
 
+  <!-- Cancellation confirmation -->
   <div
     *ngIf="appointmentToCancel"
     class="modal-backdrop">
@@ -235,9 +352,10 @@
       </p>
 
       <div class="appointment-summary">
-
         <strong>
-          {{ appointmentToCancel.patientName }}
+          {{
+            appointmentToCancel.patientName
+          }}
         </strong>
 
         <span>
@@ -246,11 +364,9 @@
               | date:'medium'
           }}
         </span>
-
       </div>
 
       <div class="modal-actions">
-
         <button
           class="btn btn-secondary"
           type="button"
@@ -272,11 +388,7 @@
             )
           }}
         </button>
-
       </div>
-
     </div>
-
   </div>
-
 </section>

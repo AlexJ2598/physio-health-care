@@ -121,5 +121,14 @@
   "patients.validation.firstNameRequired": "El nombre es obligatorio.",
   "patients.validation.genderRequired": "El género es obligatorio.",
   "patients.validation.lastNameRequired": "El apellido es obligatorio.",
-  "patients.validation.title": "Error de validación"
+  "patients.validation.title": "Error de validación",
+  "appointments.search.placeholder": "Buscar por paciente, motivo o notas...",
+"appointments.search.button": "Buscar",
+"appointments.search.clear": "Limpiar",
+"appointments.filters.status": "Estado",
+"appointments.filters.allStatuses": "Todos los estados",
+"appointments.status.scheduled": "Programada",
+"appointments.status.inProgress": "En progreso",
+"appointments.status.completed": "Completada",
+"appointments.status.cancelled": "Cancelada"
 }

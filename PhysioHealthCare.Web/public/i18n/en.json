@@ -121,5 +121,14 @@
   "patients.validation.firstNameRequired": "First name is required.",
   "patients.validation.genderRequired": "Gender is required.",
   "patients.validation.lastNameRequired": "Last name is required.",
-  "patients.validation.title": "Validation Error"
+  "patients.validation.title": "Validation Error",
+  "appointments.search.placeholder": "Search by patient, reason or notes...",
+"appointments.search.button": "Search",
+"appointments.search.clear": "Clear",
+"appointments.filters.status": "Status",
+"appointments.filters.allStatuses": "All statuses",
+"appointments.status.scheduled": "Scheduled",
+"appointments.status.inProgress": "In progress",
+"appointments.status.completed": "Completed",
+"appointments.status.cancelled": "Cancelled"
 }
