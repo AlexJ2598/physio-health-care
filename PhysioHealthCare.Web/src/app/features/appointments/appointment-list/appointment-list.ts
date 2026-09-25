@@ -1,67 +1,29 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 
-import {
-  CommonModule
-} from '@angular/common';
-
-import {
-  RouterLink
-} from '@angular/router';
-
-import {
-  Subject,
-  takeUntil
-} from 'rxjs';
-
-import {
-  AppointmentService
-} from '../../../core/services/appointment';
-
-import {
-  PatientService
-} from '../../../core/services/patient';
-
-import {
-  ToastService
-} from '../../../core/services/toast';
-
-import {
-  TranslationService
-} from '../../../core/services/translation';
-
+import { AppointmentService } from '../../../core/services/appointment';
+import { PatientService } from '../../../core/services/patient';
+import { ToastService } from '../../../core/services/toast';
+import { TranslationService } from '../../../core/services/translation';
 import {
   Appointment,
   AppointmentFilters,
-  AppointmentStatusValue
+  AppointmentStatusValue,
 } from '../../../shared/models/appointment';
-
-import {
-  Patient
-} from '../../../shared/models/patient';
-
-import {
-  LoadingComponent
-} from '../../../shared/components/loading/loading';
+import { Patient } from '../../../shared/models/patient';
+import { LoadingComponent } from '../../../shared/components/loading/loading';
 
 @Component({
   selector: 'app-appointment-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    LoadingComponent
-  ],
+  imports: [CommonModule, RouterLink, LoadingComponent],
   templateUrl: './appointment-list.html',
-  styleUrl: './appointment-list.scss'
+  styleUrl: './appointment-list.scss',
 })
-export class AppointmentListComponent
-  implements OnInit, OnDestroy {
-
+export class AppointmentListComponent implements OnInit, OnDestroy {
+  // Data and loading state
   appointments: Appointment[] = [];
   patients: Patient[] = [];
 
@@ -73,38 +35,43 @@ export class AppointmentListComponent
   updatingAppointmentId: string | null = null;
   appointmentToCancel: Appointment | null = null;
 
+  // Filters
   searchTerm = '';
   dateFrom = '';
   dateTo = '';
 
-  selectedStatus:
-    AppointmentStatusValue | null = null;
-
+  selectedStatus: AppointmentStatusValue | null = null;
   selectedPatientId = '';
 
+  // Pagination
   pageNumber = 1;
   pageSize = 10;
   totalCount = 0;
   totalPages = 0;
 
-  private readonly destroy$ =
-    new Subject<void>();
+  private readonly search$ = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
-    private appointmentService: AppointmentService,
-    private patientService: PatientService,
-    private toastService: ToastService,
-    private translationService: TranslationService,
-    private cdr: ChangeDetectorRef
+    private readonly appointmentService: AppointmentService,
+    private readonly patientService: PatientService,
+    private readonly toastService: ToastService,
+    private readonly translationService: TranslationService,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
+  // Lifecycle
+
   ngOnInit(): void {
-    this.translationService.language$
-      .pipe(
-        takeUntil(this.destroy$)
-      )
+    this.translationService.language$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.cdr.detectChanges();
+    });
+
+    this.search$
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe(() => {
-        this.cdr.detectChanges();
+        this.pageNumber = 1;
+        this.loadAppointments();
       });
 
     this.loadPatients();
@@ -116,37 +83,28 @@ export class AppointmentListComponent
     this.destroy$.complete();
   }
 
+  // Data loading
+
   loadPatients(): void {
     this.isLoadingPatients = true;
 
-    this.patientService
-      .getAll(
-        1,
-        100,
-        undefined,
-        'fullName',
-        'asc'
-      )
-      .subscribe({
-        next: result => {
-          this.patients = result.items;
-          this.isLoadingPatients = false;
+    this.patientService.getAll(1, 100, undefined, 'fullName', 'asc').subscribe({
+      next: (result) => {
+        this.patients = result.items;
+        this.isLoadingPatients = false;
 
-          this.cdr.detectChanges();
-        },
+        this.cdr.detectChanges();
+      },
 
-        error: error => {
-          console.error(
-            'Load patients error',
-            error
-          );
+      error: (error) => {
+        console.error('Load patients error', error);
 
-          this.patients = [];
-          this.isLoadingPatients = false;
+        this.patients = [];
+        this.isLoadingPatients = false;
 
-          this.cdr.detectChanges();
-        }
-      });
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   loadAppointments(): void {
@@ -156,73 +114,43 @@ export class AppointmentListComponent
     this.cdr.detectChanges();
 
     const filters: AppointmentFilters = {
-      search:
-        this.searchTerm.trim() ||
-        undefined,
-
-      status:
-        this.selectedStatus ??
-        undefined,
-
-      patientId:
-        this.selectedPatientId ||
-        undefined,
-
-        dateFrom:
-          this.dateFrom ? this.toUtcStartOfDay(
-            this.dateFrom
-          ) : undefined,
-
-          dateTo:
-           this.dateTo ? this.toUtcEndOfDay(
-            this.dateTo
-           ) : undefined
+      search: this.searchTerm.trim() || undefined,
+      status: this.selectedStatus ?? undefined,
+      patientId: this.selectedPatientId || undefined,
+      dateFrom: this.dateFrom ? this.toUtcStartOfDay(this.dateFrom) : undefined,
+      dateTo: this.dateTo ? this.toUtcEndOfDay(this.dateTo) : undefined,
     };
 
-    this.appointmentService
-      .getAll(
-        this.pageNumber,
-        this.pageSize,
-        filters
-      )
-      .subscribe({
-        next: result => {
-          this.appointments =
-            result.items;
+    this.appointmentService.getAll(this.pageNumber, this.pageSize, filters).subscribe({
+      next: (result) => {
+        this.appointments = result.items;
+        this.pageNumber = result.pageNumber;
+        this.pageSize = result.pageSize;
+        this.totalCount = result.totalCount;
+        this.totalPages = result.totalPages;
+        this.isLoading = false;
 
-          this.pageNumber =
-            result.pageNumber;
+        this.cdr.detectChanges();
+      },
 
-          this.pageSize =
-            result.pageSize;
+      error: (error) => {
+        console.error('Load appointments error', error);
 
-          this.totalCount =
-            result.totalCount;
+        this.isLoading = false;
 
-          this.totalPages =
-            result.totalPages;
+        this.errorMessage = this.t('appointments.loadError');
 
-          this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
 
-          this.cdr.detectChanges();
-        },
+  // Search and filters
 
-        error: error => {
-          console.error(
-            'Load appointments error',
-            error
-          );
+  onSearchChange(value: string): void {
+    this.searchTerm = value;
 
-          this.isLoading = false;
-
-          this.errorMessage =
-            this.t(
-              'appointments.loadError'
-            );
-
-          this.cdr.detectChanges();
-        }
-      });
+    this.search$.next(value.trim());
   }
 
   searchAppointments(): void {
@@ -241,37 +169,29 @@ export class AppointmentListComponent
     this.loadAppointments();
   }
 
-  filterByStatus(
-    status: string
-  ): void {
-    this.selectedStatus =
-      status
-        ? Number(status) as AppointmentStatusValue
-        : null;
+  filterByPatient(patientId: string): void {
+    this.selectedPatientId = patientId;
 
     this.pageNumber = 1;
 
     this.loadAppointments();
   }
 
-  filterByPatient(
-    patientId: string
-  ): void {
-    this.selectedPatientId =
-      patientId;
+  filterByStatus(status: string): void {
+    this.selectedStatus = status ? (Number(status) as AppointmentStatusValue) : null;
 
     this.pageNumber = 1;
 
     this.loadAppointments();
   }
 
-  applyDateRange(): void{
+  applyDateRange(): void {
     this.pageNumber = 1;
     this.loadAppointments();
   }
 
-  clearDateRange(): void{
-    if(!this.dateFrom && !this.dateTo){
+  clearDateRange(): void {
+    if (!this.dateFrom && !this.dateTo) {
       return;
     }
     this.dateFrom = '';
@@ -281,136 +201,60 @@ export class AppointmentListComponent
     this.loadAppointments();
   }
 
-  private toUtcStartOfDay(
-  date: string
-): string {
-  const [
-    year,
-    month,
-    day
-  ] = date
-    .split('-')
-    .map(Number);
+  // Appointment actions
 
-  return new Date(
-    year,
-    month - 1,
-    day,
-    0,
-    0,
-    0,
-    0
-  ).toISOString();
-}
-
-private toUtcEndOfDay(
-  date: string
-): string {
-  const [
-    year,
-    month,
-    day
-  ] = date
-    .split('-')
-    .map(Number);
-
-  return new Date(
-    year,
-    month - 1,
-    day,
-    23,
-    59,
-    59,
-    999
-  ).toISOString();
-}
-
-  updateStatus(
-    appointment: Appointment,
-    status: AppointmentStatusValue
-  ): void {
-    if (
-      this.updatingAppointmentId ===
-      appointment.id
-    ) {
+  updateStatus(appointment: Appointment, status: AppointmentStatusValue): void {
+    if (this.updatingAppointmentId === appointment.id) {
       return;
     }
 
-    this.updatingAppointmentId =
-      appointment.id;
+    this.updatingAppointmentId = appointment.id;
 
     this.appointmentService
-      .updateStatus(
-        appointment.id,
-        {
-          status
-        }
-      )
+      .updateStatus(appointment.id, {
+        status,
+      })
       .subscribe({
-        next: updatedAppointment => {
-          this.appointments =
-            this.appointments.map(
-              currentAppointment =>
-                currentAppointment.id ===
-                updatedAppointment.id
-                  ? updatedAppointment
-                  : currentAppointment
-            );
-
-          this.updatingAppointmentId =
-            null;
-
-          this.toastService.success(
-            this.t(
-              'appointments.status.success'
-            )
+        next: (updatedAppointment) => {
+          this.appointments = this.appointments.map((currentAppointment) =>
+            currentAppointment.id === updatedAppointment.id
+              ? updatedAppointment
+              : currentAppointment,
           );
+
+          this.updatingAppointmentId = null;
+
+          this.toastService.success(this.t('appointments.status.success'));
 
           this.cdr.detectChanges();
         },
 
-        error: error => {
-          console.error(
-            'Update appointment status error',
-            error
-          );
+        error: (error) => {
+          console.error('Update appointment status error', error);
 
-          this.updatingAppointmentId =
-            null;
+          this.updatingAppointmentId = null;
 
           this.toastService.error(
-            error.error?.message ||
-            error.error?.Message ||
-            this.t(
-              'appointments.status.error'
-            )
+            error.error?.message || error.error?.Message || this.t('appointments.status.error'),
           );
 
           this.cdr.detectChanges();
-        }
+        },
       });
   }
 
-  requestCancellation(
-    appointment: Appointment
-  ): void {
+  requestCancellation(appointment: Appointment): void {
     if (this.isUpdating(appointment)) {
       return;
     }
 
-    this.appointmentToCancel =
-      appointment;
+    this.appointmentToCancel = appointment;
 
     this.cdr.detectChanges();
   }
 
   closeCancellation(): void {
-    if (
-      this.appointmentToCancel &&
-      this.isUpdating(
-        this.appointmentToCancel
-      )
-    ) {
+    if (this.appointmentToCancel && this.isUpdating(this.appointmentToCancel)) {
       return;
     }
 
@@ -424,30 +268,36 @@ private toUtcEndOfDay(
       return;
     }
 
-    const appointment =
-      this.appointmentToCancel;
+    const appointment = this.appointmentToCancel;
 
-    this.updateStatus(
-      appointment,
-      4
-    );
+    this.updateStatus(appointment, 4);
 
     this.appointmentToCancel = null;
 
     this.cdr.detectChanges();
   }
 
-  isUpdating(
-    appointment: Appointment
-  ): boolean {
-    return (
-      this.updatingAppointmentId ===
-      appointment.id
-    );
+  // Template helpers
+
+  isUpdating(appointment: Appointment): boolean {
+    return this.updatingAppointmentId === appointment.id;
   }
 
   t(key: string): string {
-    return this.translationService
-      .translate(key);
+    return this.translationService.translate(key);
+  }
+
+  // Date conversion: local day boundaries expressed in UTC
+
+  private toUtcStartOfDay(date: string): string {
+    const [year, month, day] = date.split('-').map(Number);
+
+    return new Date(year, month - 1, day, 0, 0, 0, 0).toISOString();
+  }
+
+  private toUtcEndOfDay(date: string): string {
+    const [year, month, day] = date.split('-').map(Number);
+
+    return new Date(year, month - 1, day, 23, 59, 59, 999).toISOString();
   }
 }
