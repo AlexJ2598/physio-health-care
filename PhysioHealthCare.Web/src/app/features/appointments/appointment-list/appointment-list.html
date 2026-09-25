@@ -10,7 +10,9 @@
       </p>
     </div>
 
-    <a class="btn btn-primary" routerLink="/appointments/create">
+    <a
+      class="btn btn-primary"
+      routerLink="/appointments/create">
       {{ t('appointments.new') }}
     </a>
   </div>
@@ -24,9 +26,15 @@
           class="search-input"
           type="search"
           [value]="searchTerm"
-          [placeholder]="t('appointments.search.placeholder')"
-          (input)="searchTerm = searchInput.value"
-          (keydown.enter)="searchAppointments()"
+          [placeholder]="
+            t('appointments.search.placeholder')
+          "
+          (input)="
+            searchTerm = searchInput.value
+          "
+          (keydown.enter)="
+            searchAppointments()
+          "
         />
       </div>
 
@@ -35,9 +43,12 @@
           class="btn btn-primary"
           type="button"
           [disabled]="isLoading"
-          (click)="searchAppointments()"
-        >
-          {{ t('appointments.search.button') }}
+          (click)="searchAppointments()">
+          {{
+            t(
+              'appointments.search.button'
+            )
+          }}
         </button>
 
         <button
@@ -45,16 +56,26 @@
           class="btn btn-secondary"
           type="button"
           [disabled]="isLoading"
-          (click)="clearSearch()"
-        >
-          {{ t('appointments.search.clear') }}
+          (click)="clearSearch()">
+          {{
+            t(
+              'appointments.search.clear'
+            )
+          }}
         </button>
       </div>
     </div>
 
+    <!-- Patient filter -->
     <div class="patient-filter">
-      <label class="filter-label" for="appointment-patient-filter">
-        {{ t('appointments.filters.patient') }}
+      <label
+        class="filter-label"
+        for="appointment-patient-filter">
+        {{
+          t(
+            'appointments.filters.patient'
+          )
+        }}
       </label>
 
       <select
@@ -62,22 +83,42 @@
         id="appointment-patient-filter"
         class="filter-select"
         [value]="selectedPatientId"
-        [disabled]="isLoading || isLoadingPatients"
-        (change)="filterByPatient(patientSelect.value)"
-      >
+        [disabled]="
+          isLoading ||
+          isLoadingPatients
+        "
+        (change)="
+          filterByPatient(
+            patientSelect.value
+          )
+        ">
+
         <option value="">
-          {{ t('appointments.filters.allPatients') }}
+          {{
+            t(
+              'appointments.filters.allPatients'
+            )
+          }}
         </option>
 
-        <option *ngFor="let patient of patients" [value]="patient.id">
+        <option
+          *ngFor="let patient of patients"
+          [value]="patient.id">
           {{ patient.fullName }}
         </option>
       </select>
     </div>
 
+    <!-- Status filter -->
     <div class="status-filter">
-      <label class="filter-label" for="appointment-status-filter">
-        {{ t('appointments.filters.status') }}
+      <label
+        class="filter-label"
+        for="appointment-status-filter">
+        {{
+          t(
+            'appointments.filters.status'
+          )
+        }}
       </label>
 
       <select
@@ -86,81 +127,245 @@
         class="filter-select"
         [value]="selectedStatus ?? ''"
         [disabled]="isLoading"
-        (change)="filterByStatus(statusSelect.value)"
-      >
+        (change)="
+          filterByStatus(
+            statusSelect.value
+          )
+        ">
+
         <option value="">
-          {{ t('appointments.filters.allStatuses') }}
+          {{
+            t(
+              'appointments.filters.allStatuses'
+            )
+          }}
         </option>
 
         <option value="1">
-          {{ t('appointments.status.scheduled') }}
+          {{
+            t(
+              'appointments.status.scheduled'
+            )
+          }}
         </option>
 
         <option value="2">
-          {{ t('appointments.status.inProgress') }}
+          {{
+            t(
+              'appointments.status.inProgress'
+            )
+          }}
         </option>
 
         <option value="3">
-          {{ t('appointments.status.completed') }}
+          {{
+            t(
+              'appointments.status.completed'
+            )
+          }}
         </option>
 
         <option value="4">
-          {{ t('appointments.status.cancelled') }}
+          {{
+            t(
+              'appointments.status.cancelled'
+            )
+          }}
         </option>
       </select>
     </div>
+
+    <!-- Date range filter -->
+    <div class="date-filter">
+      <div class="date-field">
+        <label
+          class="filter-label"
+          for="appointment-date-from">
+          {{
+            t(
+              'appointments.filters.dateFrom'
+            )
+          }}
+        </label>
+
+        <input
+          #dateFromInput
+          id="appointment-date-from"
+          class="filter-input"
+          type="date"
+          [value]="dateFrom"
+          [disabled]="isLoading"
+          (change)="
+            dateFrom =
+              dateFromInput.value
+          "
+        />
+      </div>
+
+      <div class="date-field">
+        <label
+          class="filter-label"
+          for="appointment-date-to">
+          {{
+            t(
+              'appointments.filters.dateTo'
+            )
+          }}
+        </label>
+
+        <input
+          #dateToInput
+          id="appointment-date-to"
+          class="filter-input"
+          type="date"
+          [value]="dateTo"
+          [disabled]="isLoading"
+          (change)="
+            dateTo =
+              dateToInput.value
+          "
+        />
+      </div>
+
+      <div class="date-actions">
+        <button
+          class="btn btn-primary"
+          type="button"
+          [disabled]="isLoading"
+          (click)="applyDateRange()">
+          {{
+            t(
+              'appointments.filters.applyDates'
+            )
+          }}
+        </button>
+
+        <button
+          *ngIf="dateFrom || dateTo"
+          class="btn btn-secondary"
+          type="button"
+          [disabled]="isLoading"
+          (click)="clearDateRange()">
+          {{
+            t(
+              'appointments.filters.clearDates'
+            )
+          }}
+        </button>
+      </div>
+    </div>
   </div>
 
-  <app-loading *ngIf="isLoading" [message]="t('appointments.loading')" size="medium"> </app-loading>
+  <app-loading
+    *ngIf="isLoading"
+    [message]="
+      t('appointments.loading')
+    "
+    size="medium">
+  </app-loading>
 
-  <div *ngIf="!isLoading && errorMessage" class="error-message">
+  <div
+    *ngIf="
+      !isLoading &&
+      errorMessage
+    "
+    class="error-message">
     {{ errorMessage }}
   </div>
 
-  <div *ngIf="!isLoading && !errorMessage && appointments.length === 0" class="empty-state">
+  <div
+    *ngIf="
+      !isLoading &&
+      !errorMessage &&
+      appointments.length === 0
+    "
+    class="empty-state">
+
     <h2>
-      {{ t('appointments.empty.title') }}
+      {{
+        t(
+          'appointments.empty.title'
+        )
+      }}
     </h2>
 
     <p>
-      {{ t('appointments.empty.message') }}
+      {{
+        t(
+          'appointments.empty.message'
+        )
+      }}
     </p>
   </div>
 
-  <div *ngIf="!isLoading && !errorMessage && appointments.length > 0" class="table-container">
+  <div
+    *ngIf="
+      !isLoading &&
+      !errorMessage &&
+      appointments.length > 0
+    "
+    class="table-container">
+
     <table>
       <thead>
         <tr>
           <th>
-            {{ t('appointments.patient') }}
+            {{
+              t(
+                'appointments.patient'
+              )
+            }}
           </th>
 
           <th>
-            {{ t('appointments.date') }}
+            {{
+              t(
+                'appointments.date'
+              )
+            }}
           </th>
 
           <th>
-            {{ t('appointments.reason') }}
+            {{
+              t(
+                'appointments.reason'
+              )
+            }}
           </th>
 
           <th>
-            {{ t('appointments.status') }}
+            {{
+              t(
+                'appointments.status'
+              )
+            }}
           </th>
 
           <th>
-            {{ t('appointments.actions') }}
+            {{
+              t(
+                'appointments.actions'
+              )
+            }}
           </th>
         </tr>
       </thead>
 
       <tbody>
-        <tr *ngFor="let appointment of appointments">
+        <tr
+          *ngFor="
+            let appointment of appointments
+          ">
+
           <td data-label="Patient">
             {{ appointment.patientName }}
           </td>
 
           <td data-label="Date">
-            {{ appointment.appointmentDate | date: 'medium' }}
+            {{
+              appointment.appointmentDate
+                | date:'medium'
+            }}
           </td>
 
           <td data-label="Reason">
@@ -168,55 +373,105 @@
           </td>
 
           <td data-label="Status">
-            <span class="status-badge" [ngClass]="'status-' + appointment.status.toLowerCase()">
+            <span
+              class="status-badge"
+              [ngClass]="
+                'status-' +
+                appointment.status.toLowerCase()
+              ">
               {{ appointment.status }}
             </span>
           </td>
 
-          <td data-label="Actions" class="actions">
+          <td
+            data-label="Actions"
+            class="actions">
+
             <a
               class="btn btn-secondary btn-small"
-              [routerLink]="['/appointments/edit', appointment.id]"
-            >
+              [routerLink]="[
+                '/appointments/edit',
+                appointment.id
+              ]">
               {{ t('common.edit') }}
             </a>
 
             <button
-              *ngIf="appointment.status === 'Scheduled'"
+              *ngIf="
+                appointment.status ===
+                'Scheduled'
+              "
               class="btn btn-primary btn-small"
               type="button"
-              [disabled]="isUpdating(appointment)"
-              (click)="updateStatus(appointment, 2)"
-            >
+              [disabled]="
+                isUpdating(appointment)
+              "
+              (click)="
+                updateStatus(
+                  appointment,
+                  2
+                )
+              ">
               {{
                 isUpdating(appointment)
-                  ? t('appointments.status.updating')
-                  : t('appointments.status.start')
+                  ? t(
+                      'appointments.status.updating'
+                    )
+                  : t(
+                      'appointments.status.start'
+                    )
               }}
             </button>
 
             <button
-              *ngIf="appointment.status === 'InProgress'"
+              *ngIf="
+                appointment.status ===
+                'InProgress'
+              "
               class="btn btn-primary btn-small"
               type="button"
-              [disabled]="isUpdating(appointment)"
-              (click)="updateStatus(appointment, 3)"
-            >
+              [disabled]="
+                isUpdating(appointment)
+              "
+              (click)="
+                updateStatus(
+                  appointment,
+                  3
+                )
+              ">
               {{
                 isUpdating(appointment)
-                  ? t('appointments.status.updating')
-                  : t('appointments.status.complete')
+                  ? t(
+                      'appointments.status.updating'
+                    )
+                  : t(
+                      'appointments.status.complete'
+                    )
               }}
             </button>
 
             <button
-              *ngIf="appointment.status === 'Scheduled' || appointment.status === 'InProgress'"
+              *ngIf="
+                appointment.status ===
+                  'Scheduled' ||
+                appointment.status ===
+                  'InProgress'
+              "
               class="btn btn-danger btn-small"
               type="button"
-              [disabled]="isUpdating(appointment)"
-              (click)="requestCancellation(appointment)"
-            >
-              {{ t('appointments.status.cancel') }}
+              [disabled]="
+                isUpdating(appointment)
+              "
+              (click)="
+                requestCancellation(
+                  appointment
+                )
+              ">
+              {{
+                t(
+                  'appointments.status.cancel'
+                )
+              }}
             </button>
           </td>
         </tr>
@@ -225,38 +480,70 @@
   </div>
 
   <!-- Cancellation confirmation -->
-  <div *ngIf="appointmentToCancel" class="modal-backdrop">
+  <div
+    *ngIf="appointmentToCancel"
+    class="modal-backdrop">
+
     <div
       class="confirmation-modal"
       role="dialog"
       aria-modal="true"
-      [attr.aria-labelledby]="'cancel-appointment-title'"
-    >
+      [attr.aria-labelledby]="
+        'cancel-appointment-title'
+      ">
+
       <h2 id="cancel-appointment-title">
-        {{ t('appointments.cancel.title') }}
+        {{
+          t(
+            'appointments.cancel.title'
+          )
+        }}
       </h2>
 
       <p>
-        {{ t('appointments.cancel.message') }}
+        {{
+          t(
+            'appointments.cancel.message'
+          )
+        }}
       </p>
 
       <div class="appointment-summary">
         <strong>
-          {{ appointmentToCancel.patientName }}
+          {{
+            appointmentToCancel.patientName
+          }}
         </strong>
 
         <span>
-          {{ appointmentToCancel.appointmentDate | date: 'medium' }}
+          {{
+            appointmentToCancel.appointmentDate
+              | date:'medium'
+          }}
         </span>
       </div>
 
       <div class="modal-actions">
-        <button class="btn btn-secondary" type="button" (click)="closeCancellation()">
-          {{ t('appointments.cancel.keep') }}
+        <button
+          class="btn btn-secondary"
+          type="button"
+          (click)="closeCancellation()">
+          {{
+            t(
+              'appointments.cancel.keep'
+            )
+          }}
         </button>
 
-        <button class="btn btn-danger" type="button" (click)="confirmCancellation()">
-          {{ t('appointments.cancel.confirm') }}
+        <button
+          class="btn btn-danger"
+          type="button"
+          (click)="confirmCancellation()">
+          {{
+            t(
+              'appointments.cancel.confirm'
+            )
+          }}
         </button>
       </div>
     </div>

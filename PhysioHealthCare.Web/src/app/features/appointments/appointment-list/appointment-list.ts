@@ -74,6 +74,8 @@ export class AppointmentListComponent
   appointmentToCancel: Appointment | null = null;
 
   searchTerm = '';
+  dateFrom = '';
+  dateTo = '';
 
   selectedStatus:
     AppointmentStatusValue | null = null;
@@ -164,7 +166,17 @@ export class AppointmentListComponent
 
       patientId:
         this.selectedPatientId ||
-        undefined
+        undefined,
+
+        dateFrom:
+          this.dateFrom ? this.toUtcStartOfDay(
+            this.dateFrom
+          ) : undefined,
+
+          dateTo:
+           this.dateTo ? this.toUtcEndOfDay(
+            this.dateTo
+           ) : undefined
     };
 
     this.appointmentService
@@ -252,6 +264,66 @@ export class AppointmentListComponent
 
     this.loadAppointments();
   }
+
+  applyDateRange(): void{
+    this.pageNumber = 1;
+    this.loadAppointments();
+  }
+
+  clearDateRange(): void{
+    if(!this.dateFrom && !this.dateTo){
+      return;
+    }
+    this.dateFrom = '';
+    this.dateTo = '';
+    this.pageNumber = 1;
+
+    this.loadAppointments();
+  }
+
+  private toUtcStartOfDay(
+  date: string
+): string {
+  const [
+    year,
+    month,
+    day
+  ] = date
+    .split('-')
+    .map(Number);
+
+  return new Date(
+    year,
+    month - 1,
+    day,
+    0,
+    0,
+    0,
+    0
+  ).toISOString();
+}
+
+private toUtcEndOfDay(
+  date: string
+): string {
+  const [
+    year,
+    month,
+    day
+  ] = date
+    .split('-')
+    .map(Number);
+
+  return new Date(
+    year,
+    month - 1,
+    day,
+    23,
+    59,
+    59,
+    999
+  ).toISOString();
+}
 
   updateStatus(
     appointment: Appointment,

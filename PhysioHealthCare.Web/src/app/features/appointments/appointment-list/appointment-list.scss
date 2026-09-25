@@ -31,6 +31,7 @@
 .appointment-toolbar {
   display: flex;
   align-items: flex-end;
+  flex-wrap: wrap;
   gap: var(--space-4);
   margin-bottom: var(--space-6);
 }
@@ -85,11 +86,11 @@
 }
 
 /* Filters */
+
 .patient-filter,
 .status-filter {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
   gap: var(--space-2);
 }
 
@@ -128,6 +129,56 @@
 .filter-select:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+/* Date filter */
+
+.date-filter {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+.date-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.filter-input {
+  box-sizing: border-box;
+  min-width: var(--filter-control-min-width);
+  padding: var(--form-control-padding);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.filter-input:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+}
+
+.filter-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring-primary);
+}
+
+.filter-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.date-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 /* Buttons */
@@ -402,6 +453,29 @@ td {
   .filter-select {
     width: 100%;
     min-width: 0;
+  }
+
+  .date-filter {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .date-field {
+    width: 100%;
+  }
+
+  .filter-input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .date-actions {
+    width: 100%;
+  }
+
+  .date-actions .btn {
+    flex: 1;
   }
 
   table,
