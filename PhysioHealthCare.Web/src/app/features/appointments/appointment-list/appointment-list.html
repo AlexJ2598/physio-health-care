@@ -169,105 +169,61 @@
   </div>
 
   <!-- Sorting -->
-<div class="sort-filter">
-  <div class="sort-field">
-    <label
-      class="filter-label"
-      for="appointment-sort-by">
-      {{
-        t(
-          'appointments.sort.by'
-        )
-      }}
-    </label>
+  <div class="sort-filter">
+    <div class="sort-field">
+      <label class="filter-label" for="appointment-sort-by">
+        {{ t('appointments.sort.by') }}
+      </label>
 
-    <select
-      #sortBySelect
-      id="appointment-sort-by"
-      class="filter-select"
-      [value]="sortBy"
-      [disabled]="isLoading"
-      (change)="
-        changeSortField(
-          sortBySelect.value
-        )
-      ">
+      <select
+        #sortBySelect
+        id="appointment-sort-by"
+        class="filter-select"
+        [value]="sortBy"
+        [disabled]="isLoading"
+        (change)="changeSortField(sortBySelect.value)"
+      >
+        <option value="appointmentDate">
+          {{ t('appointments.sort.date') }}
+        </option>
 
-      <option value="appointmentDate">
-        {{
-          t(
-            'appointments.sort.date'
-          )
-        }}
-      </option>
+        <option value="patientName">
+          {{ t('appointments.sort.patient') }}
+        </option>
 
-      <option value="patientName">
-        {{
-          t(
-            'appointments.sort.patient'
-          )
-        }}
-      </option>
+        <option value="status">
+          {{ t('appointments.sort.status') }}
+        </option>
 
-      <option value="status">
-        {{
-          t(
-            'appointments.sort.status'
-          )
-        }}
-      </option>
+        <option value="reason">
+          {{ t('appointments.sort.reason') }}
+        </option>
+      </select>
+    </div>
 
-      <option value="reason">
-        {{
-          t(
-            'appointments.sort.reason'
-          )
-        }}
-      </option>
-    </select>
+    <div class="sort-field">
+      <label class="filter-label" for="appointment-sort-direction">
+        {{ t('appointments.sort.direction') }}
+      </label>
+
+      <select
+        #sortDirectionSelect
+        id="appointment-sort-direction"
+        class="filter-select"
+        [value]="sortDirection"
+        [disabled]="isLoading"
+        (change)="changeSortDirection(sortDirectionSelect.value)"
+      >
+        <option value="asc">
+          {{ t('appointments.sort.ascending') }}
+        </option>
+
+        <option value="desc">
+          {{ t('appointments.sort.descending') }}
+        </option>
+      </select>
+    </div>
   </div>
-
-  <div class="sort-field">
-    <label
-      class="filter-label"
-      for="appointment-sort-direction">
-      {{
-        t(
-          'appointments.sort.direction'
-        )
-      }}
-    </label>
-
-    <select
-      #sortDirectionSelect
-      id="appointment-sort-direction"
-      class="filter-select"
-      [value]="sortDirection"
-      [disabled]="isLoading"
-      (change)="
-        changeSortDirection(
-          sortDirectionSelect.value
-        )
-      ">
-
-      <option value="asc">
-        {{
-          t(
-            'appointments.sort.ascending'
-          )
-        }}
-      </option>
-
-      <option value="desc">
-        {{
-          t(
-            'appointments.sort.descending'
-          )
-        }}
-      </option>
-    </select>
-  </div>
-</div>
 
   <!-- Loading, error and empty states -->
   <app-loading *ngIf="isLoading" [message]="t('appointments.loading')" size="medium"> </app-loading>
@@ -382,6 +338,64 @@
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalCount > 0">
+    <div class="pagination-info">
+      {{ totalCount }}
+      {{ t('appointments.pagination.total') }}
+    </div>
+
+    <div class="pagination-controls">
+      <div class="page-size">
+        <label class="pagination-label" for="appointment-page-size">
+          {{ t('appointments.pagination.show') }}
+        </label>
+
+        <select
+          #pageSizeSelect
+          id="appointment-page-size"
+          class="page-size-select"
+          [value]="pageSize"
+          [disabled]="isLoading"
+          (change)="changePageSize(pageSizeSelect.value)"
+        >
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+
+        <span class="pagination-label">
+          {{ t('appointments.pagination.perPage') }}
+        </span>
+      </div>
+
+      <button
+        class="btn btn-secondary btn-small"
+        type="button"
+        [disabled]="!hasPreviousPage || isLoading"
+        (click)="goToPreviousPage()"
+      >
+        {{ t('appointments.pagination.previous') }}
+      </button>
+
+      <span class="page-indicator">
+        {{ t('appointments.pagination.page') }}
+        {{ pageNumber }}
+        {{ t('appointments.pagination.of') }}
+        {{ totalPages }}
+      </span>
+
+      <button
+        class="btn btn-secondary btn-small"
+        type="button"
+        [disabled]="!hasNextPage || isLoading"
+        (click)="goToNextPage()"
+      >
+        {{ t('appointments.pagination.next') }}
+      </button>
+    </div>
   </div>
 
   <!-- Cancellation confirmation -->

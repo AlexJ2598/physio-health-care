@@ -56,6 +56,14 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
   totalCount = 0;
   totalPages = 0;
 
+  get hasPreviousPage(): boolean{
+    return this.pageNumber > 1;
+  }
+
+  get hasNextPage(): boolean{
+    return this.pageNumber < this.totalPages;
+  }
+
   private readonly search$ = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
 
@@ -229,6 +237,39 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
     this.loadAppointments();
   }
 
+  //pagination actions
+
+  goToPreviousPage(): void{
+    if(!this.hasPreviousPage || this.isLoading){
+      return;
+    }
+    this.pageNumber--;
+    this.loadAppointments();
+  }
+
+  goToNextPage(): void{
+    if(!this.hasNextPage || this.isLoading){
+      return;
+    }
+    this.pageNumber++;
+    this.loadAppointments();
+  }
+
+  changePageSize(pageSize: string):void{
+    const newPageSize = Number(pageSize);
+    if(
+      !Number.isInteger(newPageSize) ||
+      newPageSize <= 0 ||
+      newPageSize === this.pageSize
+    ){
+      return;
+    }
+
+    this.pageSize = newPageSize;
+    this.pageNumber = 1;
+
+    this.loadAppointments();
+  }
   // Appointment actions
 
   updateStatus(appointment: Appointment, status: AppointmentStatusValue): void {

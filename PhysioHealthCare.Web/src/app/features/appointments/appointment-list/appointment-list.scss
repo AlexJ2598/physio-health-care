@@ -181,14 +181,15 @@
   gap: var(--space-2);
 }
 
-/*sort filter */
-.sort-filter{
+/* Sort filter */
+
+.sort-filter {
   display: flex;
   align-items: flex-end;
   gap: var(--space-3);
 }
 
-.sort-field{
+.sort-field {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -421,6 +422,80 @@ td {
   gap: var(--space-3);
 }
 
+/* Pagination */
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.pagination-info {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.page-size {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pagination-label {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.page-size-select {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  outline: none;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.page-size-select:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+}
+
+.page-size-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring-primary);
+}
+
+.page-size-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.page-indicator {
+  min-width: 100px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  text-align: center;
+}
+
 /* Responsive */
 
 @media (max-width: 768px) {
@@ -542,18 +617,41 @@ td {
     width: 100%;
   }
 
-  .sort-filter{
+  .sort-filter {
     width: 100%;
     flex-direction: column;
     align-items: stretch;
   }
 
-  .sort-field{
+  .sort-field {
     width: 100%;
   }
 
-  .sort-field .filter-select{
+  .sort-field .filter-select {
     width: 100%;
+    min-width: 0;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagination-info {
+    text-align: center;
+  }
+
+  .pagination-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .page-size {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-indicator {
     min-width: 0;
   }
 }
