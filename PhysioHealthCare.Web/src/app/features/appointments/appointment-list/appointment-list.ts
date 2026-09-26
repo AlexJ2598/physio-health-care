@@ -10,7 +10,8 @@ import { TranslationService } from '../../../core/services/translation';
 import {
   Appointment,
   AppointmentFilters,
-  AppointmentStatusValue,
+  AppointmentSortField,
+  AppointmentStatusValue
 } from '../../../shared/models/appointment';
 import { Patient } from '../../../shared/models/patient';
 import { LoadingComponent } from '../../../shared/components/loading/loading';
@@ -42,6 +43,12 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
 
   selectedStatus: AppointmentStatusValue | null = null;
   selectedPatientId = '';
+
+  //Sorting
+
+  sortBy: AppointmentSortField = 'appointmentDate';
+
+  sortDirection: 'asc' | 'desc' = 'asc';
 
   // Pagination
   pageNumber = 1;
@@ -119,6 +126,8 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
       patientId: this.selectedPatientId || undefined,
       dateFrom: this.dateFrom ? this.toUtcStartOfDay(this.dateFrom) : undefined,
       dateTo: this.dateTo ? this.toUtcEndOfDay(this.dateTo) : undefined,
+      sortBy: this.sortBy,
+      sortDirection: this.sortDirection
     };
 
     this.appointmentService.getAll(this.pageNumber, this.pageSize, filters).subscribe({
@@ -198,6 +207,25 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
     this.dateTo = '';
     this.pageNumber = 1;
 
+    this.loadAppointments();
+  }
+
+  //Sorting actions.
+  changeSortField(sortBy: string): void{
+
+    this.sortBy = sortBy as AppointmentSortField;
+
+    this.pageNumber = 1;
+    this.loadAppointments();
+  }
+
+  changeSortDirection(sortDirection: string): void{
+
+    this.sortDirection = sortDirection === 'desc'
+    ? 'desc'
+    : 'asc';
+
+    this.pageNumber = 1;
     this.loadAppointments();
   }
 

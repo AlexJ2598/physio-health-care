@@ -168,6 +168,107 @@
     </div>
   </div>
 
+  <!-- Sorting -->
+<div class="sort-filter">
+  <div class="sort-field">
+    <label
+      class="filter-label"
+      for="appointment-sort-by">
+      {{
+        t(
+          'appointments.sort.by'
+        )
+      }}
+    </label>
+
+    <select
+      #sortBySelect
+      id="appointment-sort-by"
+      class="filter-select"
+      [value]="sortBy"
+      [disabled]="isLoading"
+      (change)="
+        changeSortField(
+          sortBySelect.value
+        )
+      ">
+
+      <option value="appointmentDate">
+        {{
+          t(
+            'appointments.sort.date'
+          )
+        }}
+      </option>
+
+      <option value="patientName">
+        {{
+          t(
+            'appointments.sort.patient'
+          )
+        }}
+      </option>
+
+      <option value="status">
+        {{
+          t(
+            'appointments.sort.status'
+          )
+        }}
+      </option>
+
+      <option value="reason">
+        {{
+          t(
+            'appointments.sort.reason'
+          )
+        }}
+      </option>
+    </select>
+  </div>
+
+  <div class="sort-field">
+    <label
+      class="filter-label"
+      for="appointment-sort-direction">
+      {{
+        t(
+          'appointments.sort.direction'
+        )
+      }}
+    </label>
+
+    <select
+      #sortDirectionSelect
+      id="appointment-sort-direction"
+      class="filter-select"
+      [value]="sortDirection"
+      [disabled]="isLoading"
+      (change)="
+        changeSortDirection(
+          sortDirectionSelect.value
+        )
+      ">
+
+      <option value="asc">
+        {{
+          t(
+            'appointments.sort.ascending'
+          )
+        }}
+      </option>
+
+      <option value="desc">
+        {{
+          t(
+            'appointments.sort.descending'
+          )
+        }}
+      </option>
+    </select>
+  </div>
+</div>
+
   <!-- Loading, error and empty states -->
   <app-loading *ngIf="isLoading" [message]="t('appointments.loading')" size="medium"> </app-loading>
 
