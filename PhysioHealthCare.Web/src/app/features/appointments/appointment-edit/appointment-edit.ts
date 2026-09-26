@@ -216,11 +216,11 @@ export class AppointmentEditComponent
           this.isSaving = false;
 
           this.errorMessage =
-            error.error?.message ||
-            error.error?.Message ||
             this.t(
               'appointments.edit.error'
             );
+
+            this.toastService.error(this.errorMessage);
 
           this.cdr.detectChanges();
         }

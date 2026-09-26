@@ -304,7 +304,7 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
           this.updatingAppointmentId = null;
 
           this.toastService.error(
-            error.error?.message || error.error?.Message || this.t('appointments.status.error'),
+            this.t('appointments.status.error')
           );
 
           this.cdr.detectChanges();
@@ -350,6 +350,24 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
 
   isUpdating(appointment: Appointment): boolean {
     return this.updatingAppointmentId === appointment.id;
+  }
+
+  statusLabel(status: string): string{
+    const statusKey: Record<string, string> = {
+      Scheduled: 'scheduled',
+      InProgress: 'inProgress',
+      Completed: 'completed',
+      Cancelled: 'cancelled'
+    };
+
+    const key = statusKey[status];
+    return key ? this.t(`appointments.status.${key}`): status;
+  }
+
+  dateLocale():string{
+    return this.translationService.getCurrentLanguage() === 'es'
+    ? 'es-MX'
+    : 'en-US';
   }
 
   t(key: string): string {

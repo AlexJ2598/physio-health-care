@@ -1323,38 +1323,53 @@ describe('AppointmentListComponent', () => {
     ).toBe(false);
   });
 
-  it('should show API error message when status update fails', () => {
-    const consoleErrorSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
+it('should use translated error when status update fails', () => {
+  const consoleErrorSpy = vi
+    .spyOn(console, 'error')
+    .mockImplementation(() => {});
 
-    appointmentServiceMock.updateStatus
-      .mockReturnValue(
-        throwError(() => ({
-          error: {
-            message:
-              'Invalid status transition'
-          }
-        }))
-      );
-
-    component.updateStatus(
-      appointments[0],
-      2
+  appointmentServiceMock.updateStatus
+    .mockReturnValue(
+      throwError(() => ({
+        error: {
+          message: 'Invalid status transition'
+        }
+      }))
     );
 
-    expect(
-      component.updatingAppointmentId
-    ).toBeNull();
+  component.updateStatus(
+    appointments[0],
+    2
+  );
 
-    expect(
-      toastServiceMock.error
-    ).toHaveBeenCalledWith(
-      'Invalid status transition'
-    );
+  expect(
+    component.updatingAppointmentId
+  ).toBeNull();
 
-    consoleErrorSpy.mockRestore();
-  });
+  expect(
+    toastServiceMock.error
+  ).toHaveBeenCalledWith(
+    'appointments.status.error'
+  );
+
+  expect(
+    translationServiceMock.translate
+  ).toHaveBeenCalledWith(
+    'appointments.status.error'
+  );
+
+  expect(
+    toastServiceMock.error
+  ).not.toHaveBeenCalledWith(
+    'Invalid status transition'
+  );
+
+  expect(
+    consoleErrorSpy
+  ).toHaveBeenCalled();
+
+  consoleErrorSpy.mockRestore();
+});
 
   it('should use translated fallback when status update error has no message', () => {
     const consoleErrorSpy = vi
@@ -1469,6 +1484,44 @@ describe('AppointmentListComponent', () => {
       component.appointmentToCancel
     ).toBeNull();
   });
+
+  it('should translate appointment status labels', () => {
+  component.statusLabel('Scheduled');
+  component.statusLabel('InProgress');
+  component.statusLabel('Completed');
+  component.statusLabel('Cancelled');
+
+  expect(
+    translationServiceMock.translate
+  ).toHaveBeenCalledWith(
+    'appointments.status.scheduled'
+  );
+
+  expect(
+    translationServiceMock.translate
+  ).toHaveBeenCalledWith(
+    'appointments.status.inProgress'
+  );
+
+  expect(
+    translationServiceMock.translate
+  ).toHaveBeenCalledWith(
+    'appointments.status.completed'
+  );
+
+  expect(
+    translationServiceMock.translate
+  ).toHaveBeenCalledWith(
+    'appointments.status.cancelled'
+  );
+});
+
+it('should return original status when translation key is unknown', () => {
+  const result =
+    component.statusLabel('Unknown');
+
+  expect(result).toBe('Unknown');
+});
 
   it('should not close cancellation while appointment is updating', () => {
     component.appointmentToCancel =

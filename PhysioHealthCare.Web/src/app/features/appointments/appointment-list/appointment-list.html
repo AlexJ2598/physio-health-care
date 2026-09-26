@@ -276,7 +276,8 @@
           </td>
 
           <td data-label="Date">
-            {{ appointment.appointmentDate | date: 'medium' }}
+            {{ appointment.appointmentDate 
+            | date: 'medium' : undefined : dateLocale() }}
           </td>
 
           <td data-label="Reason">
@@ -285,7 +286,7 @@
 
           <td data-label="Status">
             <span class="status-badge" [ngClass]="'status-' + appointment.status.toLowerCase()">
-              {{ appointment.status }}
+              {{ statusLabel(appointment.status) }}
             </span>
           </td>
 
