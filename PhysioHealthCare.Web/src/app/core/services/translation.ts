@@ -1,139 +1,84 @@
 import { HttpClient } from '@angular/common/http';
-
 import { Injectable } from '@angular/core';
-
-import {
-  BehaviorSubject,
-  catchError,
-  Observable,
-  of,
-  tap
-} from 'rxjs';
+import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
 
 type Translations = Record<string, string>;
 
-export type SupportedLanguage =
-  | 'es'
-  | 'en';
+export type SupportedLanguage = 'es' | 'en';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TranslationService {
+  // State and configuration
 
-  private readonly languageStorageKey =
-    'physiohealthcare_language';
-
+  private readonly languageStorageKey = 'physiohealthcare_language';
   private translations: Translations = {};
-
   private currentLanguage: SupportedLanguage = 'en';
+  private readonly languageSubject = new BehaviorSubject<SupportedLanguage>('en');
+  readonly language$ = this.languageSubject.asObservable();
 
-  private readonly languageSubject =
-    new BehaviorSubject<SupportedLanguage>('en');
+  // Dependencies
 
-  readonly language$ =
-    this.languageSubject.asObservable();
+  constructor(private http: HttpClient) {}
 
-  constructor(
-    private http: HttpClient
-  ) {}
+  // Data loading
 
   load(): Observable<Translations> {
+    const savedLanguage = localStorage.getItem(this.languageStorageKey);
 
-    const savedLanguage =
-      localStorage.getItem(
-        this.languageStorageKey
-      );
-
-    if (
-      savedLanguage === 'es' ||
-      savedLanguage === 'en'
-    ) {
-      this.currentLanguage =
-        savedLanguage;
+    if (savedLanguage === 'es' || savedLanguage === 'en') {
+      this.currentLanguage = savedLanguage;
     } else {
-      const browserLanguage =
-        navigator.language.toLowerCase();
+      const browserLanguage = navigator.language.toLowerCase();
 
-      this.currentLanguage =
-        browserLanguage.startsWith('es')
-          ? 'es'
-          : 'en';
+      this.currentLanguage = browserLanguage.startsWith('es') ? 'es' : 'en';
     }
 
-    return this.loadTranslations(
-      this.currentLanguage
-    );
+    return this.loadTranslations(this.currentLanguage);
   }
 
-  setLanguage(
-    language: SupportedLanguage
-  ): Observable<Translations> {
+  // Language selection
 
-    if (
-      language === this.currentLanguage
-    ) {
+  setLanguage(language: SupportedLanguage): Observable<Translations> {
+    if (language === this.currentLanguage) {
       return of(this.translations);
     }
 
-    return this.loadTranslations(
-      language
-    ).pipe(
+    return this.loadTranslations(language).pipe(
       tap(() => {
-        localStorage.setItem(
-          this.languageStorageKey,
-          language
-        );
-      })
+        localStorage.setItem(this.languageStorageKey, language);
+      }),
     );
   }
 
-  translate(
-    key: string
-  ): string {
+  // Translation access
 
+  translate(key: string): string {
     return this.translations[key] ?? key;
   }
 
-  getCurrentLanguage():
-    SupportedLanguage {
-
+  getCurrentLanguage(): SupportedLanguage {
     return this.currentLanguage;
   }
 
-  private loadTranslations(
-    language: SupportedLanguage
-  ): Observable<Translations> {
+  // Internal helpers
 
-    return this.http
-      .get<Translations>(
-        `/i18n/${language}.json`
-      )
-      .pipe(
-        tap(translations => {
+  private loadTranslations(language: SupportedLanguage): Observable<Translations> {
+    return this.http.get<Translations>(`/i18n/${language}.json`).pipe(
+      tap((translations) => {
+        this.translations = translations;
 
-          this.translations =
-            translations;
+        this.currentLanguage = language;
 
-          this.currentLanguage =
-            language;
+        this.languageSubject.next(language);
+      }),
 
-          this.languageSubject.next(
-            language
-          );
-        }),
+      catchError((error) => {
+        console.error(`Error loading ${language} translations:`, error);
 
-        catchError(error => {
-
-          console.error(
-            `Error loading ${language} translations:`,
-            error
-          );
-
-          return of(
-            this.translations
-          );
-        })
-      );
+        return of(this.translations);
+      }),
+    );
   }
 }

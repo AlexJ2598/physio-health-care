@@ -1,26 +1,11 @@
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import {
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi
-} from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  ToastComponent
-} from './toast';
-import {
-  ToastMessage,
-  ToastService
-} from '../../../core/services/toast';
+import { ToastComponent } from './toast';
+import { ToastMessage, ToastService } from '../../../core/services/toast';
 
 describe('ToastComponent', () => {
-
   let component: ToastComponent;
   let fixture: ComponentFixture<ToastComponent>;
 
@@ -29,41 +14,35 @@ describe('ToastComponent', () => {
     remove: ReturnType<typeof vi.fn>;
   };
 
+  // Test setup
   beforeEach(async () => {
-
     toastServiceMock = {
       toasts: signal<ToastMessage[]>([]),
-      remove: vi.fn()
+      remove: vi.fn(),
     };
 
     await TestBed.configureTestingModule({
-      imports: [
-        ToastComponent
-      ],
+      imports: [ToastComponent],
       providers: [
         {
           provide: ToastService,
-          useValue: toastServiceMock
-        }
-      ]
+          useValue: toastServiceMock,
+        },
+      ],
     })
-      .overrideComponent(
-        ToastComponent,
-        {
-          set: {
-            template: ''
-          }
-        }
-      )
+      .overrideComponent(ToastComponent, {
+        set: {
+          template: '',
+        },
+      })
       .compileComponents();
 
-    fixture = TestBed.createComponent(
-      ToastComponent
-    );
+    fixture = TestBed.createComponent(ToastComponent);
 
     component = fixture.componentInstance;
   });
 
+  // Test cases
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -73,18 +52,12 @@ describe('ToastComponent', () => {
       id: 1,
       type: 'success',
       message: 'Patient created',
-      duration: 3000
+      duration: 3000,
     };
 
-    toastServiceMock.toasts.set([
-      toast
-    ]);
+    toastServiceMock.toasts.set([toast]);
 
-    expect(
-      component.toasts()
-    ).toEqual([
-      toast
-    ]);
+    expect(component.toasts()).toEqual([toast]);
   });
 
   it('should remove toast through ToastService', () => {
@@ -92,16 +65,11 @@ describe('ToastComponent', () => {
       id: 1,
       type: 'error',
       message: 'Something went wrong',
-      duration: 5000
+      duration: 5000,
     };
 
     component.removeToast(toast);
 
-    expect(
-      toastServiceMock.remove
-    ).toHaveBeenCalledWith(
-      toast.id
-    );
+    expect(toastServiceMock.remove).toHaveBeenCalledWith(toast.id);
   });
-
 });

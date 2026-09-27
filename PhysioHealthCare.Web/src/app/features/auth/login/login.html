@@ -1,33 +1,28 @@
 <div class="login-page">
-
   <div class="login-card">
-
+    <!-- Brand -->
     <div class="brand">
-
       <img
         src="/images/salma-logo.jpeg"
         alt="Salma Cortés - Licenciada en Fisioterapia"
         class="clinic-logo"
-       />
+      />
 
       <div class="brand-text">
         <h1>Salma Cortés</h1>
         <p>Clinic Management System</p>
       </div>
-
     </div>
 
+    <!-- Welcome message -->
     <div class="welcome">
       <h2>{{ t('login.title') }}</h2>
       <p>{{ t('login.subtitle') }}</p>
     </div>
 
-    <form
-      #loginForm="ngForm"
-      (ngSubmit)="login()">
-
+    <!-- Form fields and validation -->
+    <form #loginForm="ngForm" (ngSubmit)="login()">
       <div class="form-group">
-
         <label for="email">
           {{ t('login.email') }}
         </label>
@@ -40,11 +35,9 @@
           required
           autocomplete="email"
         />
-
       </div>
 
       <div class="form-group">
-
         <label for="password">
           {{ t('login.password') }}
         </label>
@@ -58,31 +51,16 @@
           required
           autocomplete="current-password"
         />
-
       </div>
 
-      <div
-        class="error-alert"
-        *ngIf="errorMessage">
-
+      <!-- Login feedback -->
+      <div class="error-alert" *ngIf="errorMessage">
         {{ errorMessage }}
-
       </div>
 
-      <button
-        type="submit"
-        [disabled]="isLoading">
-
-        {{
-          isLoading
-            ? t('login.signingIn')
-            : t('login.signIn')
-        }}
-
+      <button type="submit" [disabled]="isLoading">
+        {{ isLoading ? t('login.signingIn') : t('login.signIn') }}
       </button>
-
     </form>
-
   </div>
-
 </div>

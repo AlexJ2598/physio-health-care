@@ -1,3 +1,5 @@
+/* Loading layout */
+
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -24,22 +26,16 @@
   padding: 0;
 }
 
+/* Spinner and sizes */
+
 .spinner {
   border-style: solid;
 
-  border-color:
-    var(--color-border)
-    var(--color-border)
-    var(--color-border)
-    var(--color-primary);
+  border-color: var(--color-border) var(--color-border) var(--color-border) var(--color-primary);
 
   border-radius: 50%;
 
-  animation:
-    loading-spin
-    0.8s
-    linear
-    infinite;
+  animation: loading-spin 0.8s linear infinite;
 }
 
 .spinner--small {
@@ -63,6 +59,8 @@
   border-width: 4px;
 }
 
+/* Loading message */
+
 .loading-message {
   margin: 0;
 
@@ -71,6 +69,8 @@
 
   color: var(--color-text-muted);
 }
+
+/* Animation */
 
 @keyframes loading-spin {
   to {

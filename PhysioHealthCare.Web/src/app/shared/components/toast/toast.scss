@@ -11,11 +11,7 @@
 
   gap: var(--space-3);
 
-  width:
-    min(
-      calc(100vw - (var(--space-6) * 2)),
-      var(--toast-max-width)
-    );
+  width: min(calc(100vw - (var(--space-6) * 2)), var(--toast-max-width));
 }
 
 .toast {
@@ -26,22 +22,15 @@
 
   width: 100%;
 
-  padding:
-    var(--space-4)
-    var(--space-4);
+  padding: var(--space-4) var(--space-4);
 
   border-radius: var(--radius-md);
 
-  border:
-    1px solid
-    var(--color-border);
+  border: 1px solid var(--color-border);
 
   box-shadow: var(--shadow-md);
 
-  animation:
-    toast-enter
-    var(--transition-fast)
-    ease-out;
+  animation: toast-enter var(--transition-fast) ease-out;
 }
 
 .toast-icon {
@@ -89,140 +78,96 @@
 
   opacity: 0.65;
 
-  transition:
-    opacity var(--transition-fast);
+  transition: opacity var(--transition-fast);
 }
 
 .toast-close:hover {
   opacity: 1;
 }
 
-
-/* =========================================
-   Success
-   ========================================= */
+/* Success */
 
 .toast-success {
-  background:
-    var(--toast-success-background);
+  background: var(--toast-success-background);
 
-  border-color:
-    var(--color-success-border);
+  border-color: var(--color-success-border);
 
-  color:
-    var(--color-success-dark);
+  color: var(--color-success-dark);
 }
 
 .toast-success .toast-icon {
-  background:
-    var(--color-success-soft);
+  background: var(--color-success-soft);
 
-  color:
-    var(--color-success-dark);
+  color: var(--color-success-dark);
 }
 
-
-/* =========================================
-   Error
-   ========================================= */
+/* Error */
 
 .toast-error {
-  background:
-    var(--toast-error-background);
+  background: var(--toast-error-background);
 
-  border-color:
-    var(--color-danger-border);
+  border-color: var(--color-danger-border);
 
-  color:
-    var(--color-danger-text);
+  color: var(--color-danger-text);
 }
 
 .toast-error .toast-icon {
-  background:
-    var(--color-danger-soft);
+  background: var(--color-danger-soft);
 
-  color:
-    var(--color-danger-dark);
+  color: var(--color-danger-dark);
 }
 
-
-/* =========================================
-   Warning
-   ========================================= */
+/* Warning */
 
 .toast-warning {
-  background:
-    var(--toast-warning-background);
+  background: var(--toast-warning-background);
 
-  border-color:
-    var(--color-warning-soft);
+  border-color: var(--color-warning-soft);
 
-  color:
-    var(--color-warning-dark);
+  color: var(--color-warning-dark);
 }
 
 .toast-warning .toast-icon {
-  background:
-    var(--color-warning-soft);
+  background: var(--color-warning-soft);
 
-  color:
-    var(--color-warning-dark);
+  color: var(--color-warning-dark);
 }
 
-
-/* =========================================
-   Info
-   ========================================= */
+/* Info */
 
 .toast-info {
-  background:
-    var(--toast-info-background);
+  background: var(--toast-info-background);
 
-  border-color:
-    var(--color-info-soft);
+  border-color: var(--color-info-soft);
 
-  color:
-    var(--color-info-dark);
+  color: var(--color-info-dark);
 }
 
 .toast-info .toast-icon {
-  background:
-    var(--color-info-soft);
+  background: var(--color-info-soft);
 
-  color:
-    var(--color-info);
+  color: var(--color-info);
 }
 
-
-/* =========================================
-   Animation
-   ========================================= */
+/* Animation */
 
 @keyframes toast-enter {
-
   from {
     opacity: 0;
 
-    transform:
-      translateY(-8px);
+    transform: translateY(-8px);
   }
 
   to {
     opacity: 1;
 
-    transform:
-      translateY(0);
+    transform: translateY(0);
   }
-
 }
 
-
-/* =========================================
-   Responsive
-   ========================================= */
+/* Responsive */
 
 @media (max-width: 600px) {
-
   .toast-container {
     top: var(--space-4);
     right: var(--space-4);
@@ -230,5 +175,4 @@
 
     width: auto;
   }
-
 }

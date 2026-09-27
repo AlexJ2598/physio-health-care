@@ -1,4 +1,5 @@
 <section class="appointment-create">
+  <!-- Page header -->
   <div class="page-header">
     <div>
       <h1>
@@ -11,17 +12,12 @@
     </div>
   </div>
 
-  <div
-    *ngIf="errorMessage"
-    class="error-message">
+  <div *ngIf="errorMessage" class="error-message">
     {{ errorMessage }}
   </div>
 
-  <form
-    #appointmentForm="ngForm"
-    class="appointment-form"
-    (ngSubmit)="createAppointment()">
-
+  <!-- Form fields and validation -->
+  <form #appointmentForm="ngForm" class="appointment-form" (ngSubmit)="createAppointment()">
     <div class="form-group">
       <label for="patientId">
         {{ t('appointments.create.patient') }}
@@ -32,8 +28,8 @@
         name="patientId"
         [(ngModel)]="patientId"
         [disabled]="isLoadingPatients || isSaving"
-        required>
-
+        required
+      >
         <option value="" disabled>
           {{
             isLoadingPatients
@@ -42,9 +38,7 @@
           }}
         </option>
 
-        <option
-          *ngFor="let patient of patients"
-          [value]="patient.id">
+        <option *ngFor="let patient of patients" [value]="patient.id">
           {{ patient.fullName }}
         </option>
       </select>
@@ -61,7 +55,8 @@
         type="datetime-local"
         [(ngModel)]="appointmentDate"
         [disabled]="isSaving"
-        required />
+        required
+      />
     </div>
 
     <div class="form-group">
@@ -76,7 +71,8 @@
         [(ngModel)]="reason"
         [disabled]="isSaving"
         [placeholder]="t('appointments.create.reasonPlaceholder')"
-        required />
+        required
+      />
     </div>
 
     <div class="form-group">
@@ -90,32 +86,24 @@
         [(ngModel)]="notes"
         [disabled]="isSaving"
         [placeholder]="t('appointments.create.notesPlaceholder')"
-        rows="4">
+        rows="4"
+      >
       </textarea>
     </div>
 
+    <!-- Form actions -->
     <div class="form-actions">
-      <a
-        class="btn btn-secondary"
-        routerLink="/appointments">
+      <a class="btn btn-secondary" routerLink="/appointments">
         {{ t('common.cancel') }}
       </a>
 
       <button
         class="btn btn-primary"
         type="submit"
-        [disabled]="
-          appointmentForm.invalid ||
-          isLoadingPatients ||
-          isSaving
-        ">
-        {{
-          isSaving
-            ? t('appointments.create.saving')
-            : t('appointments.create.save')
-        }}
+        [disabled]="appointmentForm.invalid || isLoadingPatients || isSaving"
+      >
+        {{ isSaving ? t('appointments.create.saving') : t('appointments.create.save') }}
       </button>
     </div>
-
   </form>
 </section>

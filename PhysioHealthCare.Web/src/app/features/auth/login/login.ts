@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+
 import { AuthService } from '../../../core/services/auth';
 import { Login } from '../../../shared/models/login';
 import { TranslationService } from '../../../core/services/translation';
@@ -11,20 +12,26 @@ import { TranslationService } from '../../../core/services/translation';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.scss'
+  styleUrl: './login.scss',
 })
 export class LoginComponent {
+  // State and configuration
+
   email = '';
   password = '';
   errorMessage = '';
   isLoading = false;
 
+  // Dependencies
+
   constructor(
     private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private translationService : TranslationService
+    private translationService: TranslationService,
   ) {}
+
+  // Authentication
 
   login(): void {
     if (this.isLoading) return;
@@ -35,7 +42,7 @@ export class LoginComponent {
 
     const dto: Login = {
       email: this.email.trim(),
-      password: this.password
+      password: this.password,
     };
 
     this.authService.login(dto).subscribe({
@@ -52,15 +59,16 @@ export class LoginComponent {
         this.isLoading = false;
 
         this.errorMessage =
-          error.error?.message ||
-          error.error?.Message ||
-          this.t('login.invalidCredentials');
+          error.error?.message || error.error?.Message || this.t('login.invalidCredentials');
 
         this.cdr.detectChanges();
-      }
+      },
     });
   }
-  t(key: string): string{
-    return this.translationService.translate(key)
+
+  // Template helpers
+
+  t(key: string): string {
+    return this.translationService.translate(key);
   }
 }

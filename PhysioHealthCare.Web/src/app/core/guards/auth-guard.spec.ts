@@ -1,10 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  ActivatedRouteSnapshot,
-  Router,
-  RouterStateSnapshot,
-  UrlTree
-} from '@angular/router';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 
 import { authGuard } from './auth-guard';
 import { AuthService } from '../services/auth';
@@ -15,81 +10,57 @@ describe('authGuard', () => {
 
   const executeGuard = () =>
     TestBed.runInInjectionContext(() =>
-      authGuard(
-        {} as ActivatedRouteSnapshot,
-        {} as RouterStateSnapshot
-      )
+      authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
     );
 
+  // Test setup
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         {
           provide: AuthService,
           useValue: {
-            isAuthenticated: vi.fn()
-          }
+            isAuthenticated: vi.fn(),
+          },
         },
         {
           provide: Router,
           useValue: {
-            createUrlTree: vi.fn(
-              () => ({}) as UrlTree
-            )
-          }
-        }
-      ]
+            createUrlTree: vi.fn(() => ({}) as UrlTree),
+          },
+        },
+      ],
     });
 
-    authService = TestBed.inject(
-      AuthService
-    );
+    authService = TestBed.inject(AuthService);
 
-    router = TestBed.inject(
-      Router
-    );
+    router = TestBed.inject(Router);
   });
 
+  // Test cases
   it('should allow navigation when user is authenticated', () => {
-    vi.mocked(
-      authService.isAuthenticated
-    ).mockReturnValue(true);
+    vi.mocked(authService.isAuthenticated).mockReturnValue(true);
 
     const result = executeGuard();
 
     expect(result).toBe(true);
 
-    expect(
-      router.createUrlTree
-    ).not.toHaveBeenCalled();
+    expect(router.createUrlTree).not.toHaveBeenCalled();
   });
 
   it('should redirect to login when user is not authenticated', () => {
-    const loginUrlTree =
-      {} as UrlTree;
+    const loginUrlTree = {} as UrlTree;
 
-    vi.mocked(
-      authService.isAuthenticated
-    ).mockReturnValue(false);
+    vi.mocked(authService.isAuthenticated).mockReturnValue(false);
 
-    vi.mocked(
-      router.createUrlTree
-    ).mockReturnValue(loginUrlTree);
+    vi.mocked(router.createUrlTree).mockReturnValue(loginUrlTree);
 
     const result = executeGuard();
 
-    expect(
-      authService.isAuthenticated
-    ).toHaveBeenCalled();
+    expect(authService.isAuthenticated).toHaveBeenCalled();
 
-    expect(
-      router.createUrlTree
-    ).toHaveBeenCalledWith([
-      '/login'
-    ]);
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/login']);
 
-    expect(result).toBe(
-      loginUrlTree
-    );
+    expect(result).toBe(loginUrlTree);
   });
 });

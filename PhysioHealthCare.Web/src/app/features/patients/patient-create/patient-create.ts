@@ -1,62 +1,28 @@
 import { CommonModule } from '@angular/common';
-
-import {
-  ChangeDetectorRef,
-  Component,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
-
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
-import {
-  Router,
-  RouterLink
-} from '@angular/router';
-
-import {
-  Subject,
-  takeUntil
-} from 'rxjs';
+import { Router, RouterLink } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 
 import { PatientService } from '../../../core/services/patient';
-
 import { ToastService } from '../../../core/services/toast';
-
 import { TranslationService } from '../../../core/services/translation';
-
 import { LoadingComponent } from '../../../shared/components/loading/loading';
-
-import {
-  CreatePatient,
-  PatientGenderValue
-} from '../../../shared/models/patient';
+import { CreatePatient, PatientGenderValue } from '../../../shared/models/patient';
 
 @Component({
   selector: 'app-patient-create',
-
   standalone: true,
-
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterLink,
-    LoadingComponent
-  ],
-
+  imports: [CommonModule, FormsModule, RouterLink, LoadingComponent],
   templateUrl: './patient-create.html',
-
   styleUrl: './patient-create.scss',
 })
-export class PatientCreateComponent
-  implements OnInit, OnDestroy {
+export class PatientCreateComponent implements OnInit, OnDestroy {
+  // State and configuration
 
   isLoading = false;
-
   errorMessage = '';
-
   formSubmitted = false;
-
   patient: CreatePatient = {
     firstName: '',
     lastName: '',
@@ -65,71 +31,53 @@ export class PatientCreateComponent
     phoneNumber: '',
     email: '',
     address: '',
-    notes: ''
+    notes: '',
   };
+  private readonly destroy$ = new Subject<void>();
 
-  private readonly destroy$ =
-    new Subject<void>();
+  // Dependencies
 
   constructor(
     private patientService: PatientService,
     private router: Router,
     private cdr: ChangeDetectorRef,
     private translationService: TranslationService,
-    private toastService: ToastService
+    private toastService: ToastService,
   ) {}
 
+  // Computed values
+
+  get maxBirthDate(): string {
+    const yesterday = new Date();
+
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const year = yesterday.getFullYear();
+
+    const month = String(yesterday.getMonth() + 1).padStart(2, '0');
+
+    const day = String(yesterday.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  }
+
+  // Lifecycle
+
   ngOnInit(): void {
-
-    this.translationService.language$
-      .pipe(
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-
-        this.cdr.detectChanges();
-      });
+    this.translationService.language$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.cdr.detectChanges();
+    });
   }
 
   ngOnDestroy(): void {
-
     this.destroy$.next();
 
     this.destroy$.complete();
   }
 
-  t(
-    key: string
-  ): string {
-
-    return this.translationService
-      .translate(key);
-  }
-
-  get maxBirthDate(): string {
-
-    const yesterday = new Date();
-
-    yesterday.setDate(
-      yesterday.getDate() - 1
-    );
-
-    const year =
-      yesterday.getFullYear();
-
-    const month = String(
-      yesterday.getMonth() + 1
-    ).padStart(2, '0');
-
-    const day = String(
-      yesterday.getDate()
-    ).padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
-  }
+  // Form submission
 
   createPatient(): void {
-
     this.formSubmitted = true;
 
     if (this.isLoading) {
@@ -140,31 +88,17 @@ export class PatientCreateComponent
       !this.patient.firstName.trim() ||
       !this.patient.lastName.trim() ||
       !this.patient.birthDate ||
-      !this.isValidGender(
-        this.patient.gender
-      )
+      !this.isValidGender(this.patient.gender)
     ) {
-
-      this.errorMessage =
-        this.t(
-          'patients.validation.requiredFields'
-        );
+      this.errorMessage = this.t('patients.validation.requiredFields');
 
       this.cdr.detectChanges();
 
       return;
     }
 
-    if (
-      !this.isBirthDateValid(
-        this.patient.birthDate
-      )
-    ) {
-
-      this.errorMessage =
-        this.t(
-          'patients.validation.birthDatePast'
-        );
+    if (!this.isBirthDateValid(this.patient.birthDate)) {
+      this.errorMessage = this.t('patients.validation.birthDatePast');
 
       this.cdr.detectChanges();
 
@@ -177,96 +111,59 @@ export class PatientCreateComponent
 
     this.cdr.detectChanges();
 
-    this.patientService
-      .create(this.patient)
-      .subscribe({
-        next: () => {
+    this.patientService.create(this.patient).subscribe({
+      next: () => {
+        this.isLoading = false;
 
-          this.isLoading = false;
+        this.toastService.success(this.t('patients.create.success'));
 
-          this.toastService.success(
-            this.t(
-              'patients.create.success'
-            )
-          );
+        this.router.navigate(['/patients']);
+      },
 
-          this.router.navigate([
-            '/patients'
-          ]);
-        },
+      error: (error) => {
+        console.error('Create patient error', error);
 
-        error: (error) => {
+        this.isLoading = false;
 
-          console.error(
-            'Create patient error',
-            error
-          );
+        this.errorMessage =
+          error.error?.message || error.error?.Message || this.t('patients.create.error');
 
-          this.isLoading = false;
-
-          this.errorMessage =
-            error.error?.message ||
-            error.error?.Message ||
-            this.t(
-              'patients.create.error'
-            );
-
-          this.cdr.detectChanges();
-        }
-      });
+        this.cdr.detectChanges();
+      },
+    });
   }
 
-  private isBirthDateValid(
-    birthDateValue: string
-  ): boolean {
+  // Template helpers
 
-    const parts =
-      birthDateValue
-        .split('-')
-        .map(Number);
+  t(key: string): string {
+    return this.translationService.translate(key);
+  }
+
+  // Internal helpers
+
+  private isBirthDateValid(birthDateValue: string): boolean {
+    const parts = birthDateValue.split('-').map(Number);
 
     if (parts.length !== 3) {
       return false;
     }
 
-    const [
-      year,
-      month,
-      day
-    ] = parts;
+    const [year, month, day] = parts;
 
-    if (
-      !year ||
-      !month ||
-      !day
-    ) {
+    if (!year || !month || !day) {
       return false;
     }
 
-    const birthDate = new Date(
-      year,
-      month - 1,
-      day
-    );
+    const birthDate = new Date(year, month - 1, day);
 
     const now = new Date();
 
-    const today = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
-    );
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     return birthDate < today;
   }
 
-  private isValidGender(
-    gender: PatientGenderValue
-  ): boolean {
-
-    return (
-      gender >= 1 &&
-      gender <= 3
-    );
+  private isValidGender(gender: PatientGenderValue): boolean {
+    return gender >= 1 && gender <= 3;
   }
 }

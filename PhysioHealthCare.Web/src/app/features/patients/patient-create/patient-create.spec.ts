@@ -1,36 +1,14 @@
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  of,
-  throwError
-} from 'rxjs';
-import {
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi
-} from 'vitest';
+import { BehaviorSubject, of, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  PatientCreateComponent
-} from './patient-create';
-import {
-  PatientService
-} from '../../../core/services/patient';
-import {
-  ToastService
-} from '../../../core/services/toast';
-import {
-  TranslationService
-} from '../../../core/services/translation';
+import { PatientCreateComponent } from './patient-create';
+import { PatientService } from '../../../core/services/patient';
+import { ToastService } from '../../../core/services/toast';
+import { TranslationService } from '../../../core/services/translation';
 
 describe('PatientCreateComponent', () => {
-
   let component: PatientCreateComponent;
   let fixture: ComponentFixture<PatientCreateComponent>;
 
@@ -51,69 +29,59 @@ describe('PatientCreateComponent', () => {
     translate: ReturnType<typeof vi.fn>;
   };
 
+  // Test setup
   beforeEach(async () => {
-
     patientServiceMock = {
-      create: vi.fn()
+      create: vi.fn(),
     };
 
     routerMock = {
-      navigate: vi.fn()
+      navigate: vi.fn(),
     };
 
     toastServiceMock = {
-      success: vi.fn()
+      success: vi.fn(),
     };
 
     translationServiceMock = {
-      language$: new BehaviorSubject<string>(
-        'en'
-      ),
-      translate: vi.fn(
-        (key: string) => key
-      )
+      language$: new BehaviorSubject<string>('en'),
+      translate: vi.fn((key: string) => key),
     };
 
     await TestBed.configureTestingModule({
-      imports: [
-        PatientCreateComponent
-      ],
+      imports: [PatientCreateComponent],
       providers: [
         {
           provide: PatientService,
-          useValue: patientServiceMock
+          useValue: patientServiceMock,
         },
         {
           provide: Router,
-          useValue: routerMock
+          useValue: routerMock,
         },
         {
           provide: ToastService,
-          useValue: toastServiceMock
+          useValue: toastServiceMock,
         },
         {
           provide: TranslationService,
-          useValue: translationServiceMock
-        }
-      ]
+          useValue: translationServiceMock,
+        },
+      ],
     })
-      .overrideComponent(
-        PatientCreateComponent,
-        {
-          set: {
-            template: ''
-          }
-        }
-      )
+      .overrideComponent(PatientCreateComponent, {
+        set: {
+          template: '',
+        },
+      })
       .compileComponents();
 
-    fixture = TestBed.createComponent(
-      PatientCreateComponent
-    );
+    fixture = TestBed.createComponent(PatientCreateComponent);
 
     component = fixture.componentInstance;
   });
 
+  // Test cases
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -127,47 +95,28 @@ describe('PatientCreateComponent', () => {
       phoneNumber: '',
       email: '',
       address: '',
-      notes: ''
+      notes: '',
     });
   });
 
   it('should translate a key', () => {
-    translationServiceMock.translate
-      .mockReturnValue(
-        'Translated text'
-      );
+    translationServiceMock.translate.mockReturnValue('Translated text');
 
-    const result = component.t(
-      'patients.create.title'
-    );
+    const result = component.t('patients.create.title');
 
-    expect(
-      translationServiceMock.translate
-    ).toHaveBeenCalledWith(
-      'patients.create.title'
-    );
+    expect(translationServiceMock.translate).toHaveBeenCalledWith('patients.create.title');
 
-    expect(result).toBe(
-      'Translated text'
-    );
+    expect(result).toBe('Translated text');
   });
 
   it('should not create patient when required fields are missing', () => {
     component.createPatient();
 
-    expect(
-      component.formSubmitted
-    ).toBeTruthy();
+    expect(component.formSubmitted).toBeTruthy();
 
-    expect(
-      component.errorMessage
-    ).toBe(
-      'patients.validation.requiredFields'
-    );
+    expect(component.errorMessage).toBe('patients.validation.requiredFields');
 
-    expect(
-      patientServiceMock.create
-    ).not.toHaveBeenCalled();
+    expect(patientServiceMock.create).not.toHaveBeenCalled();
   });
 
   it('should not create patient when gender is invalid', () => {
@@ -179,59 +128,41 @@ describe('PatientCreateComponent', () => {
       phoneNumber: '',
       email: '',
       address: '',
-      notes: ''
+      notes: '',
     };
 
     component.createPatient();
 
-    expect(
-      component.errorMessage
-    ).toBe(
-      'patients.validation.requiredFields'
-    );
+    expect(component.errorMessage).toBe('patients.validation.requiredFields');
 
-    expect(
-      patientServiceMock.create
-    ).not.toHaveBeenCalled();
+    expect(patientServiceMock.create).not.toHaveBeenCalled();
   });
 
   it('should not create patient when birth date is today', () => {
     const today = new Date();
 
-    const year =
-      today.getFullYear();
+    const year = today.getFullYear();
 
-    const month = String(
-      today.getMonth() + 1
-    ).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
 
-    const day = String(
-      today.getDate()
-    ).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
 
     component.patient = {
       firstName: 'Juan',
       lastName: 'Perez',
-      birthDate:
-        `${year}-${month}-${day}`,
+      birthDate: `${year}-${month}-${day}`,
       gender: 1,
       phoneNumber: '',
       email: '',
       address: '',
-      notes: ''
+      notes: '',
     };
 
     component.createPatient();
 
-    expect(
-      component.errorMessage
-    ).toBe(
-      'patients.validation.birthDatePast'
-    );
+    expect(component.errorMessage).toBe('patients.validation.birthDatePast');
 
-    expect(
-      patientServiceMock.create
-    ).not.toHaveBeenCalled();
+    expect(patientServiceMock.create).not.toHaveBeenCalled();
   });
 
   it('should not create patient when birth date is in the future', () => {
@@ -243,20 +174,14 @@ describe('PatientCreateComponent', () => {
       phoneNumber: '',
       email: '',
       address: '',
-      notes: ''
+      notes: '',
     };
 
     component.createPatient();
 
-    expect(
-      component.errorMessage
-    ).toBe(
-      'patients.validation.birthDatePast'
-    );
+    expect(component.errorMessage).toBe('patients.validation.birthDatePast');
 
-    expect(
-      patientServiceMock.create
-    ).not.toHaveBeenCalled();
+    expect(patientServiceMock.create).not.toHaveBeenCalled();
   });
 
   it('should prevent multiple requests while loading', () => {
@@ -264,23 +189,20 @@ describe('PatientCreateComponent', () => {
 
     component.createPatient();
 
-    expect(
-      patientServiceMock.create
-    ).not.toHaveBeenCalled();
+    expect(patientServiceMock.create).not.toHaveBeenCalled();
   });
 
   it('should create patient successfully', () => {
-    patientServiceMock.create
-      .mockReturnValue(
-        of({
-          id: 'patient-1',
-          fullName: 'Juan Perez',
-          birthDate: '1990-01-01',
-          gender: 'Male',
-          phoneNumber: '',
-          email: ''
-        })
-      );
+    patientServiceMock.create.mockReturnValue(
+      of({
+        id: 'patient-1',
+        fullName: 'Juan Perez',
+        birthDate: '1990-01-01',
+        gender: 'Male',
+        phoneNumber: '',
+        email: '',
+      }),
+    );
 
     component.patient = {
       firstName: 'Juan',
@@ -290,44 +212,28 @@ describe('PatientCreateComponent', () => {
       phoneNumber: '',
       email: '',
       address: '',
-      notes: ''
+      notes: '',
     };
 
     component.createPatient();
 
-    expect(
-      patientServiceMock.create
-    ).toHaveBeenCalledWith(
-      component.patient
-    );
+    expect(patientServiceMock.create).toHaveBeenCalledWith(component.patient);
 
-    expect(
-      component.isLoading
-    ).toBeFalsy();
+    expect(component.isLoading).toBeFalsy();
 
-    expect(
-      toastServiceMock.success
-    ).toHaveBeenCalledWith(
-      'patients.create.success'
-    );
+    expect(toastServiceMock.success).toHaveBeenCalledWith('patients.create.success');
 
-    expect(
-      routerMock.navigate
-    ).toHaveBeenCalledWith([
-      '/patients'
-    ]);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/patients']);
   });
 
   it('should show API error message when creation fails', () => {
-    patientServiceMock.create
-      .mockReturnValue(
-        throwError(() => ({
-          error: {
-            message:
-              'Patient could not be created'
-          }
-        }))
-      );
+    patientServiceMock.create.mockReturnValue(
+      throwError(() => ({
+        error: {
+          message: 'Patient could not be created',
+        },
+      })),
+    );
 
     component.patient = {
       firstName: 'Juan',
@@ -337,43 +243,30 @@ describe('PatientCreateComponent', () => {
       phoneNumber: '',
       email: '',
       address: '',
-      notes: ''
+      notes: '',
     };
 
     component.createPatient();
 
-    expect(
-      component.isLoading
-    ).toBeFalsy();
+    expect(component.isLoading).toBeFalsy();
 
-    expect(
-      component.errorMessage
-    ).toBe(
-      'Patient could not be created'
-    );
+    expect(component.errorMessage).toBe('Patient could not be created');
   });
 
   it('should use translated fallback when API error has no message', () => {
-    translationServiceMock.translate
-      .mockImplementation(
-        (key: string) => {
-          if (
-            key ===
-            'patients.create.error'
-          ) {
-            return 'Could not create patient';
-          }
+    translationServiceMock.translate.mockImplementation((key: string) => {
+      if (key === 'patients.create.error') {
+        return 'Could not create patient';
+      }
 
-          return key;
-        }
-      );
+      return key;
+    });
 
-    patientServiceMock.create
-      .mockReturnValue(
-        throwError(() => ({
-          error: {}
-        }))
-      );
+    patientServiceMock.create.mockReturnValue(
+      throwError(() => ({
+        error: {},
+      })),
+    );
 
     component.patient = {
       firstName: 'Juan',
@@ -383,37 +276,24 @@ describe('PatientCreateComponent', () => {
       phoneNumber: '',
       email: '',
       address: '',
-      notes: ''
+      notes: '',
     };
 
     component.createPatient();
 
-    expect(
-      component.errorMessage
-    ).toBe(
-      'Could not create patient'
-    );
+    expect(component.errorMessage).toBe('Could not create patient');
   });
 
   it('should return yesterday as max birth date', () => {
     const yesterday = new Date();
 
-    yesterday.setDate(
-      yesterday.getDate() - 1
-    );
+    yesterday.setDate(yesterday.getDate() - 1);
 
     const expected =
       `${yesterday.getFullYear()}-` +
-      `${String(
-        yesterday.getMonth() + 1
-      ).padStart(2, '0')}-` +
-      `${String(
-        yesterday.getDate()
-      ).padStart(2, '0')}`;
+      `${String(yesterday.getMonth() + 1).padStart(2, '0')}-` +
+      `${String(yesterday.getDate()).padStart(2, '0')}`;
 
-    expect(
-      component.maxBirthDate
-    ).toBe(expected);
+    expect(component.maxBirthDate).toBe(expected);
   });
-
 });

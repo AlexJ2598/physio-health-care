@@ -1,24 +1,14 @@
-export type PatientGender =
-  | 'Male'
-  | 'Female'
-  | 'Other';
+// Domain types
 
-export type PatientGenderValue =
-  | 1
-  | 2
-  | 3;
+export type PatientGender = 'Male' | 'Female' | 'Other';
 
-export type PatientSortField =
-  | 'fullName'
-  | 'birthDate'
-  | 'gender'
-  | 'phoneNumber'
-  | 'email';
+export type PatientGenderValue = 1 | 2 | 3;
 
-export type SortDirection =
-  | 'asc'
-  | 'desc';
+export type PatientSortField = 'fullName' | 'birthDate' | 'gender' | 'phoneNumber' | 'email';
 
+export type SortDirection = 'asc' | 'desc';
+
+// Data models
 
 export interface Patient {
   id: string;
@@ -34,6 +24,7 @@ export interface Patient {
   email: string;
 }
 
+// Request payloads
 
 export interface CreatePatient {
   firstName: string;
@@ -53,7 +44,6 @@ export interface CreatePatient {
   notes?: string;
 }
 
-
 export interface UpdatePatient {
   firstName: string;
 
@@ -72,6 +62,7 @@ export interface UpdatePatient {
   notes?: string;
 }
 
+// Patient details
 
 export interface PatientDetail {
   id: string;

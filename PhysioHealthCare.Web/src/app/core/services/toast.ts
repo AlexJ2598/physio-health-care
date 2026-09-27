@@ -1,10 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-export type ToastType =
-  | 'success'
-  | 'error'
-  | 'warning'
-  | 'info';
+export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 export interface ToastMessage {
   id: number;
@@ -14,81 +10,47 @@ export interface ToastMessage {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToastService {
+  // State and configuration
 
   private nextId = 1;
-
   readonly toasts = signal<ToastMessage[]>([]);
 
-  success(
-    message: string,
-    duration = 3000
-  ): void {
-    this.show(
-      'success',
-      message,
-      duration
-    );
+  // Notifications
+
+  success(message: string, duration = 3000): void {
+    this.show('success', message, duration);
   }
 
-  error(
-    message: string,
-    duration = 5000
-  ): void {
-    this.show(
-      'error',
-      message,
-      duration
-    );
+  error(message: string, duration = 5000): void {
+    this.show('error', message, duration);
   }
 
-  warning(
-    message: string,
-    duration = 4000
-  ): void {
-    this.show(
-      'warning',
-      message,
-      duration
-    );
+  warning(message: string, duration = 4000): void {
+    this.show('warning', message, duration);
   }
 
-  info(
-    message: string,
-    duration = 3000
-  ): void {
-    this.show(
-      'info',
-      message,
-      duration
-    );
+  info(message: string, duration = 3000): void {
+    this.show('info', message, duration);
   }
 
   remove(id: number): void {
-    this.toasts.update(toasts =>
-      toasts.filter(toast => toast.id !== id)
-    );
+    this.toasts.update((toasts) => toasts.filter((toast) => toast.id !== id));
   }
 
-  private show(
-    type: ToastType,
-    message: string,
-    duration: number
-  ): void {
+  // Internal helpers
 
+  private show(type: ToastType, message: string, duration: number): void {
     const toast: ToastMessage = {
       id: this.nextId++,
       type,
       message,
-      duration
+      duration,
     };
 
-    this.toasts.update(toasts => [
-      ...toasts,
-      toast
-    ]);
+    this.toasts.update((toasts) => [...toasts, toast]);
 
     setTimeout(() => {
       this.remove(toast.id);

@@ -1,4 +1,5 @@
 <section class="appointment-edit">
+  <!-- Page header -->
   <div class="page-header">
     <div>
       <h1>
@@ -11,24 +12,20 @@
     </div>
   </div>
 
-  <app-loading
-    *ngIf="isLoading"
-    [message]="t('appointments.edit.loading')"
-    size="medium">
+  <app-loading *ngIf="isLoading" [message]="t('appointments.edit.loading')" size="medium">
   </app-loading>
 
-  <div
-    *ngIf="!isLoading && errorMessage"
-    class="error-message">
+  <div *ngIf="!isLoading && errorMessage" class="error-message">
     {{ errorMessage }}
   </div>
 
+  <!-- Form fields and validation -->
   <form
     *ngIf="!isLoading"
     #appointmentForm="ngForm"
     class="appointment-form"
-    (ngSubmit)="updateAppointment()">
-
+    (ngSubmit)="updateAppointment()"
+  >
     <div class="form-group">
       <label>
         {{ t('appointments.edit.patient') }}
@@ -50,7 +47,8 @@
         type="datetime-local"
         [(ngModel)]="appointmentDate"
         [disabled]="isSaving"
-        required />
+        required
+      />
     </div>
 
     <div class="form-group">
@@ -64,10 +62,9 @@
         type="text"
         [(ngModel)]="reason"
         [disabled]="isSaving"
-        [placeholder]="
-          t('appointments.edit.reasonPlaceholder')
-        "
-        required />
+        [placeholder]="t('appointments.edit.reasonPlaceholder')"
+        required
+      />
     </div>
 
     <div class="form-group">
@@ -80,32 +77,24 @@
         name="notes"
         [(ngModel)]="notes"
         [disabled]="isSaving"
-        [placeholder]="
-          t('appointments.edit.notesPlaceholder')
-        "
-        rows="4">
+        [placeholder]="t('appointments.edit.notesPlaceholder')"
+        rows="4"
+      >
       </textarea>
     </div>
 
+    <!-- Form actions -->
     <div class="form-actions">
-      <a
-        class="btn btn-secondary"
-        routerLink="/appointments">
+      <a class="btn btn-secondary" routerLink="/appointments">
         {{ t('common.cancel') }}
       </a>
 
       <button
         class="btn btn-primary"
         type="submit"
-        [disabled]="
-          appointmentForm.invalid ||
-          isSaving
-        ">
-        {{
-          isSaving
-            ? t('appointments.edit.saving')
-            : t('appointments.edit.save')
-        }}
+        [disabled]="appointmentForm.invalid || isSaving"
+      >
+        {{ isSaving ? t('appointments.edit.saving') : t('appointments.edit.save') }}
       </button>
     </div>
   </form>

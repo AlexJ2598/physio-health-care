@@ -1,29 +1,12 @@
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  of
-} from 'rxjs';
-import {
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi
-} from 'vitest';
+import { BehaviorSubject, of } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  AppHeaderComponent
-} from './app-header';
-import {
-  TranslationService
-} from '../../../core/services/translation';
+import { AppHeaderComponent } from './app-header';
+import { TranslationService } from '../../../core/services/translation';
 
 describe('AppHeaderComponent', () => {
-
   let component: AppHeaderComponent;
   let fixture: ComponentFixture<AppHeaderComponent>;
 
@@ -37,147 +20,95 @@ describe('AppHeaderComponent', () => {
     setLanguage: ReturnType<typeof vi.fn>;
   };
 
+  // Test setup
   beforeEach(async () => {
-
     routerMock = {
-      navigate: vi.fn()
+      navigate: vi.fn(),
     };
 
     translationServiceMock = {
-      language$:
-        new BehaviorSubject<'en' | 'es'>(
-          'en'
-        ),
+      language$: new BehaviorSubject<'en' | 'es'>('en'),
 
-      translate: vi.fn(
-        (key: string) => key
-      ),
+      translate: vi.fn((key: string) => key),
 
-      setLanguage: vi.fn(
-        () => of(undefined)
-      )
+      setLanguage: vi.fn(() => of(undefined)),
     };
 
     await TestBed.configureTestingModule({
-      imports: [
-        AppHeaderComponent
-      ],
+      imports: [AppHeaderComponent],
       providers: [
         {
           provide: Router,
-          useValue: routerMock
+          useValue: routerMock,
         },
         {
           provide: TranslationService,
-          useValue: translationServiceMock
-        }
-      ]
+          useValue: translationServiceMock,
+        },
+      ],
     })
-      .overrideComponent(
-        AppHeaderComponent,
-        {
-          set: {
-            template: ''
-          }
-        }
-      )
+      .overrideComponent(AppHeaderComponent, {
+        set: {
+          template: '',
+        },
+      })
       .compileComponents();
 
-    fixture = TestBed.createComponent(
-      AppHeaderComponent
-    );
+    fixture = TestBed.createComponent(AppHeaderComponent);
 
     component = fixture.componentInstance;
 
     localStorage.clear();
   });
 
+  // Test cases
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   it('should update current language on init', () => {
-
     component.ngOnInit();
 
-    expect(
-      component.currentLanguage
-    ).toBe('en');
+    expect(component.currentLanguage).toBe('en');
 
-    translationServiceMock.language$
-      .next('es');
+    translationServiceMock.language$.next('es');
 
-    expect(
-      component.currentLanguage
-    ).toBe('es');
+    expect(component.currentLanguage).toBe('es');
   });
 
   it('should translate a key', () => {
+    translationServiceMock.translate.mockReturnValue('Patients');
 
-    translationServiceMock.translate
-      .mockReturnValue(
-        'Patients'
-      );
+    const result = component.t('nav.patients');
 
-    const result = component.t(
-      'nav.patients'
-    );
+    expect(translationServiceMock.translate).toHaveBeenCalledWith('nav.patients');
 
-    expect(
-      translationServiceMock.translate
-    ).toHaveBeenCalledWith(
-      'nav.patients'
-    );
-
-    expect(result).toBe(
-      'Patients'
-    );
+    expect(result).toBe('Patients');
   });
 
   it('should change language', () => {
-
     component.currentLanguage = 'en';
 
     component.changeLanguage('es');
 
-    expect(
-      translationServiceMock.setLanguage
-    ).toHaveBeenCalledWith(
-      'es'
-    );
+    expect(translationServiceMock.setLanguage).toHaveBeenCalledWith('es');
   });
 
   it('should not change language when already selected', () => {
-
     component.currentLanguage = 'en';
 
     component.changeLanguage('en');
 
-    expect(
-      translationServiceMock.setLanguage
-    ).not.toHaveBeenCalled();
+    expect(translationServiceMock.setLanguage).not.toHaveBeenCalled();
   });
 
   it('should remove token and navigate to login on logout', () => {
-
-    localStorage.setItem(
-      'physiohealthcare_token',
-      'test-token'
-    );
+    localStorage.setItem('physiohealthcare_token', 'test-token');
 
     component.logout();
 
-    expect(
-      localStorage.getItem(
-        'physiohealthcare_token'
-      )
-    ).toBeNull();
+    expect(localStorage.getItem('physiohealthcare_token')).toBeNull();
 
-    expect(
-      routerMock.navigate
-    ).toHaveBeenCalledWith([
-      '/login'
-    ]);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
   });
-
 });

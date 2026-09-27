@@ -1,110 +1,68 @@
 import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 
-import {
-  ChangeDetectorRef,
-  Component,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
-
-import {
-  Router,
-  RouterLink,
-  RouterLinkActive
-} from '@angular/router';
-
-import {
-  Subject,
-  takeUntil
-} from 'rxjs';
-
-import {
-  SupportedLanguage,
-  TranslationService
-} from '../../../core/services/translation';
+import { SupportedLanguage, TranslationService } from '../../../core/services/translation';
 
 @Component({
   selector: 'app-header',
-
   standalone: true,
-
-  imports: [
-    CommonModule,
-    RouterLink,
-    RouterLinkActive
-  ],
-
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './app-header.html',
-
-  styleUrl: './app-header.scss'
+  styleUrl: './app-header.scss',
 })
-export class AppHeaderComponent
-  implements OnInit, OnDestroy {
+export class AppHeaderComponent implements OnInit, OnDestroy {
+  // State and configuration
 
   currentLanguage: SupportedLanguage = 'en';
+  private readonly destroy$ = new Subject<void>();
 
-  private readonly destroy$ =
-    new Subject<void>();
+  // Dependencies
 
   constructor(
     private router: Router,
     private translationService: TranslationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
+  // Lifecycle
+
   ngOnInit(): void {
+    this.translationService.language$.pipe(takeUntil(this.destroy$)).subscribe((language) => {
+      this.currentLanguage = language;
 
-    this.translationService.language$
-      .pipe(
-        takeUntil(this.destroy$)
-      )
-      .subscribe(language => {
-
-        this.currentLanguage =
-          language;
-
-        this.cdr.detectChanges();
-      });
+      this.cdr.detectChanges();
+    });
   }
 
   ngOnDestroy(): void {
-
     this.destroy$.next();
 
     this.destroy$.complete();
   }
 
-  t(
-    key: string
-  ): string {
+  // Authentication
 
-    return this.translationService
-      .translate(key);
+  logout(): void {
+    localStorage.removeItem('physiohealthcare_token');
+
+    this.router.navigate(['/login']);
   }
 
-  changeLanguage(
-    language: SupportedLanguage
-  ): void {
+  // Language selection
 
-    if (
-      language === this.currentLanguage
-    ) {
+  changeLanguage(language: SupportedLanguage): void {
+    if (language === this.currentLanguage) {
       return;
     }
 
-    this.translationService
-      .setLanguage(language)
-      .subscribe();
+    this.translationService.setLanguage(language).subscribe();
   }
 
-  logout(): void {
+  // Template helpers
 
-    localStorage.removeItem(
-      'physiohealthcare_token'
-    );
-
-    this.router.navigate([
-      '/login'
-    ]);
+  t(key: string): string {
+    return this.translationService.translate(key);
   }
 }

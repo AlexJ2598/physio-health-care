@@ -1,17 +1,11 @@
-import {
-  HttpErrorResponse,
-  HttpInterceptorFn
-} from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
 import { AuthService } from '../services/auth';
 
-export const authInterceptor: HttpInterceptorFn = (
-  req,
-  next
-) => {
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
@@ -20,8 +14,8 @@ export const authInterceptor: HttpInterceptorFn = (
   const request = token
     ? req.clone({
         setHeaders: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       })
     : req;
 
@@ -33,6 +27,6 @@ export const authInterceptor: HttpInterceptorFn = (
       }
 
       return throwError(() => error);
-    })
+    }),
   );
 };

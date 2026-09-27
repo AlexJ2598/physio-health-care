@@ -3,9 +3,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 import { AppointmentListComponent } from './features/appointments/appointment-list/appointment-list';
 import { AppointmentCreateComponent } from './features/appointments/appointment-create/appointment-create';
-import {
-  AppointmentEditComponent
-} from './features/appointments/appointment-edit/appointment-edit';
+import { AppointmentEditComponent } from './features/appointments/appointment-edit/appointment-edit';
 import { LoginComponent } from './features/auth/login/login';
 import { PatientCreateComponent } from './features/patients/patient-create/patient-create';
 import { PatientEditComponent } from './features/patients/patient-edit/patient-edit';
@@ -17,11 +15,11 @@ export const routes: Routes = [
   {
     path: '',
     redirectTo: 'login',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
   {
     path: 'login',
-    component: LoginComponent
+    component: LoginComponent,
   },
   {
     path: '',
@@ -30,36 +28,36 @@ export const routes: Routes = [
     children: [
       {
         path: 'patients',
-        component: PatientListComponent
+        component: PatientListComponent,
       },
       {
         path: 'patients/create',
-        component: PatientCreateComponent
+        component: PatientCreateComponent,
       },
       {
         path: 'patients/edit/:id',
-        component: PatientEditComponent
+        component: PatientEditComponent,
       },
       {
         path: 'appointments',
-        component: AppointmentListComponent
+        component: AppointmentListComponent,
       },
       {
         path: 'appointments/create',
-        component: AppointmentCreateComponent
+        component: AppointmentCreateComponent,
       },
       {
         path: 'appointments/edit/:id',
-        component: AppointmentEditComponent
-      }
-    ]
+        component: AppointmentEditComponent,
+      },
+    ],
   },
   {
     path: 'not-found',
-    component: NotFoundComponent
+    component: NotFoundComponent,
   },
   {
     path: '**',
-    redirectTo: 'not-found'
-  }
+    redirectTo: 'not-found',
+  },
 ];

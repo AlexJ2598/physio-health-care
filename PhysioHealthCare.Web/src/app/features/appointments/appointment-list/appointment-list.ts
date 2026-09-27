@@ -11,7 +11,7 @@ import {
   Appointment,
   AppointmentFilters,
   AppointmentSortField,
-  AppointmentStatusValue
+  AppointmentStatusValue,
 } from '../../../shared/models/appointment';
 import { Patient } from '../../../shared/models/patient';
 import { LoadingComponent } from '../../../shared/components/loading/loading';
@@ -24,48 +24,38 @@ import { LoadingComponent } from '../../../shared/components/loading/loading';
   styleUrl: './appointment-list.scss',
 })
 export class AppointmentListComponent implements OnInit, OnDestroy {
-  // Data and loading state
+  // State and configuration
+
   appointments: Appointment[] = [];
   patients: Patient[] = [];
-
   isLoading = false;
   isLoadingPatients = false;
-
   errorMessage = '';
-
   updatingAppointmentId: string | null = null;
   appointmentToCancel: Appointment | null = null;
 
-  // Filters
+  // Search and filters
   searchTerm = '';
   dateFrom = '';
   dateTo = '';
-
   selectedStatus: AppointmentStatusValue | null = null;
   selectedPatientId = '';
 
-  //Sorting
-
+  // Sorting state
   sortBy: AppointmentSortField = 'appointmentDate';
-
   sortDirection: 'asc' | 'desc' = 'asc';
 
-  // Pagination
+  // Pagination state
   pageNumber = 1;
   pageSize = 10;
   totalCount = 0;
   totalPages = 0;
 
-  get hasPreviousPage(): boolean{
-    return this.pageNumber > 1;
-  }
-
-  get hasNextPage(): boolean{
-    return this.pageNumber < this.totalPages;
-  }
-
+  // Reactive streams
   private readonly search$ = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
+
+  // Dependencies
 
   constructor(
     private readonly appointmentService: AppointmentService,
@@ -74,6 +64,16 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
     private readonly translationService: TranslationService,
     private readonly cdr: ChangeDetectorRef,
   ) {}
+
+  // Computed values
+
+  get hasPreviousPage(): boolean {
+    return this.pageNumber > 1;
+  }
+
+  get hasNextPage(): boolean {
+    return this.pageNumber < this.totalPages;
+  }
 
   // Lifecycle
 
@@ -135,7 +135,7 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
       dateFrom: this.dateFrom ? this.toUtcStartOfDay(this.dateFrom) : undefined,
       dateTo: this.dateTo ? this.toUtcEndOfDay(this.dateTo) : undefined,
       sortBy: this.sortBy,
-      sortDirection: this.sortDirection
+      sortDirection: this.sortDirection,
     };
 
     this.appointmentService.getAll(this.pageNumber, this.pageSize, filters).subscribe({
@@ -218,50 +218,43 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
     this.loadAppointments();
   }
 
-  //Sorting actions.
-  changeSortField(sortBy: string): void{
+  // Sorting
 
+  changeSortField(sortBy: string): void {
     this.sortBy = sortBy as AppointmentSortField;
 
     this.pageNumber = 1;
     this.loadAppointments();
   }
 
-  changeSortDirection(sortDirection: string): void{
-
-    this.sortDirection = sortDirection === 'desc'
-    ? 'desc'
-    : 'asc';
+  changeSortDirection(sortDirection: string): void {
+    this.sortDirection = sortDirection === 'desc' ? 'desc' : 'asc';
 
     this.pageNumber = 1;
     this.loadAppointments();
   }
 
-  //pagination actions
+  // Pagination
 
-  goToPreviousPage(): void{
-    if(!this.hasPreviousPage || this.isLoading){
+  goToPreviousPage(): void {
+    if (!this.hasPreviousPage || this.isLoading) {
       return;
     }
     this.pageNumber--;
     this.loadAppointments();
   }
 
-  goToNextPage(): void{
-    if(!this.hasNextPage || this.isLoading){
+  goToNextPage(): void {
+    if (!this.hasNextPage || this.isLoading) {
       return;
     }
     this.pageNumber++;
     this.loadAppointments();
   }
 
-  changePageSize(pageSize: string):void{
+  changePageSize(pageSize: string): void {
     const newPageSize = Number(pageSize);
-    if(
-      !Number.isInteger(newPageSize) ||
-      newPageSize <= 0 ||
-      newPageSize === this.pageSize
-    ){
+    if (!Number.isInteger(newPageSize) || newPageSize <= 0 || newPageSize === this.pageSize) {
       return;
     }
 
@@ -270,6 +263,7 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
 
     this.loadAppointments();
   }
+
   // Appointment actions
 
   updateStatus(appointment: Appointment, status: AppointmentStatusValue): void {
@@ -303,9 +297,7 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
 
           this.updatingAppointmentId = null;
 
-          this.toastService.error(
-            this.t('appointments.status.error')
-          );
+          this.toastService.error(this.t('appointments.status.error'));
 
           this.cdr.detectChanges();
         },
@@ -352,29 +344,27 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
     return this.updatingAppointmentId === appointment.id;
   }
 
-  statusLabel(status: string): string{
+  statusLabel(status: string): string {
     const statusKey: Record<string, string> = {
       Scheduled: 'scheduled',
       InProgress: 'inProgress',
       Completed: 'completed',
-      Cancelled: 'cancelled'
+      Cancelled: 'cancelled',
     };
 
     const key = statusKey[status];
-    return key ? this.t(`appointments.status.${key}`): status;
+    return key ? this.t(`appointments.status.${key}`) : status;
   }
 
-  dateLocale():string{
-    return this.translationService.getCurrentLanguage() === 'es'
-    ? 'es-MX'
-    : 'en-US';
+  dateLocale(): string {
+    return this.translationService.getCurrentLanguage() === 'es' ? 'es-MX' : 'en-US';
   }
 
   t(key: string): string {
     return this.translationService.translate(key);
   }
 
-  // Date conversion: local day boundaries expressed in UTC
+  // Internal helpers
 
   private toUtcStartOfDay(date: string): string {
     const [year, month, day] = date.split('-').map(Number);

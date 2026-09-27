@@ -1,37 +1,22 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import {
-  ToastMessage,
-  ToastService
-} from '../../../core/services/toast';
+import { ToastMessage, ToastService } from '../../../core/services/toast';
 
 @Component({
   selector: 'app-toast',
   standalone: true,
-  imports: [
-    CommonModule
-  ],
+  imports: [CommonModule],
   templateUrl: './toast.html',
   styleUrl: './toast.scss',
-  changeDetection:
-    ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastComponent {
+  private readonly toastService = inject(ToastService);
 
-  private readonly toastService =
-    inject(ToastService);
+  readonly toasts = this.toastService.toasts;
 
-  readonly toasts =
-    this.toastService.toasts;
-
-  removeToast(
-    toast: ToastMessage
-  ): void {
+  removeToast(toast: ToastMessage): void {
     this.toastService.remove(toast.id);
   }
 }

@@ -1,8 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 
 import { AppointmentService } from './appointment';
@@ -11,12 +8,11 @@ import {
   Appointment,
   CreateAppointment,
   UpdateAppointment,
-  UpdateAppointmentStatus
+  UpdateAppointmentStatus,
 } from '../../shared/models/appointment';
 import { PagedResult } from '../../shared/models/paged-result';
 
 describe('AppointmentService', () => {
-
   let service: AppointmentService;
   let httpMock: HttpTestingController;
 
@@ -27,16 +23,13 @@ describe('AppointmentService', () => {
     appointmentDate: '2026-09-25T18:00:00Z',
     reason: 'Consulta',
     notes: 'Test appointment',
-    status: 'Scheduled'
+    status: 'Scheduled',
   };
 
+  // Test setup
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        AppointmentService,
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+      providers: [AppointmentService, provideHttpClient(), provideHttpClientTesting()],
     });
 
     service = TestBed.inject(AppointmentService);
@@ -47,6 +40,7 @@ describe('AppointmentService', () => {
     httpMock.verify();
   });
 
+  // Test cases
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
@@ -57,19 +51,19 @@ describe('AppointmentService', () => {
       pageNumber: 1,
       pageSize: 10,
       totalCount: 1,
-      totalPages: 1
+      totalPages: 1,
     };
 
-    service.getAll().subscribe(result => {
+    service.getAll().subscribe((result) => {
       expect(result).toEqual(response);
     });
 
     const request = httpMock.expectOne(
-      req =>
+      (req) =>
         req.url === `${environment.apiUrl}/Appointments` &&
         req.params.get('pageNumber') === '1' &&
         req.params.get('pageSize') === '10' &&
-        req.params.get('sortDirection') === 'asc'
+        req.params.get('sortDirection') === 'asc',
     );
 
     expect(request.request.method).toBe('GET');
@@ -78,109 +72,75 @@ describe('AppointmentService', () => {
   });
 
   it('should send appointment filters', () => {
-    service.getAll(
-      2,
-      5,
-      {
+    service
+      .getAll(2, 5, {
         patientId: 'patient-1',
         status: 2,
         dateFrom: '2026-09-20T00:00:00Z',
         dateTo: '2026-09-30T23:59:59Z',
         search: 'Juan',
         sortBy: 'appointmentDate',
-        sortDirection: 'desc'
-      }
-    ).subscribe();
+        sortDirection: 'desc',
+      })
+      .subscribe();
 
-    const request = httpMock.expectOne(
-      req =>
-        req.url === `${environment.apiUrl}/Appointments`
-    );
+    const request = httpMock.expectOne((req) => req.url === `${environment.apiUrl}/Appointments`);
 
     expect(request.request.method).toBe('GET');
 
-    expect(
-      request.request.params.get('pageNumber')
-    ).toBe('2');
+    expect(request.request.params.get('pageNumber')).toBe('2');
 
-    expect(
-      request.request.params.get('pageSize')
-    ).toBe('5');
+    expect(request.request.params.get('pageSize')).toBe('5');
 
-    expect(
-      request.request.params.get('patientId')
-    ).toBe('patient-1');
+    expect(request.request.params.get('patientId')).toBe('patient-1');
 
-    expect(
-      request.request.params.get('status')
-    ).toBe('2');
+    expect(request.request.params.get('status')).toBe('2');
 
-    expect(
-      request.request.params.get('dateFrom')
-    ).toBe('2026-09-20T00:00:00Z');
+    expect(request.request.params.get('dateFrom')).toBe('2026-09-20T00:00:00Z');
 
-    expect(
-      request.request.params.get('dateTo')
-    ).toBe('2026-09-30T23:59:59Z');
+    expect(request.request.params.get('dateTo')).toBe('2026-09-30T23:59:59Z');
 
-    expect(
-      request.request.params.get('search')
-    ).toBe('Juan');
+    expect(request.request.params.get('search')).toBe('Juan');
 
-    expect(
-      request.request.params.get('sortBy')
-    ).toBe('appointmentDate');
+    expect(request.request.params.get('sortBy')).toBe('appointmentDate');
 
-    expect(
-      request.request.params.get('sortDirection')
-    ).toBe('desc');
+    expect(request.request.params.get('sortDirection')).toBe('desc');
 
     request.flush({
       items: [],
       pageNumber: 2,
       pageSize: 5,
       totalCount: 0,
-      totalPages: 0
+      totalPages: 0,
     });
   });
 
   it('should trim search before sending it', () => {
-    service.getAll(
-      1,
-      10,
-      {
-        search: '  Juan  '
-      }
-    ).subscribe();
+    service
+      .getAll(1, 10, {
+        search: '  Juan  ',
+      })
+      .subscribe();
 
-    const request = httpMock.expectOne(
-      req =>
-        req.url === `${environment.apiUrl}/Appointments`
-    );
+    const request = httpMock.expectOne((req) => req.url === `${environment.apiUrl}/Appointments`);
 
-    expect(
-      request.request.params.get('search')
-    ).toBe('Juan');
+    expect(request.request.params.get('search')).toBe('Juan');
 
     request.flush({
       items: [],
       pageNumber: 1,
       pageSize: 10,
       totalCount: 0,
-      totalPages: 0
+      totalPages: 0,
     });
   });
 
   it('should get appointment by id', () => {
-    service.getById(
-      appointment.id
-    ).subscribe(result => {
+    service.getById(appointment.id).subscribe((result) => {
       expect(result).toEqual(appointment);
     });
 
-    const request = httpMock.expectOne(
-      `${environment.apiUrl}/Appointments/${appointment.id}`
-    );
+    const request = httpMock.expectOne(`${environment.apiUrl}/Appointments/${appointment.id}`);
 
     expect(request.request.method).toBe('GET');
 
@@ -192,16 +152,14 @@ describe('AppointmentService', () => {
       patientId: 'patient-1',
       appointmentDate: '2026-09-25T18:00:00Z',
       reason: 'Consulta',
-      notes: 'Test appointment'
+      notes: 'Test appointment',
     };
 
-    service.create(dto).subscribe(result => {
+    service.create(dto).subscribe((result) => {
       expect(result).toEqual(appointment);
     });
 
-    const request = httpMock.expectOne(
-      `${environment.apiUrl}/Appointments`
-    );
+    const request = httpMock.expectOne(`${environment.apiUrl}/Appointments`);
 
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual(dto);
@@ -213,41 +171,33 @@ describe('AppointmentService', () => {
     const dto: UpdateAppointment = {
       appointmentDate: '2026-09-26T19:30:00Z',
       reason: 'Consulta actualizada',
-      notes: 'Updated appointment'
+      notes: 'Updated appointment',
     };
 
-    service.update(
-      appointment.id,
-      dto
-    ).subscribe();
+    service.update(appointment.id, dto).subscribe();
 
-    const request = httpMock.expectOne(
-      `${environment.apiUrl}/Appointments/${appointment.id}`
-    );
+    const request = httpMock.expectOne(`${environment.apiUrl}/Appointments/${appointment.id}`);
 
     expect(request.request.method).toBe('PUT');
     expect(request.request.body).toEqual(dto);
 
     request.flush({
       ...appointment,
-      ...dto
+      ...dto,
     });
   });
 
   it('should update appointment status', () => {
     const dto: UpdateAppointmentStatus = {
-      status: 2
+      status: 2,
     };
 
-    service.updateStatus(
-      appointment.id,
-      dto
-    ).subscribe(result => {
+    service.updateStatus(appointment.id, dto).subscribe((result) => {
       expect(result.status).toBe('InProgress');
     });
 
     const request = httpMock.expectOne(
-      `${environment.apiUrl}/Appointments/${appointment.id}/status`
+      `${environment.apiUrl}/Appointments/${appointment.id}/status`,
     );
 
     expect(request.request.method).toBe('PATCH');
@@ -255,22 +205,17 @@ describe('AppointmentService', () => {
 
     request.flush({
       ...appointment,
-      status: 'InProgress'
+      status: 'InProgress',
     });
   });
 
   it('should delete an appointment', () => {
-    service.delete(
-      appointment.id
-    ).subscribe();
+    service.delete(appointment.id).subscribe();
 
-    const request = httpMock.expectOne(
-      `${environment.apiUrl}/Appointments/${appointment.id}`
-    );
+    const request = httpMock.expectOne(`${environment.apiUrl}/Appointments/${appointment.id}`);
 
     expect(request.request.method).toBe('DELETE');
 
     request.flush(null);
   });
-
 });

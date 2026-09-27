@@ -1,41 +1,29 @@
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import {
-  LoadingComponent
-} from './loading';
+import { LoadingComponent } from './loading';
 
 describe('LoadingComponent', () => {
-
   let component: LoadingComponent;
   let fixture: ComponentFixture<LoadingComponent>;
 
+  // Test setup
   beforeEach(async () => {
-
     await TestBed.configureTestingModule({
-      imports: [
-        LoadingComponent
-      ]
+      imports: [LoadingComponent],
     })
-      .overrideComponent(
-        LoadingComponent,
-        {
-          set: {
-            template: ''
-          }
-        }
-      )
+      .overrideComponent(LoadingComponent, {
+        set: {
+          template: '',
+        },
+      })
       .compileComponents();
 
-    fixture = TestBed.createComponent(
-      LoadingComponent
-    );
+    fixture = TestBed.createComponent(LoadingComponent);
 
     component = fixture.componentInstance;
   });
 
+  // Test cases
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -50,9 +38,7 @@ describe('LoadingComponent', () => {
   it('should accept a custom message', () => {
     component.message = 'Loading patients...';
 
-    expect(component.message).toBe(
-      'Loading patients...'
-    );
+    expect(component.message).toBe('Loading patients...');
   });
 
   it('should accept different sizes', () => {
@@ -76,5 +62,4 @@ describe('LoadingComponent', () => {
 
     expect(component.inline).toBeTruthy();
   });
-
 });

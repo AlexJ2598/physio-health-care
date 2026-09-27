@@ -1,122 +1,94 @@
 import { CommonModule } from '@angular/common';
-
-import {
-  ChangeDetectorRef,
-  Component,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
-
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
 import { RouterLink } from '@angular/router';
-
-import {
-  Subject,
-  takeUntil
-} from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 
 import { PatientService } from '../../../core/services/patient';
-
 import { ToastService } from '../../../core/services/toast';
-
 import { TranslationService } from '../../../core/services/translation';
-
 import { LoadingComponent } from '../../../shared/components/loading/loading';
-
 import {
   Patient,
   PatientGender,
   PatientSortField,
-  SortDirection
+  SortDirection,
 } from '../../../shared/models/patient';
 
 @Component({
   selector: 'app-patient-list',
-
   standalone: true,
-
-  imports: [
-    CommonModule,
-    RouterLink,
-    FormsModule,
-    LoadingComponent
-  ],
-
+  imports: [CommonModule, RouterLink, FormsModule, LoadingComponent],
   templateUrl: './patient-list.html',
-
   styleUrl: './patient-list.scss',
 })
-export class PatientListComponent
-  implements OnInit, OnDestroy {
+export class PatientListComponent implements OnInit, OnDestroy {
+  // State and configuration
 
   patients: Patient[] = [];
-
   isLoading = false;
-
   errorMessage = '';
 
+  // Deletion state
   showDeleteModal = false;
-
   selectedPatient: Patient | null = null;
-
   isDeleting = false;
 
+  // Search
   searchTerm = '';
 
+  // Pagination state
   pageNumber = 1;
-
   pageSize = 10;
-
   totalCount = 0;
-
   totalPages = 0;
 
+  // Sorting state
   sortBy?: PatientSortField;
-
   sortDirection: SortDirection = 'asc';
 
+  // Locale
   currentLocale = 'es-MX';
 
-  private searchTimeout:
-    ReturnType<typeof setTimeout> | null = null;
+  // Search scheduling and cleanup
+  private searchTimeout: ReturnType<typeof setTimeout> | null = null;
+  private readonly destroy$ = new Subject<void>();
 
-  private readonly destroy$ =
-    new Subject<void>();
+  // Dependencies
 
   constructor(
     private patientService: PatientService,
     private cdr: ChangeDetectorRef,
     private translationService: TranslationService,
-    private toastService: ToastService
+    private toastService: ToastService,
   ) {}
 
+  // Computed values
+
+  get pages(): number[] {
+    return Array.from(
+      {
+        length: this.totalPages,
+      },
+      (_, index) => index + 1,
+    );
+  }
+
+  // Lifecycle
+
   ngOnInit(): void {
+    this.translationService.language$.pipe(takeUntil(this.destroy$)).subscribe((language) => {
+      this.currentLocale = language === 'es' ? 'es-MX' : 'en-US';
 
-    this.translationService.language$
-      .pipe(
-        takeUntil(this.destroy$)
-      )
-      .subscribe(language => {
-
-        this.currentLocale =
-          language === 'es'
-            ? 'es-MX'
-            : 'en-US';
-
-        this.cdr.detectChanges();
-      });
+      this.cdr.detectChanges();
+    });
 
     this.loadPatients();
   }
 
   ngOnDestroy(): void {
-
     if (this.searchTimeout) {
-
-      clearTimeout(
-        this.searchTimeout
-      );
+      clearTimeout(this.searchTimeout);
     }
 
     this.destroy$.next();
@@ -124,8 +96,9 @@ export class PatientListComponent
     this.destroy$.complete();
   }
 
-  loadPatients(): void {
+  // Data loading
 
+  loadPatients(): void {
     this.isLoading = true;
 
     this.errorMessage = '';
@@ -133,30 +106,18 @@ export class PatientListComponent
     this.cdr.detectChanges();
 
     this.patientService
-      .getAll(
-        this.pageNumber,
-        this.pageSize,
-        this.searchTerm,
-        this.sortBy,
-        this.sortDirection
-      )
+      .getAll(this.pageNumber, this.pageSize, this.searchTerm, this.sortBy, this.sortDirection)
       .subscribe({
         next: (result) => {
+          this.patients = result.items;
 
-          this.patients =
-            result.items;
+          this.pageNumber = result.pageNumber;
 
-          this.pageNumber =
-            result.pageNumber;
+          this.pageSize = result.pageSize;
 
-          this.pageSize =
-            result.pageSize;
+          this.totalCount = result.totalCount;
 
-          this.totalCount =
-            result.totalCount;
-
-          this.totalPages =
-            result.totalPages;
+          this.totalPages = result.totalPages;
 
           this.isLoading = false;
 
@@ -164,60 +125,41 @@ export class PatientListComponent
         },
 
         error: (error) => {
+          console.error('Load patients error', error);
 
-          console.error(
-            'Load patients error',
-            error
-          );
-
-          this.errorMessage =
-            this.t(
-              'patients.loadError'
-            );
+          this.errorMessage = this.t('patients.loadError');
 
           this.isLoading = false;
 
           this.cdr.detectChanges();
-        }
+        },
       });
   }
 
+  // Search and filters
+
   onSearchChange(): void {
-
     if (this.searchTimeout) {
-
-      clearTimeout(
-        this.searchTimeout
-      );
+      clearTimeout(this.searchTimeout);
     }
 
-    this.searchTimeout =
-      setTimeout(() => {
+    this.searchTimeout = setTimeout(() => {
+      this.pageNumber = 1;
 
-        this.pageNumber = 1;
-
-        this.loadPatients();
-
-      }, 400);
+      this.loadPatients();
+    }, 400);
   }
 
-  sort(
-    field: PatientSortField
-  ): void {
+  // Sorting
 
+  sort(field: PatientSortField): void {
     if (this.isLoading) {
       return;
     }
 
     if (this.sortBy === field) {
-
-      this.sortDirection =
-        this.sortDirection === 'asc'
-          ? 'desc'
-          : 'asc';
-
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
-
       this.sortBy = field;
 
       this.sortDirection = 'asc';
@@ -228,25 +170,10 @@ export class PatientListComponent
     this.loadPatients();
   }
 
-  getSortIndicator(
-    field: PatientSortField
-  ): string {
-
-    if (this.sortBy !== field) {
-      return '';
-    }
-
-    return this.sortDirection === 'asc'
-      ? '↑'
-      : '↓';
-  }
+  // Pagination
 
   previousPage(): void {
-
-    if (
-      this.pageNumber <= 1 ||
-      this.isLoading
-    ) {
+    if (this.pageNumber <= 1 || this.isLoading) {
       return;
     }
 
@@ -256,11 +183,7 @@ export class PatientListComponent
   }
 
   nextPage(): void {
-
-    if (
-      this.pageNumber >= this.totalPages ||
-      this.isLoading
-    ) {
+    if (this.pageNumber >= this.totalPages || this.isLoading) {
       return;
     }
 
@@ -269,16 +192,8 @@ export class PatientListComponent
     this.loadPatients();
   }
 
-  goToPage(
-    page: number
-  ): void {
-
-    if (
-      page < 1 ||
-      page > this.totalPages ||
-      page === this.pageNumber ||
-      this.isLoading
-    ) {
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.pageNumber || this.isLoading) {
       return;
     }
 
@@ -287,124 +202,80 @@ export class PatientListComponent
     this.loadPatients();
   }
 
-  get pages(): number[] {
+  // Patient deletion
 
-    return Array.from(
-      {
-        length: this.totalPages
-      },
-      (_, index) =>
-        index + 1
-    );
-  }
-
-  openDeleteModal(
-    patient: Patient
-  ): void {
-
+  openDeleteModal(patient: Patient): void {
     this.selectedPatient = patient;
 
     this.showDeleteModal = true;
   }
 
   closeDeleteModal(): void {
-
     this.selectedPatient = null;
 
     this.showDeleteModal = false;
   }
 
   confirmDelete(): void {
-
-    if (
-      !this.selectedPatient ||
-      this.isDeleting
-    ) {
+    if (!this.selectedPatient || this.isDeleting) {
       return;
     }
 
     this.isDeleting = true;
 
-    this.patientService
-      .delete(
-        this.selectedPatient.id
-      )
-      .subscribe({
-        next: () => {
+    this.patientService.delete(this.selectedPatient.id).subscribe({
+      next: () => {
+        this.isDeleting = false;
 
-          this.isDeleting = false;
+        this.closeDeleteModal();
 
-          this.closeDeleteModal();
+        this.toastService.success(this.t('patients.deletedSuccess'));
 
-          this.toastService.success(
-            this.t(
-              'patients.deletedSuccess'
-            )
-          );
-
-          if (
-            this.patients.length === 1 &&
-            this.pageNumber > 1
-          ) {
-            this.pageNumber--;
-          }
-
-          this.loadPatients();
-
-          this.cdr.detectChanges();
-        },
-
-        error: (error) => {
-
-          console.error(
-            'Delete patient error',
-            error
-          );
-
-          this.isDeleting = false;
-
-          this.toastService.error(
-            this.t(
-              'patients.deleteError'
-            )
-          );
-
-          this.cdr.detectChanges();
+        if (this.patients.length === 1 && this.pageNumber > 1) {
+          this.pageNumber--;
         }
-      });
+
+        this.loadPatients();
+
+        this.cdr.detectChanges();
+      },
+
+      error: (error) => {
+        console.error('Delete patient error', error);
+
+        this.isDeleting = false;
+
+        this.toastService.error(this.t('patients.deleteError'));
+
+        this.cdr.detectChanges();
+      },
+    });
   }
 
-  getGenderTranslation(
-    gender: PatientGender
-  ): string {
+  // Template helpers
 
+  getSortIndicator(field: PatientSortField): string {
+    if (this.sortBy !== field) {
+      return '';
+    }
+
+    return this.sortDirection === 'asc' ? '↑' : '↓';
+  }
+
+  getGenderTranslation(gender: PatientGender): string {
     switch (gender) {
-
       case 'Male':
-
-        return this.t(
-          'patients.gender.male'
-        );
+        return this.t('patients.gender.male');
 
       case 'Female':
-
-        return this.t(
-          'patients.gender.female'
-        );
+        return this.t('patients.gender.female');
 
       case 'Other':
-
-        return this.t(
-          'patients.gender.other'
-        );
+        return this.t('patients.gender.other');
     }
   }
 
-  t(
-    key: string
-  ): string {
-
-    return this.translationService
-      .translate(key);
+  t(key: string): string {
+    return this.translationService.translate(key);
   }
 }

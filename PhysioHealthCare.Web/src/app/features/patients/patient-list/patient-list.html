@@ -8,30 +8,25 @@
         {{ t('patients.subtitle') }}
       </p>
     </div>
+    <!-- Header actions -->
     <div class="header-actions">
       <a routerLink="/patients/create" class="btn-primary">
         {{ t('patients.new') }}
       </a>
     </div>
   </header>
-  <!-- =========================================
-       Loading
-       ========================================= -->
+  <!-- Loading -->
   <app-loading
     *ngIf="isLoading"
     [message]="t('common.loading')"
     size="large"
     [fullPage]="true"
   ></app-loading>
-  <!-- =========================================
-       Error
-       ========================================= -->
+  <!-- Error -->
   <p class="error" *ngIf="errorMessage">
     {{ errorMessage }}
   </p>
-  <!-- =========================================
-       Search
-       ========================================= -->
+  <!-- Search -->
   <div class="search-card">
     <input
       type="text"
@@ -40,9 +35,7 @@
       [placeholder]="t('patients.search')"
     />
   </div>
-  <!-- =========================================
-       Patients table
-       ========================================= -->
+  <!-- Patients table -->
   <table *ngIf="!isLoading && patients.length > 0">
     <thead>
       <tr>
@@ -129,9 +122,7 @@
       </tr>
     </tbody>
   </table>
-  <!-- =========================================
-       Pagination
-       ========================================= -->
+  <!-- Pagination -->
   <div class="pagination" *ngIf="!isLoading && patients.length > 0 && totalPages > 1">
     <button
       type="button"
@@ -160,22 +151,16 @@
       {{ t('common.next') }}
     </button>
   </div>
-  <!-- =========================================
-       Pagination info
-       ========================================= -->
+  <!-- Pagination info -->
   <div class="pagination-info" *ngIf="!isLoading && totalCount > 0">
     {{ t('patients.pagination.total') }}
     {{ totalCount }}
   </div>
-  <!-- =========================================
-       Empty state
-       ========================================= -->
+  <!-- Empty state -->
   <div class="empty" *ngIf="!isLoading && patients.length === 0">
     {{ t('patients.empty') }}
   </div>
-  <!-- =========================================
-       Delete modal
-       ========================================= -->
+  <!-- Delete modal -->
   <div class="modal-backdrop" *ngIf="showDeleteModal">
     <div class="modal">
       <h2>

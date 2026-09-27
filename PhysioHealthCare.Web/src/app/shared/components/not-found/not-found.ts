@@ -8,12 +8,12 @@ import { AuthService } from '../../../core/services/auth';
   standalone: true,
   imports: [],
   templateUrl: './not-found.html',
-  styleUrl: './not-found.scss'
+  styleUrl: './not-found.scss',
 })
 export class NotFoundComponent {
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
   ) {}
 
   goHome(): void {

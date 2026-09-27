@@ -7,12 +7,8 @@ import { ToastComponent } from '../../shared/components/toast/toast';
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [
-    RouterOutlet,
-    AppHeaderComponent,
-    ToastComponent
-  ],
+  imports: [RouterOutlet, AppHeaderComponent, ToastComponent],
   templateUrl: './app-layout.html',
-  styleUrl: './app-layout.scss'
+  styleUrl: './app-layout.scss',
 })
 export class AppLayoutComponent {}

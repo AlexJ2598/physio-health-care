@@ -1,20 +1,12 @@
-export type AppointmentStatus =
-  | 'Scheduled'
-  | 'InProgress'
-  | 'Completed'
-  | 'Cancelled';
+// Domain types
 
-export type AppointmentStatusValue =
-  | 1
-  | 2
-  | 3
-  | 4;
+export type AppointmentStatus = 'Scheduled' | 'InProgress' | 'Completed' | 'Cancelled';
 
-export type AppointmentSortField =
-  | 'appointmentDate'
-  | 'patientName'
-  | 'status'
-  | 'reason';
+export type AppointmentStatusValue = 1 | 2 | 3 | 4;
+
+export type AppointmentSortField = 'appointmentDate' | 'patientName' | 'status' | 'reason';
+
+// Data models
 
 export interface Appointment {
   id: string;
@@ -25,6 +17,8 @@ export interface Appointment {
   notes: string | null;
   status: AppointmentStatus;
 }
+
+// Request payloads
 
 export interface CreateAppointment {
   patientId: string;
@@ -42,6 +36,8 @@ export interface UpdateAppointment {
 export interface UpdateAppointmentStatus {
   status: AppointmentStatusValue;
 }
+
+// Query filters
 
 export interface AppointmentFilters {
   patientId?: string;

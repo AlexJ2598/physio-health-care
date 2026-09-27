@@ -5,6 +5,8 @@
   font-family: var(--font-family-base);
 }
 
+/* Page header */
+
 .page-header {
   width: 100%;
   max-width: var(--form-card-max-width);
@@ -22,6 +24,8 @@
   color: var(--color-text-muted);
 }
 
+/* Form layout */
+
 .appointment-form {
   width: 100%;
   max-width: var(--form-card-max-width);
@@ -31,6 +35,8 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
 }
+
+/* Form controls */
 
 .form-group {
   display: flex;
@@ -82,12 +88,16 @@
   resize: vertical;
 }
 
+/* Form actions */
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-3);
   margin-top: var(--space-6);
 }
+
+/* Buttons */
 
 .btn {
   display: inline-flex;
@@ -132,6 +142,8 @@
   color: var(--color-text-primary);
 }
 
+/* Feedback */
+
 .error-message {
   width: 100%;
   max-width: var(--form-card-max-width);
@@ -145,14 +157,20 @@
   font-weight: 700;
 }
 
+/* Responsive */
+
 @media (max-width: 768px) {
   .appointment-create {
     padding: var(--space-4);
   }
 
+  /* Form layout */
+
   .appointment-form {
     padding: var(--space-5);
   }
+
+  /* Form actions */
 
   .form-actions {
     flex-direction: column-reverse;

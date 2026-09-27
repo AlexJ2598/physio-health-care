@@ -1,22 +1,13 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 
 import { PatientService } from './patient';
 import { environment } from '../../../environments/environment';
-import {
-  CreatePatient,
-  Patient,
-  PatientDetail,
-  UpdatePatient
-} from '../../shared/models/patient';
+import { CreatePatient, Patient, PatientDetail, UpdatePatient } from '../../shared/models/patient';
 import { PagedResult } from '../../shared/models/paged-result';
 
 describe('PatientService', () => {
-
   let service: PatientService;
   let httpMock: HttpTestingController;
 
@@ -26,16 +17,13 @@ describe('PatientService', () => {
     birthDate: '1990-01-01',
     gender: 'Male',
     phoneNumber: '1234567890',
-    email: 'juan@example.com'
+    email: 'juan@example.com',
   };
 
+  // Test setup
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        PatientService,
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+      providers: [PatientService, provideHttpClient(), provideHttpClientTesting()],
     });
 
     service = TestBed.inject(PatientService);
@@ -46,6 +34,7 @@ describe('PatientService', () => {
     httpMock.verify();
   });
 
+  // Test cases
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
@@ -56,18 +45,18 @@ describe('PatientService', () => {
       pageNumber: 1,
       pageSize: 10,
       totalCount: 1,
-      totalPages: 1
+      totalPages: 1,
     };
 
-    service.getAll().subscribe(result => {
+    service.getAll().subscribe((result) => {
       expect(result).toEqual(response);
     });
 
     const request = httpMock.expectOne(
-      req =>
+      (req) =>
         req.url === `${environment.apiUrl}/Patients` &&
         req.params.get('pageNumber') === '1' &&
-        req.params.get('pageSize') === '10'
+        req.params.get('pageSize') === '10',
     );
 
     expect(request.request.method).toBe('GET');
@@ -76,47 +65,28 @@ describe('PatientService', () => {
   });
 
   it('should send search and sorting parameters', () => {
-    service.getAll(
-      2,
-      5,
-      '  Juan  ',
-      'fullName',
-      'desc'
-    ).subscribe();
+    service.getAll(2, 5, '  Juan  ', 'fullName', 'desc').subscribe();
 
-    const request = httpMock.expectOne(
-      req =>
-        req.url === `${environment.apiUrl}/Patients`
-    );
+    const request = httpMock.expectOne((req) => req.url === `${environment.apiUrl}/Patients`);
 
     expect(request.request.method).toBe('GET');
 
-    expect(
-      request.request.params.get('pageNumber')
-    ).toBe('2');
+    expect(request.request.params.get('pageNumber')).toBe('2');
 
-    expect(
-      request.request.params.get('pageSize')
-    ).toBe('5');
+    expect(request.request.params.get('pageSize')).toBe('5');
 
-    expect(
-      request.request.params.get('search')
-    ).toBe('Juan');
+    expect(request.request.params.get('search')).toBe('Juan');
 
-    expect(
-      request.request.params.get('sortBy')
-    ).toBe('fullName');
+    expect(request.request.params.get('sortBy')).toBe('fullName');
 
-    expect(
-      request.request.params.get('sortDirection')
-    ).toBe('desc');
+    expect(request.request.params.get('sortDirection')).toBe('desc');
 
     request.flush({
       items: [],
       pageNumber: 2,
       pageSize: 5,
       totalCount: 0,
-      totalPages: 0
+      totalPages: 0,
     });
   });
 
@@ -130,18 +100,14 @@ describe('PatientService', () => {
       phoneNumber: '1234567890',
       email: 'juan@example.com',
       address: null,
-      notes: null
+      notes: null,
     };
 
-    service.getById(
-      detail.id
-    ).subscribe(result => {
+    service.getById(detail.id).subscribe((result) => {
       expect(result).toEqual(detail);
     });
 
-    const request = httpMock.expectOne(
-      `${environment.apiUrl}/Patients/${detail.id}`
-    );
+    const request = httpMock.expectOne(`${environment.apiUrl}/Patients/${detail.id}`);
 
     expect(request.request.method).toBe('GET');
 
@@ -155,16 +121,14 @@ describe('PatientService', () => {
       birthDate: '1990-01-01',
       gender: 1,
       phoneNumber: '1234567890',
-      email: 'juan@example.com'
+      email: 'juan@example.com',
     };
 
-    service.create(dto).subscribe(result => {
+    service.create(dto).subscribe((result) => {
       expect(result).toEqual(patient);
     });
 
-    const request = httpMock.expectOne(
-      `${environment.apiUrl}/Patients`
-    );
+    const request = httpMock.expectOne(`${environment.apiUrl}/Patients`);
 
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual(dto);
@@ -179,17 +143,12 @@ describe('PatientService', () => {
       birthDate: '1990-01-01',
       gender: 1,
       phoneNumber: '1234567890',
-      email: 'juan.updated@example.com'
+      email: 'juan.updated@example.com',
     };
 
-    service.update(
-      patient.id,
-      dto
-    ).subscribe();
+    service.update(patient.id, dto).subscribe();
 
-    const request = httpMock.expectOne(
-      `${environment.apiUrl}/Patients/${patient.id}`
-    );
+    const request = httpMock.expectOne(`${environment.apiUrl}/Patients/${patient.id}`);
 
     expect(request.request.method).toBe('PUT');
     expect(request.request.body).toEqual(dto);
@@ -198,17 +157,12 @@ describe('PatientService', () => {
   });
 
   it('should delete a patient', () => {
-    service.delete(
-      patient.id
-    ).subscribe();
+    service.delete(patient.id).subscribe();
 
-    const request = httpMock.expectOne(
-      `${environment.apiUrl}/Patients/${patient.id}`
-    );
+    const request = httpMock.expectOne(`${environment.apiUrl}/Patients/${patient.id}`);
 
     expect(request.request.method).toBe('DELETE');
 
     request.flush(null);
   });
-
 });

@@ -1,87 +1,59 @@
 <header class="app-header">
-
   <div class="header-container">
-
-    <a
-      routerLink="/patients"
-      class="brand">
-
-      <img
-        src="/images/salma-logo.jpeg"
-        alt="Salma Cortés"
-        class="brand-logo">
+    <!-- Brand -->
+    <a routerLink="/patients" class="brand">
+      <img src="/images/salma-logo.jpeg" alt="Salma Cortés" class="brand-logo" />
 
       <div class="brand-text">
         <strong>Salma Cortés</strong>
         <span>Clinic Management System</span>
       </div>
-
     </a>
 
+    <!-- Navigation -->
     <nav class="navigation">
-
-      <a
-        routerLink="/patients"
-        routerLinkActive="active">
+      <a routerLink="/patients" routerLinkActive="active">
         {{ t('navigation.patients') }}
       </a>
 
-      <a
-        routerLink="/appointments"
-        routerLinkActive="active">
+      <a routerLink="/appointments" routerLinkActive="active">
         {{ t('navigation.appointments') }}
       </a>
 
-      <a
-        routerLink="/dashboard"
-        routerLinkActive="active">
+      <a routerLink="/dashboard" routerLinkActive="active">
         {{ t('navigation.dashboard') }}
       </a>
-
     </nav>
 
+    <!-- Header actions -->
     <div class="header-actions">
-
-      <div
-        class="language-selector"
-        role="group"
-        aria-label="Language">
-
+      <div class="language-selector" role="group" aria-label="Language">
         <button
           type="button"
           class="language-button"
           [class.active]="currentLanguage === 'es'"
           [attr.aria-pressed]="currentLanguage === 'es'"
-          (click)="changeLanguage('es')">
+          (click)="changeLanguage('es')"
+        >
           ES
         </button>
 
-        <span
-          class="language-divider"
-          aria-hidden="true">
-          |
-        </span>
+        <span class="language-divider" aria-hidden="true"> | </span>
 
         <button
           type="button"
           class="language-button"
           [class.active]="currentLanguage === 'en'"
           [attr.aria-pressed]="currentLanguage === 'en'"
-          (click)="changeLanguage('en')">
+          (click)="changeLanguage('en')"
+        >
           EN
         </button>
-
       </div>
 
-      <button
-        type="button"
-        class="logout-button"
-        (click)="logout()">
+      <button type="button" class="logout-button" (click)="logout()">
         {{ t('common.logout') }}
       </button>
-
     </div>
-
   </div>
-
 </header>

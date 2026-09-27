@@ -1,28 +1,17 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi
-} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  ToastService
-} from './toast';
+import { ToastService } from './toast';
 
 describe('ToastService', () => {
-
   let service: ToastService;
 
+  // Test setup
   beforeEach(() => {
     vi.useFakeTimers();
 
     TestBed.configureTestingModule({
-      providers: [
-        ToastService
-      ]
+      providers: [ToastService],
     });
 
     service = TestBed.inject(ToastService);
@@ -33,6 +22,7 @@ describe('ToastService', () => {
     vi.useRealTimers();
   });
 
+  // Test cases
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
@@ -45,9 +35,7 @@ describe('ToastService', () => {
     expect(toasts.length).toBe(1);
     expect(toasts[0].id).toBe(1);
     expect(toasts[0].type).toBe('success');
-    expect(toasts[0].message).toBe(
-      'Patient created'
-    );
+    expect(toasts[0].message).toBe('Patient created');
     expect(toasts[0].duration).toBe(3000);
   });
 
@@ -58,9 +46,7 @@ describe('ToastService', () => {
 
     expect(toasts.length).toBe(1);
     expect(toasts[0].type).toBe('error');
-    expect(toasts[0].message).toBe(
-      'Something went wrong'
-    );
+    expect(toasts[0].message).toBe('Something went wrong');
     expect(toasts[0].duration).toBe(5000);
   });
 
@@ -71,9 +57,7 @@ describe('ToastService', () => {
 
     expect(toasts.length).toBe(1);
     expect(toasts[0].type).toBe('warning');
-    expect(toasts[0].message).toBe(
-      'Warning message'
-    );
+    expect(toasts[0].message).toBe('Warning message');
     expect(toasts[0].duration).toBe(4000);
   });
 
@@ -84,21 +68,14 @@ describe('ToastService', () => {
 
     expect(toasts.length).toBe(1);
     expect(toasts[0].type).toBe('info');
-    expect(toasts[0].message).toBe(
-      'Information message'
-    );
+    expect(toasts[0].message).toBe('Information message');
     expect(toasts[0].duration).toBe(3000);
   });
 
   it('should use a custom duration', () => {
-    service.success(
-      'Custom duration',
-      1000
-    );
+    service.success('Custom duration', 1000);
 
-    expect(
-      service.toasts()[0].duration
-    ).toBe(1000);
+    expect(service.toasts()[0].duration).toBe(1000);
   });
 
   it('should increment toast ids', () => {
@@ -118,40 +95,27 @@ describe('ToastService', () => {
     service.success('First');
     service.error('Second');
 
-    const firstToastId =
-      service.toasts()[0].id;
+    const firstToastId = service.toasts()[0].id;
 
     service.remove(firstToastId);
 
     const toasts = service.toasts();
 
     expect(toasts.length).toBe(1);
-    expect(toasts[0].message).toBe(
-      'Second'
-    );
+    expect(toasts[0].message).toBe('Second');
   });
 
   it('should automatically remove a toast after its duration', () => {
-    service.success(
-      'Temporary toast',
-      1000
-    );
+    service.success('Temporary toast', 1000);
 
-    expect(
-      service.toasts().length
-    ).toBe(1);
+    expect(service.toasts().length).toBe(1);
 
     vi.advanceTimersByTime(999);
 
-    expect(
-      service.toasts().length
-    ).toBe(1);
+    expect(service.toasts().length).toBe(1);
 
     vi.advanceTimersByTime(1);
 
-    expect(
-      service.toasts().length
-    ).toBe(0);
+    expect(service.toasts().length).toBe(0);
   });
-
 });

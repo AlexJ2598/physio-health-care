@@ -4,14 +4,11 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'app-loading',
   standalone: true,
-  imports: [
-    CommonModule
-  ],
+  imports: [CommonModule],
   templateUrl: './loading.html',
-  styleUrl: './loading.scss'
+  styleUrl: './loading.scss',
 })
 export class LoadingComponent {
-
   @Input() message = '';
 
   @Input() size: 'small' | 'medium' | 'large' = 'medium';

@@ -24,10 +24,7 @@
 }
 
 .page-header p {
-  margin:
-    var(--space-2)
-    0
-    0;
+  margin: var(--space-2) 0 0;
 
   color: var(--color-text-muted);
 }
@@ -39,16 +36,11 @@
   gap: var(--space-3);
 }
 
-
-/* =========================================
-   Buttons
-   ========================================= */
+/* Buttons */
 
 .btn-primary,
 .btn-secondary {
-  padding:
-    var(--space-3)
-    18px;
+  padding: var(--space-3) 18px;
 
   border-radius: var(--radius-md);
   border: none;
@@ -65,8 +57,7 @@
   background: var(--color-primary);
   color: var(--color-surface);
 
-  transition:
-    background-color var(--transition-fast);
+  transition: background-color var(--transition-fast);
 }
 
 .btn-primary:hover {
@@ -77,9 +68,7 @@
   background: var(--color-surface);
   color: var(--color-text-secondary);
 
-  border:
-    1px solid
-    var(--color-border-strong);
+  border: 1px solid var(--color-border-strong);
 
   transition:
     background-color var(--transition-fast),
@@ -99,10 +88,7 @@
   cursor: not-allowed;
 }
 
-
-/* =========================================
-   Search
-   ========================================= */
+/* Search */
 
 .search-card {
   margin-bottom: var(--space-5);
@@ -112,15 +98,11 @@
   width: 100%;
   max-width: 420px;
 
-  padding:
-    var(--form-control-padding)
-    var(--space-4);
+  padding: var(--form-control-padding) var(--space-4);
 
   border-radius: var(--radius-lg);
 
-  border:
-    1px solid
-    var(--color-border-strong);
+  border: 1px solid var(--color-border-strong);
 
   font-size: var(--font-size-base);
 
@@ -140,10 +122,7 @@
   box-shadow: var(--focus-ring-primary);
 }
 
-
-/* =========================================
-   Table
-   ========================================= */
+/* Table */
 
 table {
   width: 100%;
@@ -165,9 +144,7 @@ td {
 
   text-align: left;
 
-  border-bottom:
-    1px solid
-    var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 th {
@@ -182,10 +159,7 @@ td {
   color: var(--color-text-secondary);
 }
 
-
-/* =========================================
-   Sorting
-   ========================================= */
+/* Sorting */
 
 .sort-button {
   display: inline-flex;
@@ -205,8 +179,7 @@ td {
 
   cursor: pointer;
 
-  transition:
-    color var(--transition-fast);
+  transition: color var(--transition-fast);
 }
 
 .sort-button:hover {
@@ -251,10 +224,7 @@ td {
   opacity: 1;
 }
 
-
-/* =========================================
-   Table actions
-   ========================================= */
+/* Table actions */
 
 .actions {
   white-space: nowrap;
@@ -268,9 +238,7 @@ td {
 }
 
 .btn-small {
-  padding:
-    var(--space-2)
-    var(--space-3);
+  padding: var(--space-2) var(--space-3);
 
   border-radius: 10px;
   border: none;
@@ -307,10 +275,7 @@ td {
   color: var(--color-danger-dark);
 }
 
-
-/* =========================================
-   Pagination
-   ========================================= */
+/* Pagination */
 
 .pagination {
   display: flex;
@@ -331,13 +296,9 @@ td {
   min-width: 40px;
   min-height: 40px;
 
-  padding:
-    var(--space-2)
-    var(--space-3);
+  padding: var(--space-2) var(--space-3);
 
-  border:
-    1px solid
-    var(--color-border-strong);
+  border: 1px solid var(--color-border-strong);
 
   border-radius: var(--radius-md);
 
@@ -382,10 +343,7 @@ td {
   box-shadow: var(--focus-ring-primary);
 }
 
-
-/* =========================================
-   Pagination info
-   ========================================= */
+/* Pagination info */
 
 .pagination-info {
   margin-top: var(--space-3);
@@ -397,10 +355,7 @@ td {
   font-size: var(--font-size-sm);
 }
 
-
-/* =========================================
-   Feedback
-   ========================================= */
+/* Feedback */
 
 .error {
   color: var(--color-danger);
@@ -418,10 +373,7 @@ td {
   color: var(--color-text-muted);
 }
 
-
-/* =========================================
-   Modal
-   ========================================= */
+/* Modal */
 
 .modal-backdrop {
   position: fixed;
@@ -451,10 +403,7 @@ td {
 }
 
 .modal h2 {
-  margin:
-    0
-    0
-    var(--space-3);
+  margin: 0 0 var(--space-3);
 
   color: var(--color-text-primary);
 }
@@ -478,10 +427,7 @@ td {
   margin-top: var(--space-6);
 }
 
-
-/* =========================================
-   Danger button
-   ========================================= */
+/* Danger button */
 
 .modal-actions .btn-danger {
   display: inline-flex;
@@ -490,13 +436,9 @@ td {
 
   min-width: 80px;
 
-  padding:
-    var(--space-3)
-    18px;
+  padding: var(--space-3) 18px;
 
-  border:
-    1px solid
-    var(--color-danger);
+  border: 1px solid var(--color-danger);
 
   border-radius: var(--radius-md);
 
