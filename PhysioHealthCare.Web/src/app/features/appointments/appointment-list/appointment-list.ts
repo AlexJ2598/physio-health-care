@@ -75,6 +75,16 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
     return this.pageNumber < this.totalPages;
   }
 
+  get hasActiveFilters(): boolean{
+    return Boolean(
+      this.searchTerm.trim() ||
+      this.selectedPatientId ||
+      this.selectedStatus !== null ||
+      this.dateFrom ||
+      this.dateTo
+    );
+  }
+
   // Lifecycle
 
   ngOnInit(): void {
@@ -215,6 +225,19 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
     this.dateTo = '';
     this.pageNumber = 1;
 
+    this.loadAppointments();
+  }
+
+  clearFilters(): void{
+    if(!this.hasActiveFilters || this.isLoading){
+      return;
+    }
+    this.searchTerm = '';
+    this.selectedPatientId = '';
+    this.selectedStatus = null;
+    this.dateFrom = '';
+    this.dateTo = '';
+    this.pageNumber = 1;
     this.loadAppointments();
   }
 

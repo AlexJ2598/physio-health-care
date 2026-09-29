@@ -229,17 +229,38 @@
   <app-loading *ngIf="isLoading" [message]="t('appointments.loading')" size="medium"> </app-loading>
 
   <div *ngIf="!isLoading && errorMessage" class="error-message">
-    {{ errorMessage }}
+    <p>{{ errorMessage }}</p>
+    <button
+    class="btn btn-secondary"
+    type="button"
+    (click)="loadAppointments()">
+    {{t('common.retry')}}   
+  </button>
   </div>
 
   <div *ngIf="!isLoading && !errorMessage && appointments.length === 0" class="empty-state">
-    <h2>
-      {{ t('appointments.empty.title') }}
-    </h2>
-
-    <p>
-      {{ t('appointments.empty.message') }}
-    </p>
+    <ng-container *ngIf="hasActiveFilters; else noAppointments">
+      <h2>
+        {{t('appointments.empty.filteredTitle')}}
+      </h2>
+      <p>
+        {{t('appointments.empty.filteredMessage')}}
+      </p>
+      <button
+      class="btn btn-secondary"
+      type="button"
+      (click)="clearFilters()">
+      {{t('appointments.filters.clearAll')}}
+      </button>
+    </ng-container>
+    <ng-template #noAppointments>
+      <h2>
+        {{t('appointments.empty.title')}}
+      </h2>
+      <p>
+        {{t('appointments.empty.message')}}
+      </p>
+    </ng-template>
   </div>
 
   <!-- Appointment table -->
@@ -341,7 +362,7 @@
   </div>
 
   <!-- Pagination -->
-  <div class="pagination" *ngIf="totalCount > 0">
+  <div class="pagination" *ngIf="!errorMessage && !isLoading && totalCount > 0">
     <div class="pagination-info">
       {{ totalCount }}
       {{ t('appointments.pagination.total') }}
@@ -420,7 +441,7 @@
         </strong>
 
         <span>
-          {{ appointmentToCancel.appointmentDate | date: 'medium' }}
+          {{ appointmentToCancel.appointmentDate | date: 'medium' : undefined : dateLocale() }}
         </span>
       </div>
 

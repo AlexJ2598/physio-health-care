@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
 import { AppointmentService } from '../../../core/services/appointment';
@@ -13,7 +13,7 @@ import { UpdateAppointment } from '../../../shared/models/appointment';
 @Component({
   selector: 'app-appointment-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LoadingComponent],
+  imports: [CommonModule, FormsModule, LoadingComponent],
   templateUrl: './appointment-edit.html',
   styleUrl: './appointment-edit.scss',
 })
@@ -27,6 +27,7 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
   notes = '';
   isLoading = false;
   isSaving = false;
+  loadErrorMessage = '';
   errorMessage = '';
   formSubmitted = false;
   private readonly destroy$ = new Subject<void>();
@@ -68,7 +69,7 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
 
   loadAppointment(): void {
     this.isLoading = true;
-    this.errorMessage = '';
+    this.loadErrorMessage = '';
     this.cdr.detectChanges();
 
     this.appointmentService.getById(this.appointmentId).subscribe({
@@ -94,7 +95,7 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
           return;
         }
 
-        this.errorMessage = this.t('appointments.edit.loadError');
+        this.loadErrorMessage = this.t('appointments.edit.loadError');
 
         this.cdr.detectChanges();
       },
@@ -150,6 +151,14 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
   }
 
   // Template helpers
+
+  cancel(): void{
+    if(this.isSaving){
+      return;
+    }
+
+    this.router.navigate(['/appointments']);
+  }
 
   t(key: string): string {
     return this.translationService.translate(key);

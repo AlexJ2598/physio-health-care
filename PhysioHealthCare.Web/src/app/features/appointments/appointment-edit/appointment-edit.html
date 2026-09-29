@@ -15,17 +15,30 @@
   <app-loading *ngIf="isLoading" [message]="t('appointments.edit.loading')" size="medium">
   </app-loading>
 
-  <div *ngIf="!isLoading && errorMessage" class="error-message">
-    {{ errorMessage }}
+  <div *ngIf="!isLoading && loadErrorMessage" class="error-message">
+    <p>
+      {{loadErrorMessage}}
+    </p>
+    <button
+    class="btn btn-secondary"
+    type="button"
+    (click)="loadAppointment()">
+    {{t('common.retry')}}
+    </button>
   </div>
 
   <!-- Form fields and validation -->
   <form
-    *ngIf="!isLoading"
+    *ngIf="!isLoading && !loadErrorMessage" 
     #appointmentForm="ngForm"
     class="appointment-form"
     (ngSubmit)="updateAppointment()"
   >
+  <div
+  *ngIf="errorMessage"
+  class="error-message"
+  {{errorMessage }}>
+  </div>
     <div class="form-group">
       <label>
         {{ t('appointments.edit.patient') }}
@@ -85,9 +98,13 @@
 
     <!-- Form actions -->
     <div class="form-actions">
-      <a class="btn btn-secondary" routerLink="/appointments">
-        {{ t('common.cancel') }}
-      </a>
+      <button
+      class="btn btn-secondary"
+      type="button"
+      [disabled]="isSaving"
+      (click)="cancel()">
+      {{t('common.cancel')}}
+      </button>
 
       <button
         class="btn btn-primary"

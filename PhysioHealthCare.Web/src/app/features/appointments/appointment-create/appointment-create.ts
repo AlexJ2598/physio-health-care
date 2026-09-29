@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
 import { AppointmentService } from '../../../core/services/appointment';
@@ -14,7 +14,7 @@ import { Patient } from '../../../shared/models/patient';
 @Component({
   selector: 'app-appointment-create',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './appointment-create.html',
   styleUrl: './appointment-create.scss',
 })
@@ -73,6 +73,8 @@ export class AppointmentCreateComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Load patients error', error);
 
+        this.patients = [];
+
         this.isLoadingPatients = false;
 
         this.errorMessage = this.t('appointments.create.loadPatientsError');
@@ -128,6 +130,14 @@ export class AppointmentCreateComponent implements OnInit, OnDestroy {
   }
 
   // Template helpers
+
+  cancel(): void{
+    if(this.isSaving){
+      return;
+    }
+
+    this.router.navigate(['/appointments'])
+  }
 
   t(key: string): string {
     return this.translationService.translate(key);

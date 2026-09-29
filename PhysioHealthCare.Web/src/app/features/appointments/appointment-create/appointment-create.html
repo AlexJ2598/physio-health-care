@@ -13,7 +13,16 @@
   </div>
 
   <div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
+    <p>
+      {{errorMessage}}
+    </p>
+    <button
+    ngIf="!isSaving && patients.length === 0"
+    class="btn btn-secondary"
+    type="button"
+    (click)="loadPatients()">
+    {{t('common.retry')}}
+    </button>
   </div>
 
   <!-- Form fields and validation -->
@@ -93,9 +102,13 @@
 
     <!-- Form actions -->
     <div class="form-actions">
-      <a class="btn btn-secondary" routerLink="/appointments">
-        {{ t('common.cancel') }}
-      </a>
+      <button
+      class="btn btn-secondary"
+      type="button"
+      [disabled]="isSaving"
+      (click)="cancel()">
+      {{ t('common.cancel') }}
+      </button>
 
       <button
         class="btn btn-primary"
