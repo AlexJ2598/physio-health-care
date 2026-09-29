@@ -96,28 +96,30 @@
     </thead>
     <tbody>
       <tr *ngFor="let patient of patients">
-        <td>
+        <td [attr.data-label]="t('patients.columns.name')">
           {{ patient.fullName }}
         </td>
-        <td>
+        <td [attr.data-label]="t('patients.columns.birthDate')">
           {{ patient.birthDate | date: 'mediumDate' : undefined : currentLocale }}
         </td>
-        <td>
+        <td [attr.data-label]="t('patients.columns.gender')">
           {{ getGenderTranslation(patient.gender) }}
         </td>
-        <td>
+        <td [attr.data-label]="t('patients.columns.phone')">
           {{ patient.phoneNumber }}
         </td>
-        <td>
+        <td [attr.data-label]="t('patients.columns.email')">
           {{ patient.email }}
         </td>
-        <td class="actions-cell">
-          <a class="btn-small btn-edit" [routerLink]="['/patients/edit', patient.id]">
+        <td class="actions-cell" [attr.data-label]="t('patients.columns.actions')">
+          <div class="action-buttons">
+            <a class="btn-small btn-edit" [routerLink]="['/patients/edit', patient.id]">
             {{ t('common.edit') }}
           </a>
           <button type="button" class="btn-small btn-delete" (click)="openDeleteModal(patient)">
             {{ t('common.delete') }}
           </button>
+         </div>
         </td>
       </tr>
     </tbody>

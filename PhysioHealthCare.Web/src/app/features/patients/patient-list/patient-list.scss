@@ -88,6 +88,96 @@
   cursor: not-allowed;
 }
 
+/* Responsive */
+
+@media (max-width: 768px) {
+  .page {
+    padding: var(--space-4);
+  }
+
+  .page-header {
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .search-card input {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Patient table becomes cards */
+
+  table,
+  tbody,
+  tr,
+  td {
+    display: block;
+    width: 100%;
+  }
+
+  table {
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  tbody tr {
+    box-sizing: border-box;
+    padding: var(--space-4);
+
+    background: var(--color-surface);
+
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-md);
+  }
+
+  tbody td {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: var(--space-4);
+
+    box-sizing: border-box;
+
+    padding: var(--space-2) 0;
+
+    border-bottom: none;
+
+    text-align: right;
+
+    overflow-wrap: anywhere;
+  }
+
+  tbody td::before {
+    content: attr(data-label);
+
+    flex: 0 0 40%;
+
+    color: var(--color-text-primary);
+
+    font-weight: 700;
+
+    text-align: left;
+  }
+}
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 /* Search */
 
 .search-card {
