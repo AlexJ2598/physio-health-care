@@ -1,14 +1,26 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
+
 import { provideRouter } from '@angular/router';
 
 import { AppointmentListComponent } from './appointment-list';
+
 import { AppointmentService } from '../../../core/services/appointment';
+
 import { PatientService } from '../../../core/services/patient';
+
 import { ToastService } from '../../../core/services/toast';
+
 import { TranslationService } from '../../../core/services/translation';
-import { Appointment, AppointmentFilters } from '../../../shared/models/appointment';
+
+import {
+  Appointment,
+  AppointmentFilters
+} from '../../../shared/models/appointment';
+
 import { Patient } from '../../../shared/models/patient';
+
 import { PagedResult } from '../../../shared/models/paged-result';
 
 describe('AppointmentListComponent', () => {
@@ -33,6 +45,7 @@ describe('AppointmentListComponent', () => {
   let translationServiceMock: {
     language$: BehaviorSubject<string>;
     translate: ReturnType<typeof vi.fn>;
+    getCurrentLanguage: ReturnType<typeof vi.fn>;
   };
 
   const appointments: Appointment[] = [
@@ -101,11 +114,9 @@ describe('AppointmentListComponent', () => {
     sortDirection: 'asc',
   };
 
-  // Test setup
   beforeEach(async () => {
     appointmentServiceMock = {
       getAll: vi.fn().mockReturnValue(of(pagedResult)),
-
       updateStatus: vi.fn(),
     };
 
@@ -121,7 +132,18 @@ describe('AppointmentListComponent', () => {
     translationServiceMock = {
       language$: new BehaviorSubject<string>('es'),
 
-      translate: vi.fn((key: string) => key),
+      translate: vi.fn((key: string) => {
+        const translations: Record<string, string> = {
+          'appointments.status.scheduled': 'Scheduled',
+          'appointments.status.inProgress': 'In Progress',
+          'appointments.status.completed': 'Completed',
+          'appointments.status.cancelled': 'Cancelled',
+        };
+
+        return translations[key] ?? key;
+      }),
+
+      getCurrentLanguage: vi.fn().mockReturnValue('en'),
     };
 
     await TestBed.configureTestingModule({
@@ -156,7 +178,6 @@ describe('AppointmentListComponent', () => {
     vi.useRealTimers();
   });
 
-  // Test cases
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -164,9 +185,19 @@ describe('AppointmentListComponent', () => {
   it('should load patients and appointments on init', () => {
     fixture.detectChanges();
 
-    expect(patientServiceMock.getAll).toHaveBeenCalledWith(1, 100, undefined, 'fullName', 'asc');
+    expect(patientServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      100,
+      undefined,
+      'fullName',
+      'asc'
+    );
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, defaultFilters);
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      defaultFilters
+    );
 
     expect(component.patients).toEqual(patients);
 
@@ -213,7 +244,7 @@ describe('AppointmentListComponent', () => {
         pageSize: 10,
         totalCount: 0,
         totalPages: 0,
-      }),
+      })
     );
 
     fixture.detectChanges();
@@ -222,21 +253,31 @@ describe('AppointmentListComponent', () => {
 
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(element.textContent).toContain('appointments.empty.title');
+    expect(element.textContent).toContain(
+      'appointments.empty.title'
+    );
 
-    expect(element.textContent).toContain('appointments.empty.message');
+    expect(element.textContent).toContain(
+      'appointments.empty.message'
+    );
   });
 
   it('should set the error message when loading appointments fails', () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
 
-    appointmentServiceMock.getAll.mockReturnValue(throwError(() => new Error('API error')));
+    appointmentServiceMock.getAll.mockReturnValue(
+      throwError(() => new Error('API error'))
+    );
 
     fixture.detectChanges();
 
     expect(component.isLoading).toBe(false);
 
-    expect(component.errorMessage).toBe('appointments.loadError');
+    expect(component.errorMessage).toBe(
+      'appointments.loadError'
+    );
 
     expect(component.appointments).toEqual([]);
 
@@ -246,9 +287,13 @@ describe('AppointmentListComponent', () => {
   });
 
   it('should handle patient loading failure independently', () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
 
-    patientServiceMock.getAll.mockReturnValue(throwError(() => new Error('Patients API error')));
+    patientServiceMock.getAll.mockReturnValue(
+      throwError(() => new Error('Patients API error'))
+    );
 
     fixture.detectChanges();
 
@@ -268,7 +313,9 @@ describe('AppointmentListComponent', () => {
 
     const result = component.t('appointments.title');
 
-    expect(translationServiceMock.translate).toHaveBeenCalledWith('appointments.title');
+    expect(
+      translationServiceMock.translate
+    ).toHaveBeenCalledWith('appointments.title');
 
     expect(result).toBe('Citas');
   });
@@ -282,10 +329,14 @@ describe('AppointmentListComponent', () => {
 
     component.searchAppointments();
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, {
-      ...defaultFilters,
-      search: 'Juan',
-    });
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      {
+        ...defaultFilters,
+        search: 'Juan',
+      }
+    );
   });
 
   it('should search automatically after debounce', () => {
@@ -297,18 +348,26 @@ describe('AppointmentListComponent', () => {
 
     component.onSearchChange('Juan');
 
-    expect(appointmentServiceMock.getAll).not.toHaveBeenCalled();
+    expect(
+      appointmentServiceMock.getAll
+    ).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(399);
 
-    expect(appointmentServiceMock.getAll).not.toHaveBeenCalled();
+    expect(
+      appointmentServiceMock.getAll
+    ).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(1);
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, {
-      ...defaultFilters,
-      search: 'Juan',
-    });
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      {
+        ...defaultFilters,
+        search: 'Juan',
+      }
+    );
   });
 
   it('should restore all appointments when live search becomes empty', () => {
@@ -326,7 +385,11 @@ describe('AppointmentListComponent', () => {
 
     vi.advanceTimersByTime(400);
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, defaultFilters);
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      defaultFilters
+    );
   });
 
   it('should clear search and reload first page', () => {
@@ -343,7 +406,11 @@ describe('AppointmentListComponent', () => {
 
     expect(component.pageNumber).toBe(1);
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, defaultFilters);
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      defaultFilters
+    );
   });
 
   it('should not reload when clearing an already empty search', () => {
@@ -355,7 +422,9 @@ describe('AppointmentListComponent', () => {
 
     component.clearSearch();
 
-    expect(appointmentServiceMock.getAll).not.toHaveBeenCalled();
+    expect(
+      appointmentServiceMock.getAll
+    ).not.toHaveBeenCalled();
   });
 
   it('should filter appointments by patient', () => {
@@ -371,10 +440,14 @@ describe('AppointmentListComponent', () => {
 
     expect(component.pageNumber).toBe(1);
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, {
-      ...defaultFilters,
-      patientId: 'patient-1',
-    });
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      {
+        ...defaultFilters,
+        patientId: 'patient-1',
+      }
+    );
   });
 
   it('should clear patient filter when empty patient id is selected', () => {
@@ -388,7 +461,11 @@ describe('AppointmentListComponent', () => {
 
     expect(component.selectedPatientId).toBe('');
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, defaultFilters);
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      defaultFilters
+    );
   });
 
   it('should filter appointments by status', () => {
@@ -404,10 +481,14 @@ describe('AppointmentListComponent', () => {
 
     expect(component.pageNumber).toBe(1);
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, {
-      ...defaultFilters,
-      status: 2,
-    });
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      {
+        ...defaultFilters,
+        status: 2,
+      }
+    );
   });
 
   it('should clear status filter when all statuses are selected', () => {
@@ -421,7 +502,11 @@ describe('AppointmentListComponent', () => {
 
     expect(component.selectedStatus).toBeNull();
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, defaultFilters);
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      defaultFilters
+    );
   });
 
   it('should apply date range using UTC day boundaries', () => {
@@ -430,33 +515,49 @@ describe('AppointmentListComponent', () => {
     appointmentServiceMock.getAll.mockClear();
 
     component.dateFrom = '2026-09-24';
-
     component.dateTo = '2026-09-25';
-
     component.pageNumber = 2;
 
     component.applyDateRange();
 
-    const expectedDateFrom = new Date(2026, 8, 24, 0, 0, 0, 0).toISOString();
+    const expectedDateFrom = new Date(
+      2026,
+      8,
+      24,
+      0,
+      0,
+      0,
+      0
+    ).toISOString();
 
-    const expectedDateTo = new Date(2026, 8, 25, 23, 59, 59, 999).toISOString();
+    const expectedDateTo = new Date(
+      2026,
+      8,
+      25,
+      23,
+      59,
+      59,
+      999
+    ).toISOString();
 
     expect(component.pageNumber).toBe(1);
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, {
-      ...defaultFilters,
-      dateFrom: expectedDateFrom,
-      dateTo: expectedDateTo,
-    });
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      {
+        ...defaultFilters,
+        dateFrom: expectedDateFrom,
+        dateTo: expectedDateTo,
+      }
+    );
   });
 
   it('should clear date range and reload first page', () => {
     fixture.detectChanges();
 
     component.dateFrom = '2026-09-24';
-
     component.dateTo = '2026-09-25';
-
     component.pageNumber = 2;
 
     appointmentServiceMock.getAll.mockClear();
@@ -464,12 +565,14 @@ describe('AppointmentListComponent', () => {
     component.clearDateRange();
 
     expect(component.dateFrom).toBe('');
-
     expect(component.dateTo).toBe('');
-
     expect(component.pageNumber).toBe(1);
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, defaultFilters);
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      defaultFilters
+    );
   });
 
   it('should not reload when clearing an empty date range', () => {
@@ -482,39 +585,57 @@ describe('AppointmentListComponent', () => {
 
     component.clearDateRange();
 
-    expect(appointmentServiceMock.getAll).not.toHaveBeenCalled();
+    expect(
+      appointmentServiceMock.getAll
+    ).not.toHaveBeenCalled();
   });
 
   it('should combine search, patient, status and date filters', () => {
     fixture.detectChanges();
 
     component.searchTerm = 'valoracion';
-
     component.selectedPatientId = 'patient-1';
-
     component.selectedStatus = 2;
-
     component.dateFrom = '2026-09-20';
-
     component.dateTo = '2026-09-25';
 
     appointmentServiceMock.getAll.mockClear();
 
     component.loadAppointments();
 
-    const expectedDateFrom = new Date(2026, 8, 20, 0, 0, 0, 0).toISOString();
+    const expectedDateFrom = new Date(
+      2026,
+      8,
+      20,
+      0,
+      0,
+      0,
+      0
+    ).toISOString();
 
-    const expectedDateTo = new Date(2026, 8, 25, 23, 59, 59, 999).toISOString();
+    const expectedDateTo = new Date(
+      2026,
+      8,
+      25,
+      23,
+      59,
+      59,
+      999
+    ).toISOString();
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, {
-      search: 'valoracion',
-      status: 2,
-      patientId: 'patient-1',
-      dateFrom: expectedDateFrom,
-      dateTo: expectedDateTo,
-      sortBy: 'appointmentDate',
-      sortDirection: 'asc',
-    });
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      {
+        search: 'valoracion',
+        status: 2,
+        patientId: 'patient-1',
+        dateFrom: expectedDateFrom,
+        dateTo: expectedDateTo,
+        sortBy: 'appointmentDate',
+        sortDirection: 'asc',
+      }
+    );
   });
 
   it('should change sort field and reload first page', () => {
@@ -527,13 +648,16 @@ describe('AppointmentListComponent', () => {
     component.changeSortField('patientName');
 
     expect(component.sortBy).toBe('patientName');
-
     expect(component.pageNumber).toBe(1);
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, {
-      ...defaultFilters,
-      sortBy: 'patientName',
-    });
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      {
+        ...defaultFilters,
+        sortBy: 'patientName',
+      }
+    );
   });
 
   it('should change sort direction to descending', () => {
@@ -546,13 +670,16 @@ describe('AppointmentListComponent', () => {
     component.changeSortDirection('desc');
 
     expect(component.sortDirection).toBe('desc');
-
     expect(component.pageNumber).toBe(1);
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, {
-      ...defaultFilters,
-      sortDirection: 'desc',
-    });
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      {
+        ...defaultFilters,
+        sortDirection: 'desc',
+      }
+    );
   });
 
   it('should fall back to ascending for an invalid sort direction', () => {
@@ -566,7 +693,11 @@ describe('AppointmentListComponent', () => {
 
     expect(component.sortDirection).toBe('asc');
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, defaultFilters);
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      defaultFilters
+    );
   });
 
   it('should report whether previous and next pages exist', () => {
@@ -574,7 +705,6 @@ describe('AppointmentListComponent', () => {
     component.totalPages = 3;
 
     expect(component.hasPreviousPage).toBe(true);
-
     expect(component.hasNextPage).toBe(true);
 
     component.pageNumber = 1;
@@ -601,12 +731,16 @@ describe('AppointmentListComponent', () => {
         pageSize: 10,
         totalCount: 12,
         totalPages: 2,
-      }),
+      })
     );
 
     component.goToNextPage();
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(2, 10, defaultFilters);
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      2,
+      10,
+      defaultFilters
+    );
 
     expect(component.pageNumber).toBe(2);
   });
@@ -626,12 +760,16 @@ describe('AppointmentListComponent', () => {
         pageSize: 10,
         totalCount: 12,
         totalPages: 2,
-      }),
+      })
     );
 
     component.goToPreviousPage();
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 10, defaultFilters);
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      10,
+      defaultFilters
+    );
 
     expect(component.pageNumber).toBe(1);
   });
@@ -646,7 +784,9 @@ describe('AppointmentListComponent', () => {
 
     component.goToPreviousPage();
 
-    expect(appointmentServiceMock.getAll).not.toHaveBeenCalled();
+    expect(
+      appointmentServiceMock.getAll
+    ).not.toHaveBeenCalled();
 
     expect(component.pageNumber).toBe(1);
   });
@@ -661,7 +801,9 @@ describe('AppointmentListComponent', () => {
 
     component.goToNextPage();
 
-    expect(appointmentServiceMock.getAll).not.toHaveBeenCalled();
+    expect(
+      appointmentServiceMock.getAll
+    ).not.toHaveBeenCalled();
 
     expect(component.pageNumber).toBe(2);
   });
@@ -677,7 +819,9 @@ describe('AppointmentListComponent', () => {
 
     component.goToNextPage();
 
-    expect(appointmentServiceMock.getAll).not.toHaveBeenCalled();
+    expect(
+      appointmentServiceMock.getAll
+    ).not.toHaveBeenCalled();
 
     expect(component.pageNumber).toBe(1);
   });
@@ -696,15 +840,18 @@ describe('AppointmentListComponent', () => {
         pageSize: 20,
         totalCount: 12,
         totalPages: 1,
-      }),
+      })
     );
 
     component.changePageSize('20');
 
-    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(1, 20, defaultFilters);
+    expect(appointmentServiceMock.getAll).toHaveBeenCalledWith(
+      1,
+      20,
+      defaultFilters
+    );
 
     expect(component.pageNumber).toBe(1);
-
     expect(component.pageSize).toBe(20);
   });
 
@@ -717,11 +864,15 @@ describe('AppointmentListComponent', () => {
 
     expect(component.pageSize).toBe(10);
 
-    expect(appointmentServiceMock.getAll).not.toHaveBeenCalled();
+    expect(
+      appointmentServiceMock.getAll
+    ).not.toHaveBeenCalled();
 
     component.changePageSize('0');
 
-    expect(appointmentServiceMock.getAll).not.toHaveBeenCalled();
+    expect(
+      appointmentServiceMock.getAll
+    ).not.toHaveBeenCalled();
   });
 
   it('should not reload when selecting the current page size', () => {
@@ -731,7 +882,9 @@ describe('AppointmentListComponent', () => {
 
     component.changePageSize('10');
 
-    expect(appointmentServiceMock.getAll).not.toHaveBeenCalled();
+    expect(
+      appointmentServiceMock.getAll
+    ).not.toHaveBeenCalled();
   });
 
   it('should update appointment status successfully', () => {
@@ -740,23 +893,33 @@ describe('AppointmentListComponent', () => {
       status: 'InProgress',
     };
 
-    appointmentServiceMock.updateStatus.mockReturnValue(of(updatedAppointment));
+    appointmentServiceMock.updateStatus.mockReturnValue(
+      of(updatedAppointment)
+    );
 
     component.appointments = [...appointments];
 
     component.updateStatus(appointments[0], 2);
 
-    expect(appointmentServiceMock.updateStatus).toHaveBeenCalledWith('appointment-1', {
+    expect(
+      appointmentServiceMock.updateStatus
+    ).toHaveBeenCalledWith('appointment-1', {
       status: 2,
     });
 
-    expect(component.appointments[0].status).toBe('InProgress');
+    expect(component.appointments[0].status).toBe(
+      'InProgress'
+    );
 
-    expect(component.appointments[1]).toEqual(appointments[1]);
+    expect(component.appointments[1]).toEqual(
+      appointments[1]
+    );
 
     expect(component.updatingAppointmentId).toBeNull();
 
-    expect(toastServiceMock.success).toHaveBeenCalledWith('appointments.status.success');
+    expect(toastServiceMock.success).toHaveBeenCalledWith(
+      'appointments.status.success'
+    );
   });
 
   it('should complete an in progress appointment', () => {
@@ -765,31 +928,43 @@ describe('AppointmentListComponent', () => {
       status: 'Completed',
     };
 
-    appointmentServiceMock.updateStatus.mockReturnValue(of(updatedAppointment));
+    appointmentServiceMock.updateStatus.mockReturnValue(
+      of(updatedAppointment)
+    );
 
     component.appointments = [...appointments];
 
     component.updateStatus(appointments[1], 3);
 
-    expect(appointmentServiceMock.updateStatus).toHaveBeenCalledWith('appointment-2', {
+    expect(
+      appointmentServiceMock.updateStatus
+    ).toHaveBeenCalledWith('appointment-2', {
       status: 3,
     });
 
-    expect(component.appointments[1].status).toBe('Completed');
+    expect(component.appointments[1].status).toBe(
+      'Completed'
+    );
   });
 
   it('should prevent duplicate status updates while appointment is updating', () => {
     const updateSubject = new Subject<Appointment>();
 
-    appointmentServiceMock.updateStatus.mockReturnValue(updateSubject.asObservable());
+    appointmentServiceMock.updateStatus.mockReturnValue(
+      updateSubject.asObservable()
+    );
 
     component.updateStatus(appointments[0], 2);
 
-    expect(component.updatingAppointmentId).toBe('appointment-1');
+    expect(component.updatingAppointmentId).toBe(
+      'appointment-1'
+    );
 
     component.updateStatus(appointments[0], 2);
 
-    expect(appointmentServiceMock.updateStatus).toHaveBeenCalledTimes(1);
+    expect(
+      appointmentServiceMock.updateStatus
+    ).toHaveBeenCalledTimes(1);
 
     updateSubject.next({
       ...appointments[0],
@@ -808,25 +983,35 @@ describe('AppointmentListComponent', () => {
   });
 
   it('should use translated error when status update fails', () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
 
     appointmentServiceMock.updateStatus.mockReturnValue(
       throwError(() => ({
         error: {
           message: 'Invalid status transition',
         },
-      })),
+      }))
     );
 
     component.updateStatus(appointments[0], 2);
 
     expect(component.updatingAppointmentId).toBeNull();
 
-    expect(toastServiceMock.error).toHaveBeenCalledWith('appointments.status.error');
+    expect(toastServiceMock.error).toHaveBeenCalledWith(
+      'appointments.status.error'
+    );
 
-    expect(translationServiceMock.translate).toHaveBeenCalledWith('appointments.status.error');
+    expect(
+      translationServiceMock.translate
+    ).toHaveBeenCalledWith(
+      'appointments.status.error'
+    );
 
-    expect(toastServiceMock.error).not.toHaveBeenCalledWith('Invalid status transition');
+    expect(toastServiceMock.error).not.toHaveBeenCalledWith(
+      'Invalid status transition'
+    );
 
     expect(consoleErrorSpy).toHaveBeenCalled();
 
@@ -834,17 +1019,21 @@ describe('AppointmentListComponent', () => {
   });
 
   it('should use translated fallback when status update error has no message', () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
 
     appointmentServiceMock.updateStatus.mockReturnValue(
       throwError(() => ({
         error: {},
-      })),
+      }))
     );
 
     component.updateStatus(appointments[0], 2);
 
-    expect(toastServiceMock.error).toHaveBeenCalledWith('appointments.status.error');
+    expect(toastServiceMock.error).toHaveBeenCalledWith(
+      'appointments.status.error'
+    );
 
     consoleErrorSpy.mockRestore();
   });
@@ -852,7 +1041,9 @@ describe('AppointmentListComponent', () => {
   it('should request appointment cancellation', () => {
     component.requestCancellation(appointments[0]);
 
-    expect(component.appointmentToCancel).toEqual(appointments[0]);
+    expect(component.appointmentToCancel).toEqual(
+      appointments[0]
+    );
   });
 
   it('should close appointment cancellation', () => {
@@ -869,7 +1060,9 @@ describe('AppointmentListComponent', () => {
       status: 'Cancelled',
     };
 
-    appointmentServiceMock.updateStatus.mockReturnValue(of(cancelledAppointment));
+    appointmentServiceMock.updateStatus.mockReturnValue(
+      of(cancelledAppointment)
+    );
 
     component.appointments = [...appointments];
 
@@ -877,13 +1070,17 @@ describe('AppointmentListComponent', () => {
 
     component.confirmCancellation();
 
-    expect(appointmentServiceMock.updateStatus).toHaveBeenCalledWith('appointment-1', {
+    expect(
+      appointmentServiceMock.updateStatus
+    ).toHaveBeenCalledWith('appointment-1', {
       status: 4,
     });
 
     expect(component.appointmentToCancel).toBeNull();
 
-    expect(component.appointments[0].status).toBe('Cancelled');
+    expect(component.appointments[0].status).toBe(
+      'Cancelled'
+    );
   });
 
   it('should not confirm cancellation when there is no appointment selected', () => {
@@ -891,7 +1088,9 @@ describe('AppointmentListComponent', () => {
 
     component.confirmCancellation();
 
-    expect(appointmentServiceMock.updateStatus).not.toHaveBeenCalled();
+    expect(
+      appointmentServiceMock.updateStatus
+    ).not.toHaveBeenCalled();
   });
 
   it('should not request cancellation while appointment is updating', () => {
@@ -908,13 +1107,29 @@ describe('AppointmentListComponent', () => {
     component.statusLabel('Completed');
     component.statusLabel('Cancelled');
 
-    expect(translationServiceMock.translate).toHaveBeenCalledWith('appointments.status.scheduled');
+    expect(
+      translationServiceMock.translate
+    ).toHaveBeenCalledWith(
+      'appointments.status.scheduled'
+    );
 
-    expect(translationServiceMock.translate).toHaveBeenCalledWith('appointments.status.inProgress');
+    expect(
+      translationServiceMock.translate
+    ).toHaveBeenCalledWith(
+      'appointments.status.inProgress'
+    );
 
-    expect(translationServiceMock.translate).toHaveBeenCalledWith('appointments.status.completed');
+    expect(
+      translationServiceMock.translate
+    ).toHaveBeenCalledWith(
+      'appointments.status.completed'
+    );
 
-    expect(translationServiceMock.translate).toHaveBeenCalledWith('appointments.status.cancelled');
+    expect(
+      translationServiceMock.translate
+    ).toHaveBeenCalledWith(
+      'appointments.status.cancelled'
+    );
   });
 
   it('should return original status when translation key is unknown', () => {
@@ -930,6 +1145,8 @@ describe('AppointmentListComponent', () => {
 
     component.closeCancellation();
 
-    expect(component.appointmentToCancel).toEqual(appointments[0]);
+    expect(component.appointmentToCancel).toEqual(
+      appointments[0]
+    );
   });
 });

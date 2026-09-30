@@ -1,0 +1,170 @@
+<div class="dashboard-container">
+
+  <header class="dashboard-header">
+    <div>
+      <h1>{{ t('dashboard.title') }}</h1>
+      <p class="dashboard-subtitle">
+        {{ t('dashboard.subtitle') }}
+      </p>
+    </div>
+  </header>
+
+  <app-loading
+    *ngIf="isLoading"
+    [message]="t('dashboard.loading')"
+    size="medium">
+  </app-loading>
+
+  <div
+    *ngIf="!isLoading && errorMessage"
+    class="error-message">
+
+    <p>{{ errorMessage }}</p>
+
+    <button
+      class="btn btn-secondary"
+      type="button"
+      (click)="loadDashboard()">
+      {{ t('common.retry') }}
+    </button>
+  </div>
+
+  <ng-container *ngIf="!isLoading && !errorMessage && summary">
+
+    <section class="dashboard-section">
+      <div class="section-header">
+        <div>
+          <h2>{{ t('dashboard.today.title') }}</h2>
+          <p>{{ t('dashboard.today.subtitle') }}</p>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+
+        <article class="dashboard-card">
+          <span class="card-label">
+            {{ t('dashboard.today.appointments') }}
+          </span>
+
+          <strong class="card-value">
+            {{ summary.todayAppointments }}
+          </strong>
+        </article>
+
+        <article class="dashboard-card">
+          <span class="card-label">
+            {{ t('dashboard.today.scheduled') }}
+          </span>
+
+          <strong class="card-value">
+            {{ summary.todayScheduled }}
+          </strong>
+        </article>
+
+        <article class="dashboard-card">
+          <span class="card-label">
+            {{ t('dashboard.today.inProgress') }}
+          </span>
+
+          <strong class="card-value">
+            {{ summary.todayInProgress }}
+          </strong>
+        </article>
+
+        <article class="dashboard-card">
+          <span class="card-label">
+            {{ t('dashboard.today.completed') }}
+          </span>
+
+          <strong class="card-value">
+            {{ summary.todayCompleted }}
+          </strong>
+        </article>
+
+      </div>
+    </section>
+
+    <section class="dashboard-section">
+      <div class="section-header">
+        <div>
+          <h2>{{ t('dashboard.nextAppointment.title') }}</h2>
+          <p>{{ t('dashboard.nextAppointment.subtitle') }}</p>
+        </div>
+      </div>
+
+      <article
+        *ngIf="summary.nextAppointment as appointment; else noNextAppointment"
+        class="next-appointment-card">
+
+        <div class="next-appointment-time">
+          {{
+            appointment.appointmentDate
+              | date: 'shortTime' : undefined : dateLocale()
+          }}
+        </div>
+
+        <div class="next-appointment-content">
+          <strong class="next-appointment-patient">
+            {{ appointment.patientName }}
+          </strong>
+
+          <span class="next-appointment-reason">
+            {{ appointment.reason }}
+          </span>
+        </div>
+
+        <span class="status-badge status-scheduled">
+          {{ t('appointments.status.scheduled') }}
+        </span>
+
+      </article>
+
+      <ng-template #noNextAppointment>
+        <div class="empty-state">
+          <h3>
+            {{ t('dashboard.nextAppointment.emptyTitle') }}
+          </h3>
+
+          <p>
+            {{ t('dashboard.nextAppointment.emptyMessage') }}
+          </p>
+        </div>
+      </ng-template>
+    </section>
+
+    <section class="dashboard-section">
+      <div class="section-header">
+        <div>
+          <h2>{{ t('dashboard.history.title') }}</h2>
+          <p>{{ t('dashboard.history.subtitle') }}</p>
+        </div>
+      </div>
+
+      <div class="history-grid">
+
+        <article class="dashboard-card">
+          <span class="card-label">
+            {{ t('dashboard.history.completed') }}
+          </span>
+
+          <strong class="card-value">
+            {{ summary.historicalCompleted }}
+          </strong>
+        </article>
+
+        <article class="dashboard-card">
+          <span class="card-label">
+            {{ t('dashboard.history.cancelled') }}
+          </span>
+
+          <strong class="card-value">
+            {{ summary.historicalCancelled }}
+          </strong>
+        </article>
+
+      </div>
+    </section>
+
+  </ng-container>
+
+</div>
