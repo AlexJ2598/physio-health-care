@@ -1,10 +1,6 @@
-import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
 import { DashboardService } from '../../core/services/dashboard.service';
@@ -12,20 +8,18 @@ import { ToastService } from '../../core/services/toast';
 import { TranslationService } from '../../core/services/translation';
 import { LoadingComponent } from '../../shared/components/loading/loading';
 import { DashboardSummary } from '../../shared/models/dashboard-summary.model';
-import { RouterLink } from '@angular/router';
+import { HISTORY_METRICS, TODAY_METRICS } from './dashboard-metrics';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    LoadingComponent
-  ],
+  imports: [DatePipe, RouterLink, LoadingComponent],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss'
+  styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit, OnDestroy {
+  readonly todayMetrics = TODAY_METRICS;
+  readonly historyMetrics = HISTORY_METRICS;
 
   summary: DashboardSummary | null = null;
 
@@ -38,7 +32,7 @@ export class Dashboard implements OnInit, OnDestroy {
     private readonly dashboardService: DashboardService,
     private readonly translationService: TranslationService,
     private readonly toastService: ToastService,
-    private readonly cdr: ChangeDetectorRef
+    private readonly changeDetector: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -55,38 +49,15 @@ export class Dashboard implements OnInit, OnDestroy {
       return;
     }
 
-    this.isLoading = true;
     this.errorMessage = '';
-    this.cdr.detectChanges();
+    this.updateLoadingState(true);
 
     this.dashboardService
       .getSummary()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
-          this.summary = response;
-          this.isLoading = false;
-
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error(
-            'Error loading dashboard:',
-            error
-          );
-
-          this.summary = null;
-          this.isLoading = false;
-
-          this.errorMessage =
-            this.t('dashboard.loadError');
-
-          this.toastService.error(
-            this.t('dashboard.loadError')
-          );
-
-          this.cdr.detectChanges();
-        }
+        next: (summary) => this.handleLoadSuccess(summary),
+        error: (error: unknown) => this.handleLoadError(error),
       });
   }
 
@@ -95,8 +66,25 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   dateLocale(): string {
-    return this.translationService.getCurrentLanguage() === 'es'
-      ? 'es-MX'
-      : 'en-US';
+    return this.translationService.getCurrentLanguage() === 'es' ? 'es-MX' : 'en-US';
+  }
+
+  private handleLoadSuccess(summary: DashboardSummary): void {
+    this.summary = summary;
+    this.updateLoadingState(false);
+  }
+
+  private handleLoadError(error: unknown): void {
+    console.error('Error loading dashboard:', error);
+
+    this.summary = null;
+    this.errorMessage = this.t('dashboard.loadError');
+    this.toastService.error(this.errorMessage);
+    this.updateLoadingState(false);
+  }
+
+  private updateLoadingState(isLoading: boolean): void {
+    this.isLoading = isLoading;
+    this.changeDetector.detectChanges();
   }
 }

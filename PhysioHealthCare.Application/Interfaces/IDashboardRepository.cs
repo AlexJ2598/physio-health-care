@@ -11,6 +11,8 @@
         Task<int> CountAppointmentsBeforeAsync(
             DateTime before,
             AppointmentStatus status);
+        Task<Appointment?> GetCurrentAppointmentAsync(DateTime dateFrom, DateTime dateTo);
+
         Task<Appointment?> GetNextScheduledAppointmentAsync(DateTime from,
             DateTime to);
     }

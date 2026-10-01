@@ -1,7 +1,8 @@
 ﻿namespace PhysioHealthCare.Application.DTOs.Dashboard
 {
     using PhysioHealthCare.Domain.Enums;
-    public class UpcomingAppointmentDto
+
+    public class DashboardAppointmentDto
     {
         public Guid Id { get; set; }
         public Guid PatientId { get; set; }

@@ -1,186 +1,107 @@
 <div class="dashboard-container">
-
   <header class="dashboard-header">
-    <div>
-      <h1>{{ t('dashboard.title') }}</h1>
-      <p class="dashboard-subtitle">
-        {{ t('dashboard.subtitle') }}
-      </p>
-    </div>
+    <h1>{{ t('dashboard.title') }}</h1>
+    <p class="dashboard-subtitle">{{ t('dashboard.subtitle') }}</p>
   </header>
 
-  <app-loading
-    *ngIf="isLoading"
-    [message]="t('dashboard.loading')"
-    size="medium">
-  </app-loading>
-
-  <div
-    *ngIf="!isLoading && errorMessage"
-    class="error-message">
-
-    <p>{{ errorMessage }}</p>
-
-    <button
-      class="btn btn-secondary"
-      type="button"
-      (click)="loadDashboard()">
-      {{ t('common.retry') }}
-    </button>
-  </div>
-
-  <ng-container *ngIf="!isLoading && !errorMessage && summary">
-
+  @if (isLoading) {
+    <app-loading [message]="t('dashboard.loading')" size="medium" />
+  } @else if (errorMessage) {
+    <div class="error-message">
+      <p>{{ errorMessage }}</p>
+      <button class="btn btn-secondary" type="button" (click)="loadDashboard()">
+        {{ t('common.retry') }}
+      </button>
+    </div>
+  } @else if (summary; as dashboardSummary) {
     <section class="dashboard-section">
       <div class="section-header">
-        <div>
-          <h2>{{ t('dashboard.today.title') }}</h2>
-          <p>{{ t('dashboard.today.subtitle') }}</p>
-        </div>
+        <h2>{{ t('dashboard.today.title') }}</h2>
+        <p>{{ t('dashboard.today.subtitle') }}</p>
       </div>
 
       <div class="dashboard-grid">
-
-        <a
-          class="dashboard-card dashboard-card-link"
-          routerLink="/appointments"
-          [queryParams]="{ today: true }">
-
-          <span class="card-label">
-            {{ t('dashboard.today.appointments') }}
-          </span>
-
-          <strong class="card-value">
-            {{ summary.todayAppointments }}
-          </strong>
-        </a>
-
-        <a
-          class="dashboard-card dashboard-card-link"
-          routerLink="/appointments"
-          [queryParams]="{ today: true, status: 1 }">
-
-          <span class="card-label">
-            {{ t('dashboard.today.scheduled') }}
-          </span>
-
-          <strong class="card-value">
-            {{ summary.todayScheduled }}
-          </strong>
-        </a>
-
-        <a
-          class="dashboard-card dashboard-card-link"
-          routerLink="/appointments"
-          [queryParams]="{ today: true, status: 2 }">
-
-          <span class="card-label">
-            {{ t('dashboard.today.inProgress') }}
-          </span>
-
-          <strong class="card-value">
-            {{ summary.todayInProgress }}
-          </strong>
-        </a>
-
-        <a
-          class="dashboard-card dashboard-card-link"
-          routerLink="/appointments"
-          [queryParams]="{ today: true, status: 3 }">
-
-          <span class="card-label">
-            {{ t('dashboard.today.completed') }}
-          </span>
-
-          <strong class="card-value">
-            {{ summary.todayCompleted }}
-          </strong>
-        </a>
-
+        @for (metric of todayMetrics; track metric.key) {
+          <a
+            class="dashboard-card dashboard-card-link"
+            routerLink="/appointments"
+            [queryParams]="metric.queryParams"
+          >
+            <span class="card-label">{{ t(metric.labelKey) }}</span>
+            <strong class="card-value">{{ dashboardSummary[metric.key] }}</strong>
+          </a>
+        }
       </div>
     </section>
 
     <section class="dashboard-section">
       <div class="section-header">
-        <div>
-          <h2>{{ t('dashboard.nextAppointment.title') }}</h2>
-          <p>{{ t('dashboard.nextAppointment.subtitle') }}</p>
-        </div>
+        <h2>{{ t('dashboard.currentAppointment.title') }}</h2>
+        <p>{{ t('dashboard.currentAppointment.subtitle') }}</p>
       </div>
 
-      <article
-        *ngIf="summary.nextAppointment as appointment; else noNextAppointment"
-        class="next-appointment-card">
-
-        <div class="next-appointment-time">
-          {{
-            appointment.appointmentDate
-              | date: 'shortTime' : undefined : dateLocale()
-          }}
-        </div>
-
-        <div class="next-appointment-content">
-          <strong class="next-appointment-patient">
-            {{ appointment.patientName }}
-          </strong>
-
-          <span class="next-appointment-reason">
-            {{ appointment.reason }}
+      @if (dashboardSummary.currentAppointment; as appointment) {
+        <article class="current-appointment-card">
+          <div class="current-appointment-time">
+            {{ appointment.appointmentDate | date: 'shortTime' : undefined : dateLocale() }}
+          </div>
+          <div class="current-appointment-content">
+            <strong class="current-appointment-patient">{{ appointment.patientName }}</strong>
+            <span class="current-appointment-reason">{{ appointment.reason }}</span>
+          </div>
+          <span class="status-badge status-in-progress">
+            {{ t('appointments.status.inProgress') }}
           </span>
-        </div>
-
-        <span class="status-badge status-scheduled">
-          {{ t('appointments.status.scheduled') }}
-        </span>
-
-      </article>
-
-      <ng-template #noNextAppointment>
+        </article>
+      } @else {
         <div class="empty-state">
-          <h3>
-            {{ t('dashboard.nextAppointment.emptyTitle') }}
-          </h3>
-
-          <p>
-            {{ t('dashboard.nextAppointment.emptyMessage') }}
-          </p>
+          <h3>{{ t('dashboard.currentAppointment.emptyTitle') }}</h3>
+          <p>{{ t('dashboard.currentAppointment.emptyMessage') }}</p>
         </div>
-      </ng-template>
+      }
     </section>
 
     <section class="dashboard-section">
       <div class="section-header">
-        <div>
-          <h2>{{ t('dashboard.history.title') }}</h2>
-          <p>{{ t('dashboard.history.subtitle') }}</p>
+        <h2>{{ t('dashboard.nextAppointment.title') }}</h2>
+        <p>{{ t('dashboard.nextAppointment.subtitle') }}</p>
+      </div>
+
+      @if (dashboardSummary.nextAppointment; as appointment) {
+        <article class="next-appointment-card">
+          <div class="next-appointment-time">
+            {{ appointment.appointmentDate | date: 'shortTime' : undefined : dateLocale() }}
+          </div>
+          <div class="next-appointment-content">
+            <strong class="next-appointment-patient">{{ appointment.patientName }}</strong>
+            <span class="next-appointment-reason">{{ appointment.reason }}</span>
+          </div>
+          <span class="status-badge status-scheduled">
+            {{ t('appointments.status.scheduled') }}
+          </span>
+        </article>
+      } @else {
+        <div class="empty-state">
+          <h3>{{ t('dashboard.nextAppointment.emptyTitle') }}</h3>
+          <p>{{ t('dashboard.nextAppointment.emptyMessage') }}</p>
         </div>
+      }
+    </section>
+
+    <section class="dashboard-section">
+      <div class="section-header">
+        <h2>{{ t('dashboard.history.title') }}</h2>
+        <p>{{ t('dashboard.history.subtitle') }}</p>
       </div>
 
       <div class="history-grid">
-
-        <article class="dashboard-card">
-          <span class="card-label">
-            {{ t('dashboard.history.completed') }}
-          </span>
-
-          <strong class="card-value">
-            {{ summary.historicalCompleted }}
-          </strong>
-        </article>
-
-        <article class="dashboard-card">
-          <span class="card-label">
-            {{ t('dashboard.history.cancelled') }}
-          </span>
-
-          <strong class="card-value">
-            {{ summary.historicalCancelled }}
-          </strong>
-        </article>
-
+        @for (metric of historyMetrics; track metric.key) {
+          <article class="dashboard-card">
+            <span class="card-label">{{ t(metric.labelKey) }}</span>
+            <strong class="card-value">{{ dashboardSummary[metric.key] }}</strong>
+          </article>
+        }
       </div>
     </section>
-
-  </ng-container>
-
+  }
 </div>

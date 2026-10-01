@@ -67,6 +67,10 @@
                     dateFrom,
                     AppointmentStatus.Cancelled);
 
+            var currentAppointment =
+                await _dashboardRepository
+                .GetCurrentAppointmentAsync(dateFrom, dateTo);
+
             var nextAppointment =
                 await _dashboardRepository
                     .GetNextScheduledAppointmentAsync(
@@ -82,9 +86,26 @@
                 HistoricalCompleted = historicalCompleted,
                 HistoricalCancelled = historicalCancelled,
 
+                CurrentAppointment = currentAppointment == null
+                    ? null
+                    : new DashboardAppointmentDto
+                    {
+                        Id = currentAppointment.Id,
+                        PatientId = currentAppointment.PatientId,
+                        PatientName =
+                            $"{currentAppointment.Patient.FirstName} " +
+                            $"{currentAppointment.Patient.LastName}",
+                        AppointmentDate =
+                            currentAppointment.AppointmentDate,
+                        Reason =
+                            currentAppointment.Reason,
+                        Status =
+                            currentAppointment.Status
+                    },
+
                 NextAppointment = nextAppointment == null
                     ? null
-                    : new UpcomingAppointmentDto
+                    : new DashboardAppointmentDto
                     {
                         Id = nextAppointment.Id,
                         PatientId = nextAppointment.PatientId,
@@ -101,13 +122,14 @@
             };
 
             _logger.LogInformation(
-                "Dashboard summary retrieved successfully. TodayAppointments: {TodayAppointments}, TodayScheduled: {TodayScheduled}, TodayInProgress: {TodayInProgress}, TodayCompleted: {TodayCompleted}, HistoricalCompleted: {HistoricalCompleted}, HistoricalCancelled: {HistoricalCancelled}, HasNextAppointment: {HasNextAppointment}",
+                "Dashboard summary retrieved successfully. TodayAppointments: {TodayAppointments}, TodayScheduled: {TodayScheduled}, TodayInProgress: {TodayInProgress}, TodayCompleted: {TodayCompleted}, HistoricalCompleted: {HistoricalCompleted}, HistoricalCancelled: {HistoricalCancelled}, HasCurrentAppointment: {HasCurrentAppointment}, HasNextAppointment: {HasNextAppointment}",
                 result.TodayAppointments,
                 result.TodayScheduled,
                 result.TodayInProgress,
                 result.TodayCompleted,
                 result.HistoricalCompleted,
                 result.HistoricalCancelled,
+                result.CurrentAppointment != null,
                 result.NextAppointment != null);
 
             return result;

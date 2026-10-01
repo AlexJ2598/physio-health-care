@@ -7,10 +7,11 @@ export interface DashboardSummary {
   historicalCompleted: number;
   historicalCancelled: number;
 
-  nextAppointment: NextAppointment | null;
+  currentAppointment: DashboardAppointment | null;
+  nextAppointment: DashboardAppointment | null;
 }
 
-export interface NextAppointment {
+export interface DashboardAppointment {
   id: string;
   patientId: string;
   patientName: string;

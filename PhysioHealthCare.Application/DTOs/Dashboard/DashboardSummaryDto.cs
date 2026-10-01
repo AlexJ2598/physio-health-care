@@ -6,9 +6,11 @@
         public int TodayScheduled { get; set; }
         public int TodayInProgress { get; set; }
         public int TodayCompleted { get; set; }
+
         public int HistoricalCompleted { get; set; }
         public int HistoricalCancelled { get; set; }
-        public UpcomingAppointmentDto? NextAppointment { get; set; }
 
+        public DashboardAppointmentDto? CurrentAppointment { get; set; }
+        public DashboardAppointmentDto? NextAppointment { get; set; }
     }
 }

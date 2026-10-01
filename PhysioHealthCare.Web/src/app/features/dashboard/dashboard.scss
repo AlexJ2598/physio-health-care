@@ -11,12 +11,12 @@
 
 .dashboard-header {
   margin-bottom: var(--space-8);
-}
 
-.dashboard-header h1 {
-  margin: 0;
-  color: var(--color-text-primary);
-  font-size: var(--font-size-title);
+  h1 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-title);
+  }
 }
 
 .dashboard-subtitle {
@@ -33,26 +33,42 @@
 
 .section-header {
   margin-bottom: var(--space-4);
+
+  h2 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-xl);
+  }
+
+  p {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
 }
 
-.section-header h2 {
-  margin: 0;
-  color: var(--color-text-primary);
-  font-size: var(--font-size-xl);
-}
+/* Shared card surfaces */
 
-.section-header p {
-  margin: var(--space-2) 0 0;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
+.dashboard-card,
+.current-appointment-card,
+.next-appointment-card,
+.empty-state {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Today's metrics */
 
-.dashboard-grid {
+.dashboard-grid,
+.history-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-4);
+}
+
+.dashboard-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .dashboard-card {
@@ -61,10 +77,6 @@
   gap: var(--space-3);
   min-width: 0;
   padding: var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-sm);
 }
 
 .dashboard-card-link {
@@ -103,19 +115,17 @@
   font-size: var(--font-size-2xl);
 }
 
-/* Next appointment */
+/* Current and next appointments */
 
+.current-appointment-card,
 .next-appointment-card {
   display: flex;
   align-items: center;
   gap: var(--space-5);
   padding: var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-sm);
 }
 
+.current-appointment-time,
 .next-appointment-time {
   flex: 0 0 auto;
   padding: var(--space-3) var(--space-4);
@@ -126,6 +136,7 @@
   font-weight: 700;
 }
 
+.current-appointment-content,
 .next-appointment-content {
   display: flex;
   flex: 1;
@@ -134,11 +145,13 @@
   gap: var(--space-1);
 }
 
+.current-appointment-patient,
 .next-appointment-patient {
   color: var(--color-text-primary);
   font-size: var(--font-size-md);
 }
 
+.current-appointment-reason,
 .next-appointment-reason {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
@@ -158,6 +171,11 @@
   font-weight: 700;
 }
 
+.status-in-progress {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+
 .status-scheduled {
   background: var(--color-info-soft);
   color: var(--color-info-dark);
@@ -167,30 +185,24 @@
 
 .empty-state {
   padding: var(--space-6);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-sm);
-}
 
-.empty-state h3 {
-  margin: 0;
-  color: var(--color-text-primary);
-  font-size: var(--font-size-lg);
-}
+  h3 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-lg);
+  }
 
-.empty-state p {
-  margin: var(--space-2) 0 0;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
+  p {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
 }
 
 /* History */
 
 .history-grid {
-  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
 }
 
 /* Error state */
@@ -201,11 +213,11 @@
   border-radius: var(--radius-md);
   background: var(--color-danger-surface);
   color: var(--color-danger-text);
-}
 
-.error-message p {
-  margin: 0 0 var(--space-3);
-  font-weight: 700;
+  p {
+    margin: 0 0 var(--space-3);
+    font-weight: 700;
+  }
 }
 
 /* Buttons */
@@ -229,11 +241,11 @@
     background-color var(--transition-fast),
     border-color var(--transition-fast),
     color var(--transition-fast);
-}
 
-.btn-secondary:hover {
-  background: var(--color-surface-soft);
-  color: var(--color-text-primary);
+  &:hover {
+    background: var(--color-surface-soft);
+    color: var(--color-text-primary);
+  }
 }
 
 /* Tablet */
@@ -260,12 +272,14 @@
     grid-template-columns: 1fr;
   }
 
+  .current-appointment-card,
   .next-appointment-card {
     align-items: stretch;
     flex-direction: column;
     gap: var(--space-4);
   }
 
+  .current-appointment-time,
   .next-appointment-time {
     align-self: flex-start;
   }

@@ -32,6 +32,18 @@
             return await query.CountAsync();
         }
 
+        public Task<Appointment?> GetCurrentAppointmentAsync(DateTime dateFrom, DateTime dateTo)
+        {
+            var query = _context.Appointments.AsNoTracking()
+                .Include(a => a.Patient)
+                .Where(a => a.AppointmentDate >= dateFrom 
+                && a.AppointmentDate <= dateTo
+                && a.Status == AppointmentStatus.InProgress
+                && a.IsActive);
+
+            return query.FirstOrDefaultAsync();
+        }
+
         public Task<Appointment?> GetNextScheduledAppointmentAsync(DateTime from, DateTime to)
         {
             var query = _context.Appointments
