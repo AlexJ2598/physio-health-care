@@ -41,7 +41,11 @@
 
       <div class="dashboard-grid">
 
-        <article class="dashboard-card">
+        <a
+          class="dashboard-card dashboard-card-link"
+          routerLink="/appointments"
+          [queryParams]="{ today: true }">
+
           <span class="card-label">
             {{ t('dashboard.today.appointments') }}
           </span>
@@ -49,9 +53,13 @@
           <strong class="card-value">
             {{ summary.todayAppointments }}
           </strong>
-        </article>
+        </a>
 
-        <article class="dashboard-card">
+        <a
+          class="dashboard-card dashboard-card-link"
+          routerLink="/appointments"
+          [queryParams]="{ today: true, status: 1 }">
+
           <span class="card-label">
             {{ t('dashboard.today.scheduled') }}
           </span>
@@ -59,9 +67,13 @@
           <strong class="card-value">
             {{ summary.todayScheduled }}
           </strong>
-        </article>
+        </a>
 
-        <article class="dashboard-card">
+        <a
+          class="dashboard-card dashboard-card-link"
+          routerLink="/appointments"
+          [queryParams]="{ today: true, status: 2 }">
+
           <span class="card-label">
             {{ t('dashboard.today.inProgress') }}
           </span>
@@ -69,9 +81,13 @@
           <strong class="card-value">
             {{ summary.todayInProgress }}
           </strong>
-        </article>
+        </a>
 
-        <article class="dashboard-card">
+        <a
+          class="dashboard-card dashboard-card-link"
+          routerLink="/appointments"
+          [queryParams]="{ today: true, status: 3 }">
+
           <span class="card-label">
             {{ t('dashboard.today.completed') }}
           </span>
@@ -79,7 +95,7 @@
           <strong class="card-value">
             {{ summary.todayCompleted }}
           </strong>
-        </article>
+        </a>
 
       </div>
     </section>

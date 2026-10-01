@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 
 import { AppointmentService } from '../../../core/services/appointment';
@@ -63,6 +63,7 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
     private readonly toastService: ToastService,
     private readonly translationService: TranslationService,
     private readonly cdr: ChangeDetectorRef,
+    private readonly route: ActivatedRoute,
   ) {}
 
   // Computed values
@@ -98,7 +99,7 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
         this.pageNumber = 1;
         this.loadAppointments();
       });
-
+    this.applyQueryParams();  
     this.loadPatients();
     this.loadAppointments();
   }
@@ -388,6 +389,32 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
   }
 
   // Internal helpers
+
+  private applyQueryParams(): void{
+    const today = this.route.snapshot.queryParamMap.get('today');
+    const status = this.route.snapshot.queryParamMap.get('status');
+    
+    if(today === 'true'){
+      const currentDate = new Date();
+
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2,'0');
+      const day = String(currentDate.getDate()).padStart(2,'0');
+
+      const localDate = `${year}-${month}-${day}`;
+      
+      this.dateFrom = localDate;
+      this.dateTo = localDate;
+    }
+    if(status){
+      const statusValue = Number(status)
+      if(Number.isInteger(statusValue) &&
+        statusValue >= 1 &&
+        statusValue <= 4){
+          this.selectedStatus = statusValue as AppointmentStatusValue;
+        }  
+    }
+  }
 
   private toUtcStartOfDay(date: string): string {
     const [year, month, day] = date.split('-').map(Number);

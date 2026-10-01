@@ -12,12 +12,14 @@ import { ToastService } from '../../core/services/toast';
 import { TranslationService } from '../../core/services/translation';
 import { LoadingComponent } from '../../shared/components/loading/loading';
 import { DashboardSummary } from '../../shared/models/dashboard-summary.model';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     LoadingComponent
   ],
   templateUrl: './dashboard.html',

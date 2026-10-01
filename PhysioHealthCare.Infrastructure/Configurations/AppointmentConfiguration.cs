@@ -3,7 +3,6 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
     using PhysioHealthCare.Domain.Entities;
-    using PhysioHealthCare.Domain.Enums;
 
     public class AppointmentConfiguration
         : IEntityTypeConfiguration<Appointment>
@@ -36,6 +35,43 @@
             entity.Property(x => x.Status)
                 .IsRequired()
                 .HasConversion<int>();
+
+            entity.Property(x => x.StartedAt)
+                .HasConversion(
+                    value => value.HasValue
+                        ? value.Value.ToUniversalTime()
+                        : value,
+                    value => value.HasValue
+                        ? DateTime.SpecifyKind(
+                            value.Value,
+                            DateTimeKind.Utc)
+                        : value);
+
+            entity.Property(x => x.CompletedAt)
+                .HasConversion(
+                    value => value.HasValue
+                        ? value.Value.ToUniversalTime()
+                        : value,
+                    value => value.HasValue
+                        ? DateTime.SpecifyKind(
+                            value.Value,
+                            DateTimeKind.Utc)
+                        : value);
+
+            entity.Property(x => x.CancelledAt)
+                .HasConversion(
+                    value => value.HasValue
+                        ? value.Value.ToUniversalTime()
+                        : value,
+                    value => value.HasValue
+                        ? DateTime.SpecifyKind(
+                            value.Value,
+                            DateTimeKind.Utc)
+                        : value);
+
+            entity.Property(x => x.WasAutomaticallyCancelled)
+                .IsRequired()
+                .HasDefaultValue(false);
 
             entity.Property(x => x.CreatedAt)
                 .IsRequired();

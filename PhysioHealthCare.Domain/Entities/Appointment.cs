@@ -2,7 +2,6 @@
 {
     using PhysioHealthCare.Domain.Common;
     using PhysioHealthCare.Domain.Enums;
-    using System.Net.NetworkInformation;
 
     public class Appointment : BaseEntity
     {
@@ -16,6 +15,14 @@
 
         public AppointmentStatus Status { get; set; }
             = AppointmentStatus.Scheduled;
+
+        public DateTime? StartedAt { get; set; }
+
+        public DateTime? CompletedAt { get; set; }
+
+        public DateTime? CancelledAt { get; set; }
+
+        public bool WasAutomaticallyCancelled { get; set; }
 
         public Patient Patient { get; set; } = null!;
     }

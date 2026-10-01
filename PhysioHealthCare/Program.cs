@@ -9,6 +9,7 @@ using PhysioHealthCare.Application.Interfaces;
 using PhysioHealthCare.Application.Responses;
 using PhysioHealthCare.Application.Services;
 using PhysioHealthCare.Application.Validators.Patients;
+using PhysioHealthCare.Infrastructure.BackgroundServices;
 using PhysioHealthCare.Infrastructure.Data;
 using PhysioHealthCare.Infrastructure.Repositories;
 using PhysioHealthCare.Infrastructure.Security;
@@ -67,6 +68,9 @@ builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddSingleton<IClinicClock, PhysioHealthCare.Infrastructure.Services.ClinicClock>();
+builder.Services.AddScoped<IAppointmentExpirationService, AppointmentExpirationService>();
+builder.Services.AddHostedService<AppointmentExpirationBackgroundService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 

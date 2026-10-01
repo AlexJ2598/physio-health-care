@@ -13,11 +13,13 @@
         private readonly IAppointmentRepository _appointmentsRepository;
         private readonly IPatientRepository _patientRepository;
         private readonly ILogger<AppointmentService> _logger;
+        private readonly IClinicClock _clinicClock;
 
         public AppointmentService(
             IAppointmentRepository appointmentRepository,
             IPatientRepository patientRepository,
-            ILogger<AppointmentService> logger)
+            ILogger<AppointmentService> logger,
+            IClinicClock clinicClock)
         {
             _appointmentsRepository = appointmentRepository
                 ?? throw new ArgumentNullException(
@@ -30,6 +32,9 @@
             _logger = logger
                 ?? throw new ArgumentNullException(
                     nameof(logger));
+            _clinicClock = clinicClock
+                ?? throw new ArgumentNullException(
+                    nameof(clinicClock));
         }
 
         public async Task<AppointmentResponseDto> CreateAsync(
@@ -52,6 +57,18 @@
                     "Patient not found.");
             }
 
+            var startOfTodayUtc = GetStartOfTodayUtc();
+
+            if (dto.AppointmentDate < startOfTodayUtc)
+            {
+                _logger.LogWarning(
+                    "Cannot create an appointment in a past clinic day. AppointmentDate: {AppointmentDate}",
+                    dto.AppointmentDate);
+
+                throw new ConflictException(
+                    "Cannot create an appointment for a past date.");
+            }
+
             var appointment = new Appointment
             {
                 Id = Guid.NewGuid(),
@@ -60,7 +77,7 @@
                 Reason = dto.Reason.Trim(),
                 Notes = dto.Notes?.Trim() ?? string.Empty,
                 Status = AppointmentStatus.Scheduled,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = _clinicClock.UtcNow,
                 IsActive = true
             };
 
@@ -133,13 +150,39 @@
                 "Soft deleting appointment. AppointmentId: {AppointmentId}",
                 id);
 
+            var appointment =
+                await _appointmentsRepository
+                    .GetByIdForUpdateAsync(id);
+
+            if (appointment == null)
+            {
+                _logger.LogWarning(
+                    "Cannot delete appointment because it does not exist. AppointmentId: {AppointmentId}",
+                    id);
+
+                throw new NotFoundException(
+                    "Appointment not found.");
+            }
+
+            if (appointment.Status != AppointmentStatus.Scheduled)
+            {
+                _logger.LogWarning(
+                    "Cannot delete appointment because it is not scheduled. AppointmentId: {AppointmentId}, Status: {Status}",
+                    id,
+                    appointment.Status);
+
+                throw new ConflictException(
+                    $"Cannot delete an appointment with status {appointment.Status}.");
+            }
+
             var deleted =
-                await _appointmentsRepository.SoftDeleteAsync(id);
+                await _appointmentsRepository
+                    .SoftDeleteAsync(id);
 
             if (!deleted)
             {
                 _logger.LogWarning(
-                    "Cannot delete appointment because it does not exist. AppointmentId: {AppointmentId}",
+                    "Appointment could not be deleted. AppointmentId: {AppointmentId}",
                     id);
 
                 throw new NotFoundException(
@@ -152,8 +195,8 @@
         }
 
         public async Task<AppointmentResponseDto> UpdateAsync(
-            Guid id,
-            UpdateAppointmentDto dto)
+        Guid id,
+        UpdateAppointmentDto dto)
         {
             _logger.LogInformation(
                 "Updating appointment. AppointmentId: {AppointmentId}",
@@ -173,6 +216,30 @@
                     "Appointment not found.");
             }
 
+            if (appointment.Status != AppointmentStatus.Scheduled)
+            {
+                _logger.LogWarning(
+                    "Cannot edit appointment because it is not scheduled. AppointmentId: {AppointmentId}, Status: {Status}",
+                    id,
+                    appointment.Status);
+
+                throw new ConflictException(
+                    $"Cannot edit an appointment with status {appointment.Status}.");
+            }
+
+            var startOfTodayUtc = GetStartOfTodayUtc();
+
+            if (dto.AppointmentDate < startOfTodayUtc)
+            {
+                _logger.LogWarning(
+                    "Cannot reschedule appointment to a past clinic day. AppointmentId: {AppointmentId}, AppointmentDate: {AppointmentDate}",
+                    id,
+                    dto.AppointmentDate);
+
+                throw new ConflictException(
+                    "Cannot reschedule an appointment to a past date.");
+            }
+
             appointment.AppointmentDate =
                 dto.AppointmentDate;
 
@@ -183,7 +250,7 @@
                 dto.Notes?.Trim() ?? string.Empty;
 
             appointment.UpdatedAt =
-                DateTime.UtcNow;
+                _clinicClock.UtcNow;
 
             await _appointmentsRepository
                 .UpdateAsync(appointment);
@@ -193,8 +260,8 @@
                 id);
 
             var updatedAppointment =
-            await _appointmentsRepository
-            .GetByIdAsync(appointment.Id);
+                await _appointmentsRepository
+                    .GetByIdAsync(appointment.Id);
 
             if (updatedAppointment == null)
             {
@@ -206,14 +273,18 @@
                 updatedAppointment);
         }
 
-        public async Task<AppointmentResponseDto> UpdateStatusAsync(Guid id, UpdateAppointmentStatusDto dto)
+        public async Task<AppointmentResponseDto> UpdateStatusAsync(
+        Guid id,
+        UpdateAppointmentStatusDto dto)
         {
             _logger.LogInformation(
                 "Updating status for AppointmentId: {AppointmentId} to {Status}",
                 id,
                 dto.Status);
 
-            var appointment = await _appointmentsRepository.GetByIdForUpdateAsync(id);
+            var appointment =
+                await _appointmentsRepository
+                    .GetByIdForUpdateAsync(id);
 
             if (appointment == null)
             {
@@ -239,10 +310,46 @@
                     $"Cannot change appointment status from {appointment.Status} to {dto.Status}.");
             }
 
-            appointment.Status = dto.Status;
-            appointment.UpdatedAt = DateTime.UtcNow;
+            if (dto.Status == AppointmentStatus.InProgress)
+            {
+                var startOfTodayUtc =
+                    GetStartOfTodayUtc();
 
-            await _appointmentsRepository.UpdateAsync(appointment);
+                if (appointment.AppointmentDate < startOfTodayUtc)
+                {
+                    _logger.LogWarning(
+                        "Cannot start an appointment from a past clinic day. AppointmentId: {AppointmentId}, AppointmentDate: {AppointmentDate}",
+                        id,
+                        appointment.AppointmentDate);
+
+                    throw new ConflictException(
+                        "Cannot start an appointment from a past date.");
+                }
+            }
+
+            var utcNow = _clinicClock.UtcNow;
+
+            switch (dto.Status)
+            {
+                case AppointmentStatus.InProgress:
+                    appointment.StartedAt = utcNow;
+                    break;
+
+                case AppointmentStatus.Completed:
+                    appointment.CompletedAt = utcNow;
+                    break;
+
+                case AppointmentStatus.Cancelled:
+                    appointment.CancelledAt = utcNow;
+                    appointment.WasAutomaticallyCancelled = false;
+                    break;
+            }
+
+            appointment.Status = dto.Status;
+            appointment.UpdatedAt = utcNow;
+
+            await _appointmentsRepository
+                .UpdateAsync(appointment);
 
             _logger.LogInformation(
                 "Appointment status updated successfully. AppointmentId: {AppointmentId}, Status: {Status}",
@@ -250,8 +357,8 @@
                 appointment.Status);
 
             var updatedAppointment =
-             await _appointmentsRepository
-            .GetByIdAsync(id);
+                await _appointmentsRepository
+                    .GetByIdAsync(id);
 
             if (updatedAppointment == null)
             {
@@ -263,13 +370,10 @@
                 updatedAppointment);
         }
 
-        private static bool IsValidStatusTransition(AppointmentStatus currentStatus,AppointmentStatus newStatus)
+        private static bool IsValidStatusTransition(
+        AppointmentStatus currentStatus,
+        AppointmentStatus newStatus)
         {
-            if (currentStatus == newStatus)
-            {
-                return true;
-            }
-
             return currentStatus switch
             {
                 AppointmentStatus.Scheduled =>
@@ -288,6 +392,23 @@
 
                 _ => false
             };
+        }
+
+        private DateTime GetStartOfTodayUtc()
+        {
+            var today = _clinicClock.Today;
+
+            var startOfTodayLocal = new DateTime(
+                today.Year,
+                today.Month,
+                today.Day,
+                0,
+                0,
+                0,
+                DateTimeKind.Unspecified);
+
+            return _clinicClock.ConvertLocalToUtc(
+                startOfTodayLocal);
         }
 
         public async Task<PagedResult<AppointmentResponseDto>>GetPagedAsync(

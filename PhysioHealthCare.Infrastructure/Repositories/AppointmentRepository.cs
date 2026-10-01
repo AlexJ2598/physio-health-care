@@ -264,6 +264,17 @@
                 totalCount);
         }
 
+        public async Task<IReadOnlyList<Appointment>> GetPendingBeforeAsync(DateTime before)
+        {
+            var query = _context.Appointments
+                .Where(a => a.IsActive && a.AppointmentDate < before
+                && (a.Status == AppointmentStatus.Scheduled || a.Status == AppointmentStatus.InProgress))
+                .OrderBy(a => a.AppointmentDate).ThenBy(a => a.Id).ToListAsync();
+
+            return await query;
+                
+        }
+
         public async Task<bool>
             SoftDeleteAsync(Guid id)
         {

@@ -20,6 +20,8 @@
 
         Task<Appointment?> GetByIdAsync(Guid id);
 
+        Task<IReadOnlyList<Appointment>> GetPendingBeforeAsync(DateTime before);
+
         Task<Appointment?> GetByIdForUpdateAsync(Guid id);
 
         Task<Appointment> CreateAsync(
