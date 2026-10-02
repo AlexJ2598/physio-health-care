@@ -10,9 +10,14 @@
 
     public class DashboardServiceTests
     {
-        private readonly Mock<IDashboardRepository> _dashboardRepositoryMock;
-        private readonly Mock<ILogger<DashboardService>> _loggerMock;
-        private readonly DashboardService _dashboardService;
+        private readonly Mock<IDashboardRepository>
+            _dashboardRepositoryMock;
+
+        private readonly Mock<ILogger<DashboardService>>
+            _loggerMock;
+
+        private readonly DashboardService
+            _dashboardService;
 
         public DashboardServiceTests()
         {
@@ -29,7 +34,8 @@
         }
 
         [Fact]
-        public async Task GetDashboardSummaryAsync_ShouldReturnSummary_WhenDataExists()
+        public async Task
+            GetDashboardSummaryAsync_ShouldReturnSummary_WhenDataExists()
         {
             // Arrange
             var dateFrom =
@@ -69,6 +75,19 @@
                 LastName = "Hernandez"
             };
 
+            var currentAppointment = new Appointment
+            {
+                Id = Guid.NewGuid(),
+                PatientId = patient.Id,
+                Patient = patient,
+                AppointmentDate =
+                    currentDateTime.AddMinutes(-30),
+                Reason = "Current treatment",
+                Status = AppointmentStatus.InProgress,
+                StartedAt =
+                    currentDateTime.AddMinutes(-15)
+            };
+
             var nextAppointment = new Appointment
             {
                 Id = Guid.NewGuid(),
@@ -102,7 +121,7 @@
                         dateFrom,
                         dateTo,
                         AppointmentStatus.InProgress))
-                .ReturnsAsync(0);
+                .ReturnsAsync(1);
 
             _dashboardRepositoryMock
                 .Setup(repository =>
@@ -128,6 +147,13 @@
 
             _dashboardRepositoryMock
                 .Setup(repository =>
+                    repository.GetCurrentAppointmentAsync(
+                        dateFrom,
+                        dateTo))
+                .ReturnsAsync(currentAppointment);
+
+            _dashboardRepositoryMock
+                .Setup(repository =>
                     repository.GetNextScheduledAppointmentAsync(
                         currentDateTime,
                         dateTo))
@@ -145,11 +171,31 @@
 
             result.TodayAppointments.Should().Be(2);
             result.TodayScheduled.Should().Be(1);
-            result.TodayInProgress.Should().Be(0);
+            result.TodayInProgress.Should().Be(1);
             result.TodayCompleted.Should().Be(1);
 
             result.HistoricalCompleted.Should().Be(4);
             result.HistoricalCancelled.Should().Be(5);
+
+            result.CurrentAppointment.Should().NotBeNull();
+
+            result.CurrentAppointment!.Id
+                .Should().Be(currentAppointment.Id);
+
+            result.CurrentAppointment.PatientId
+                .Should().Be(patient.Id);
+
+            result.CurrentAppointment.PatientName
+                .Should().Be("Alexis Hernandez");
+
+            result.CurrentAppointment.AppointmentDate
+                .Should().Be(currentAppointment.AppointmentDate);
+
+            result.CurrentAppointment.Reason
+                .Should().Be("Current treatment");
+
+            result.CurrentAppointment.Status
+                .Should().Be(AppointmentStatus.InProgress);
 
             result.NextAppointment.Should().NotBeNull();
 
@@ -171,8 +217,10 @@
             result.NextAppointment.Status
                 .Should().Be(AppointmentStatus.Scheduled);
         }
+
         [Fact]
-        public async Task GetDashboardSummaryAsync_ShouldReturnNullNextAppointment_WhenNoScheduledAppointmentExists()
+        public async Task
+            GetDashboardSummaryAsync_ShouldReturnNullAppointments_WhenNoCurrentOrScheduledAppointmentExists()
         {
             // Arrange
             var dateFrom =
@@ -253,6 +301,13 @@
 
             _dashboardRepositoryMock
                 .Setup(repository =>
+                    repository.GetCurrentAppointmentAsync(
+                        dateFrom,
+                        dateTo))
+                .ReturnsAsync((Appointment?)null);
+
+            _dashboardRepositoryMock
+                .Setup(repository =>
                     repository.GetNextScheduledAppointmentAsync(
                         currentDateTime,
                         dateTo))
@@ -276,10 +331,13 @@
             result.HistoricalCompleted.Should().Be(4);
             result.HistoricalCancelled.Should().Be(5);
 
+            result.CurrentAppointment.Should().BeNull();
             result.NextAppointment.Should().BeNull();
         }
+
         [Fact]
-        public async Task GetDashboardSummaryAsync_ShouldCallRepositoryWithExpectedParameters()
+        public async Task
+            GetDashboardSummaryAsync_ShouldCallRepositoryWithExpectedParameters()
         {
             // Arrange
             var dateFrom =
@@ -326,6 +384,13 @@
                         It.IsAny<DateTime>(),
                         It.IsAny<AppointmentStatus>()))
                 .ReturnsAsync(0);
+
+            _dashboardRepositoryMock
+                .Setup(repository =>
+                    repository.GetCurrentAppointmentAsync(
+                        It.IsAny<DateTime>(),
+                        It.IsAny<DateTime>()))
+                .ReturnsAsync((Appointment?)null);
 
             _dashboardRepositoryMock
                 .Setup(repository =>
@@ -385,6 +450,13 @@
                     repository.CountAppointmentsBeforeAsync(
                         dateFrom,
                         AppointmentStatus.Cancelled),
+                Times.Once);
+
+            _dashboardRepositoryMock.Verify(
+                repository =>
+                    repository.GetCurrentAppointmentAsync(
+                        dateFrom,
+                        dateTo),
                 Times.Once);
 
             _dashboardRepositoryMock.Verify(
