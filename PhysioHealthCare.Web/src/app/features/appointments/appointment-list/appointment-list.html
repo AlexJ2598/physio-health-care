@@ -313,6 +313,14 @@
           <td data-label="Actions" class="actions">
             <a
               class="btn btn-secondary btn-small"
+              [routerLink]="['/appointments', appointment.id]"
+            >
+              {{ t('appointments.detail.view') }}
+            </a>
+
+            <a
+              *ngIf="appointment.status === 'Scheduled'"
+              class="btn btn-secondary btn-small"
               [routerLink]="['/appointments/edit', appointment.id]"
             >
               {{ t('common.edit') }}

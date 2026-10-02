@@ -483,7 +483,15 @@
                     appointment.Notes,
 
                 Status =
-                    appointment.Status.ToString()
+                    appointment.Status.ToString(),
+                StartedAt =
+                    appointment.StartedAt,
+                CompletedAt =
+                    appointment.CompletedAt,
+                CancelledAt =
+                    appointment.CancelledAt,
+                WasAutomaticallyCancelled =
+                    appointment.WasAutomaticallyCancelled
             };
         }
     }

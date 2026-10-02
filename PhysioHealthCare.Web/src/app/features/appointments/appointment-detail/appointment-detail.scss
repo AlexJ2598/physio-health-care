@@ -1,0 +1,300 @@
+/* Page layout */
+
+.appointment-detail-container {
+  width: 100%;
+  max-width: var(--content-max-width);
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: var(--space-8);
+  font-family: var(--font-family-base);
+}
+
+/* Header */
+
+.appointment-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+
+  h1 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-title);
+  }
+}
+
+.appointment-detail-subtitle {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
+}
+
+/* Detail card */
+
+.appointment-detail-card {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: var(--filter-control-min-width) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-5);
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
+.detail-label {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.detail-value {
+  min-width: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  overflow-wrap: anywhere;
+}
+
+/* Status */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+}
+
+.status-scheduled {
+  background: var(--color-info-soft);
+  color: var(--color-info-dark);
+}
+
+.status-in-progress {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+
+.status-completed {
+  background: var(--color-success-soft);
+  color: var(--color-success-dark);
+}
+
+.status-cancelled {
+  background: var(--color-danger-soft);
+  color: var(--color-danger-dark);
+}
+
+/* Error */
+
+.error-message {
+  padding: var(--space-4);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-surface);
+  color: var(--color-danger-text);
+
+  p {
+    margin: 0;
+    font-weight: 700;
+  }
+}
+
+/* Actions */
+
+.appointment-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-soft);
+}
+
+/* Buttons: base and variants */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover {
+    background: var(--color-surface-soft);
+    color: var(--color-text-primary);
+  }
+}
+
+.btn-primary {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-surface);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-primary-dark);
+    background: var(--color-primary-dark);
+  }
+}
+
+.btn-success {
+  border: 1px solid var(--color-success);
+  background: var(--color-success);
+  color: var(--color-surface);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-success-dark);
+    background: var(--color-success-dark);
+  }
+}
+
+.btn-danger {
+  border: 1px solid var(--color-danger);
+  background: var(--color-danger);
+  color: var(--color-surface);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-danger-dark);
+    background: var(--color-danger-dark);
+  }
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Confirmation modals */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--toast-z-index);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: var(--color-overlay);
+}
+
+.confirmation-modal {
+  width: 100%;
+  max-width: var(--auth-card-max-width);
+  box-sizing: border-box;
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+
+  h2 {
+    margin: 0 0 var(--space-3);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-xl);
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    line-height: 1.5;
+  }
+}
+
+.appointment-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+
+  strong {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
+  }
+
+  span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+/* Responsive layout: mobile */
+
+@media (max-width: 768px) {
+  .appointment-actions {
+    flex-direction: column;
+  }
+
+  .appointment-actions .btn {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .appointment-detail-container {
+    padding: var(--space-4);
+  }
+
+  .appointment-detail-header {
+    flex-direction: column;
+    margin-bottom: var(--space-6);
+  }
+
+  .detail-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .btn-secondary {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

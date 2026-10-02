@@ -1,0 +1,290 @@
+<div class="appointment-detail-container">
+  <header class="appointment-detail-header">
+    <div>
+      <h1>{{ t('appointments.detail.title') }}</h1>
+      <p class="appointment-detail-subtitle">
+        {{ t('appointments.detail.subtitle') }}
+      </p>
+    </div>
+
+    <a
+      class="btn btn-secondary"
+      routerLink="/appointments">
+      {{ t('appointments.detail.back') }}
+    </a>
+  </header>
+
+  @if (isLoading) {
+    <app-loading
+      [message]="t('appointments.detail.loading')"
+      size="medium"
+    />
+  } @else if (errorMessage) {
+    <div class="error-message">
+      <p>{{ errorMessage }}</p>
+    </div>
+  } @else if (appointment; as currentAppointment) {
+    <section class="appointment-detail-card">
+
+      <div class="detail-row">
+        <span class="detail-label">
+          {{ t('appointments.patient') }}
+        </span>
+
+        <strong class="detail-value">
+          {{ currentAppointment.patientName }}
+        </strong>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">
+          {{ t('appointments.date') }}
+        </span>
+
+        <span class="detail-value">
+          {{
+            currentAppointment.appointmentDate
+              | date: 'medium' : undefined : dateLocale()
+          }}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">
+          {{ t('appointments.reason') }}
+        </span>
+
+        <span class="detail-value">
+          {{ currentAppointment.reason }}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">
+          {{ t('appointments.create.notes') }}
+        </span>
+
+        <span class="detail-value">
+          {{ currentAppointment.notes || '—' }}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">
+          {{ t('appointments.status') }}
+        </span>
+
+        <span
+          class="status-badge"
+          [class.status-scheduled]="currentAppointment.status === 'Scheduled'"
+          [class.status-in-progress]="currentAppointment.status === 'InProgress'"
+          [class.status-completed]="currentAppointment.status === 'Completed'"
+          [class.status-cancelled]="currentAppointment.status === 'Cancelled'">
+          {{ t('appointments.status.' + statusTranslationKey(currentAppointment.status)) }}
+        </span>
+      </div>
+
+      <!-- Lifecycle -->
+
+      @if (currentAppointment.startedAt) {
+        <div class="detail-row">
+          <span class="detail-label">
+            {{ t('appointments.detail.startedAt') }}
+          </span>
+
+          <span class="detail-value">
+            {{
+              currentAppointment.startedAt
+                | date: 'medium' : undefined : dateLocale()
+            }}
+          </span>
+        </div>
+      }
+
+      @if (currentAppointment.completedAt) {
+        <div class="detail-row">
+          <span class="detail-label">
+            {{ t('appointments.detail.completedAt') }}
+          </span>
+
+          <span class="detail-value">
+            {{
+              currentAppointment.completedAt
+                | date: 'medium' : undefined : dateLocale()
+            }}
+          </span>
+        </div>
+      }
+
+      @if (currentAppointment.cancelledAt) {
+        <div class="detail-row">
+          <span class="detail-label">
+            {{ t('appointments.detail.cancelledAt') }}
+          </span>
+
+          <span class="detail-value">
+            {{
+              currentAppointment.cancelledAt
+                | date: 'medium' : undefined : dateLocale()
+            }}
+          </span>
+        </div>
+      }
+
+      @if (
+        currentAppointment.status === 'Cancelled' &&
+        currentAppointment.wasAutomaticallyCancelled
+      ) {
+        <div class="detail-row">
+          <span class="detail-label">
+            {{ t('appointments.detail.cancellationType') }}
+          </span>
+
+          <span class="detail-value">
+            {{ t('appointments.detail.automaticCancellation') }}
+          </span>
+        </div>
+      }
+
+      @if (
+        currentAppointment.status === 'Scheduled' ||
+        currentAppointment.status === 'InProgress'
+      ) {
+        <div class="appointment-actions">
+          @if (currentAppointment.status === 'Scheduled') {
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="isUpdatingStatus"
+              (click)="startAppointment()">
+              {{ t('appointments.detail.start') }}
+            </button>
+          }
+
+          @if (currentAppointment.status === 'InProgress') {
+            <button
+              type="button"
+              class="btn btn-success"
+              [disabled]="isUpdatingStatus"
+              (click)="completeAppointment()">
+              {{ t('appointments.detail.complete') }}
+            </button>
+          }
+
+          <button
+            type="button"
+            class="btn btn-danger"
+            [disabled]="isUpdatingStatus"
+            (click)="cancelAppointment()">
+            {{ t('appointments.detail.cancel') }}
+          </button>
+        </div>
+      }
+
+    </section>
+  }
+
+  <!-- Complete confirmation -->
+
+  @if (showCompleteConfirmation && appointment; as currentAppointment) {
+    <div class="modal-backdrop">
+      <div
+        class="confirmation-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="complete-appointment-title">
+
+        <h2 id="complete-appointment-title">
+          {{ t('appointments.detail.completeConfirmation.title') }}
+        </h2>
+
+        <p>
+          {{ t('appointments.detail.completeConfirmation.message') }}
+        </p>
+
+        <div class="appointment-summary">
+          <strong>
+            {{ currentAppointment.patientName }}
+          </strong>
+
+          <span>
+            {{
+              currentAppointment.appointmentDate
+                | date: 'medium' : undefined : dateLocale()
+            }}
+          </span>
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [disabled]="isUpdatingStatus"
+            (click)="closeCompleteConfirmation()">
+            {{ t('appointments.detail.completeConfirmation.keep') }}
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-success"
+            [disabled]="isUpdatingStatus"
+            (click)="confirmCompleteAppointment()">
+            {{ t('appointments.detail.completeConfirmation.confirm') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Cancellation confirmation -->
+
+  @if (showCancelConfirmation && appointment; as currentAppointment) {
+    <div class="modal-backdrop">
+      <div
+        class="confirmation-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cancel-appointment-title">
+
+        <h2 id="cancel-appointment-title">
+          {{ t('appointments.detail.cancelConfirmation.title') }}
+        </h2>
+
+        <p>
+          {{ t('appointments.detail.cancelConfirmation.message') }}
+        </p>
+
+        <div class="appointment-summary">
+          <strong>
+            {{ currentAppointment.patientName }}
+          </strong>
+
+          <span>
+            {{
+              currentAppointment.appointmentDate
+                | date: 'medium' : undefined : dateLocale()
+            }}
+          </span>
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [disabled]="isUpdatingStatus"
+            (click)="closeCancelConfirmation()">
+            {{ t('appointments.detail.cancelConfirmation.keep') }}
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-danger"
+            [disabled]="isUpdatingStatus"
+            (click)="confirmCancelAppointment()">
+            {{ t('appointments.detail.cancelConfirmation.confirm') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
