@@ -50,6 +50,7 @@
   "appointments.edit.error": "An error occurred while updating the appointment.",
   "appointments.edit.loadError": "An error occurred while loading the appointment.",
   "appointments.edit.loading": "Loading appointment...",
+  "appointments.edit.notEditable": "This appointment can no longer be edited because its status has changed.",
   "appointments.edit.notes": "Notes",
   "appointments.edit.notesPlaceholder": "Add additional notes about the appointment...",
   "appointments.edit.patient": "Patient",

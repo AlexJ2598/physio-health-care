@@ -16,7 +16,7 @@ export interface Appointment {
   reason: string;
   notes: string | null;
   status: AppointmentStatus;
-  startedAt: | null;
+  startedAt: string | null;
   completedAt: string | null;
   cancelledAt: string | null;
   wasAutomaticallyCancelled : boolean;

@@ -50,6 +50,7 @@
   "appointments.edit.error": "Ocurrió un error al actualizar la cita.",
   "appointments.edit.loadError": "Ocurrió un error al cargar la cita.",
   "appointments.edit.loading": "Cargando cita...",
+  "appointments.edit.notEditable": "Esta cita ya no puede editarse porque ha cambiado de estado.",
   "appointments.edit.notes": "Notas",
   "appointments.edit.notesPlaceholder": "Agrega notas adicionales sobre la cita...",
   "appointments.edit.patient": "Paciente",

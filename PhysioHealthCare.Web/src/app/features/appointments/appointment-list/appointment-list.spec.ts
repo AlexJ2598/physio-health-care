@@ -57,6 +57,10 @@ describe('AppointmentListComponent', () => {
       reason: 'Consulta de ejercicio',
       notes: null,
       status: 'Scheduled',
+      startedAt: null,
+      completedAt: null,
+      cancelledAt: null,
+      wasAutomaticallyCancelled: false,
     },
     {
       id: 'appointment-2',
@@ -66,6 +70,10 @@ describe('AppointmentListComponent', () => {
       reason: 'Consulta de valoración',
       notes: 'Primera valoración',
       status: 'InProgress',
+      startedAt: '2026-09-23T12:05:00Z',
+      completedAt: null,
+      cancelledAt: null,
+      wasAutomaticallyCancelled: false,
     },
   ];
 

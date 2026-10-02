@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -14,7 +14,7 @@ import { ToastService } from '../../../core/services/toast';
 
 import { TranslationService } from '../../../core/services/translation';
 
-import { Appointment } from '../../../shared/models/appointment';
+import { Appointment, AppointmentStatus } from '../../../shared/models/appointment';
 
 describe('AppointmentEditComponent', () => {
   let component: AppointmentEditComponent;
@@ -33,10 +33,12 @@ describe('AppointmentEditComponent', () => {
   let toastServiceMock: {
     success: ReturnType<typeof vi.fn>;
     error: ReturnType<typeof vi.fn>;
+    warning: ReturnType<typeof vi.fn>;
   };
 
   let translationServiceMock: {
     language$: BehaviorSubject<'en' | 'es'>;
+
     translate: ReturnType<typeof vi.fn>;
   };
 
@@ -44,16 +46,30 @@ describe('AppointmentEditComponent', () => {
     id: 'appointment-1',
     patientId: 'patient-1',
     patientName: 'John Doe',
+
     appointmentDate: '2026-09-25T19:30:00.000Z',
+
     reason: 'Initial assessment',
+
     notes: 'Test notes',
+
     status: 'Scheduled',
+
+    startedAt: null,
+
+    completedAt: null,
+
+    cancelledAt: null,
+
+    wasAutomaticallyCancelled: false,
   };
 
   // Test setup
+
   beforeEach(async () => {
     appointmentServiceMock = {
       getById: vi.fn(() => of(appointment)),
+
       update: vi.fn(() => of(appointment)),
     };
 
@@ -63,46 +79,51 @@ describe('AppointmentEditComponent', () => {
 
     toastServiceMock = {
       success: vi.fn(),
+
       error: vi.fn(),
+
+      warning: vi.fn(),
     };
 
     translationServiceMock = {
       language$: new BehaviorSubject<'en' | 'es'>('en'),
+
       translate: vi.fn((key: string) => key),
     };
 
     await TestBed.configureTestingModule({
       imports: [AppointmentEditComponent],
+
       providers: [
         {
           provide: ActivatedRoute,
+
           useValue: {
             snapshot: {
               paramMap: {
-                get: vi.fn(
-                  (key: string) =>
-                    key === 'id'
-                      ? 'appointment-1'
-                      : null
-                ),
+                get: vi.fn((key: string) => (key === 'id' ? 'appointment-1' : null)),
               },
             },
           },
         },
         {
           provide: Router,
+
           useValue: routerMock,
         },
         {
           provide: AppointmentService,
+
           useValue: appointmentServiceMock,
         },
         {
           provide: ToastService,
+
           useValue: toastServiceMock,
         },
         {
           provide: TranslationService,
+
           useValue: translationServiceMock,
         },
       ],
@@ -114,341 +135,358 @@ describe('AppointmentEditComponent', () => {
       })
       .compileComponents();
 
-    fixture =
-      TestBed.createComponent(AppointmentEditComponent);
+    fixture = TestBed.createComponent(AppointmentEditComponent);
 
     component = fixture.componentInstance;
   });
 
-  // Test cases
+  // Creation and initialization
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load appointment on init', () => {
+  it('should load scheduled appointment on init', () => {
     component.ngOnInit();
 
-    expect(component.appointmentId)
-      .toBe('appointment-1');
+    expect(component.appointmentId).toBe('appointment-1');
 
-    expect(appointmentServiceMock.getById)
-      .toHaveBeenCalledWith('appointment-1');
+    expect(appointmentServiceMock.getById).toHaveBeenCalledWith('appointment-1');
 
-    expect(component.patientName)
-      .toBe('John Doe');
+    expect(component.patientName).toBe('John Doe');
 
-    expect(component.reason)
-      .toBe('Initial assessment');
+    expect(component.reason).toBe('Initial assessment');
 
-    expect(component.notes)
-      .toBe('Test notes');
+    expect(component.notes).toBe('Test notes');
 
-    expect(component.appointmentDate)
-      .toBe(
-        toLocalDateTimeInput(
-          appointment.appointmentDate
-        )
-      );
+    expect(component.appointmentDate).toBe(toLocalDateTimeInput(appointment.appointmentDate));
 
-    expect(component.isLoading)
-      .toBeFalsy();
+    expect(component.isLoading).toBeFalsy();
+
+    expect(routerMock.navigate).not.toHaveBeenCalled();
+
+    expect(toastServiceMock.warning).not.toHaveBeenCalled();
   });
+
+  it('should navigate to not found when route has no appointment id', () => {
+    const route = TestBed.inject(ActivatedRoute);
+
+    vi.mocked(route.snapshot.paramMap.get).mockReturnValue(null);
+
+    component.ngOnInit();
+
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/not-found']);
+
+    expect(appointmentServiceMock.getById).not.toHaveBeenCalled();
+  });
+
+  // Edit status protection
+
+  it.each(['InProgress', 'Completed', 'Cancelled'] as AppointmentStatus[])(
+    'should redirect %s appointment to detail instead of loading edit form',
+    (status) => {
+      const protectedAppointment: Appointment = {
+        ...appointment,
+
+        status,
+
+        startedAt: status === 'InProgress' ? '2026-09-25T19:35:00.000Z' : null,
+
+        completedAt: status === 'Completed' ? '2026-09-25T20:00:00.000Z' : null,
+
+        cancelledAt: status === 'Cancelled' ? '2026-09-25T19:40:00.000Z' : null,
+      };
+
+      appointmentServiceMock.getById.mockReturnValue(of(protectedAppointment));
+
+      component.ngOnInit();
+
+      expect(appointmentServiceMock.getById).toHaveBeenCalledWith('appointment-1');
+
+      expect(toastServiceMock.warning).toHaveBeenCalledWith('appointments.edit.notEditable');
+
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/appointments', 'appointment-1']);
+
+      expect(component.isLoading).toBeFalsy();
+
+      expect(component.patientName).toBe('');
+
+      expect(component.appointmentDate).toBe('');
+
+      expect(component.reason).toBe('');
+
+      expect(component.notes).toBe('');
+
+      expect(appointmentServiceMock.update).not.toHaveBeenCalled();
+    },
+  );
+
+  // Translation
 
   it('should translate a key', () => {
-    translationServiceMock.translate
-      .mockReturnValue('Edit appointment');
+    translationServiceMock.translate.mockReturnValue('Edit appointment');
 
-    const result =
-      component.t('appointments.edit.title');
+    const result = component.t('appointments.edit.title');
 
-    expect(translationServiceMock.translate)
-      .toHaveBeenCalledWith(
-        'appointments.edit.title'
-      );
+    expect(translationServiceMock.translate).toHaveBeenCalledWith('appointments.edit.title');
 
-    expect(result)
-      .toBe('Edit appointment');
+    expect(result).toBe('Edit appointment');
   });
 
-  it(
-    'should navigate to not found when appointment does not exist',
-    () => {
-      appointmentServiceMock.getById
-        .mockReturnValue(
-          throwError(() => ({
-            status: 404,
-          }))
-        );
+  // Loading errors
 
-      component.appointmentId =
-        'appointment-1';
+  it('should navigate to not found when appointment does not exist', () => {
+    appointmentServiceMock.getById.mockReturnValue(
+      throwError(() => ({
+        status: 404,
+      })),
+    );
 
-      component.loadAppointment();
+    component.appointmentId = 'appointment-1';
 
-      expect(routerMock.navigate)
-        .toHaveBeenCalledWith([
-          '/not-found',
-        ]);
-    }
-  );
+    component.loadAppointment();
 
-  it(
-    'should show error when loading appointment fails',
-    () => {
-      appointmentServiceMock.getById
-        .mockReturnValue(
-          throwError(() => ({
-            status: 500,
-          }))
-        );
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/not-found']);
 
-      component.appointmentId =
-        'appointment-1';
+    expect(component.isLoading).toBeFalsy();
+  });
 
-      component.loadAppointment();
+  it('should show error when loading appointment fails', () => {
+    appointmentServiceMock.getById.mockReturnValue(
+      throwError(() => ({
+        status: 500,
+      })),
+    );
 
-      expect(component.isLoading)
-        .toBeFalsy();
+    component.appointmentId = 'appointment-1';
 
-      expect(component.loadErrorMessage)
-        .toBe(
-          'appointments.edit.loadError'
-        );
-    }
-  );
+    component.loadAppointment();
+
+    expect(component.isLoading).toBeFalsy();
+
+    expect(component.loadErrorMessage).toBe('appointments.edit.loadError');
+
+    expect(routerMock.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should not load appointment while already loading', () => {
+    component.appointmentId = 'appointment-1';
+
+    component.isLoading = true;
+
+    component.loadAppointment();
+
+    expect(appointmentServiceMock.getById).not.toHaveBeenCalled();
+  });
+
+  // Form validation
 
   it('should validate required fields', () => {
-    component.appointmentId =
-      'appointment-1';
+    component.appointmentId = 'appointment-1';
 
     component.appointmentDate = '';
+
     component.reason = '';
 
     component.updateAppointment();
 
-    expect(component.formSubmitted)
-      .toBeTruthy();
+    expect(component.formSubmitted).toBeTruthy();
 
-    expect(component.errorMessage)
-      .toBe(
-        'appointments.validation.requiredFields'
-      );
+    expect(component.errorMessage).toBe('appointments.validation.requiredFields');
 
-    expect(appointmentServiceMock.update)
-      .not.toHaveBeenCalled();
+    expect(appointmentServiceMock.update).not.toHaveBeenCalled();
   });
 
-  it(
-    'should not update while already saving',
-    () => {
-      component.appointmentId =
-        'appointment-1';
+  it('should not update while already saving', () => {
+    component.appointmentId = 'appointment-1';
 
-      component.appointmentDate =
-        '2026-09-25T13:30';
+    component.appointmentDate = '2026-09-25T13:30';
 
-      component.reason =
-        'Initial assessment';
+    component.reason = 'Initial assessment';
 
-      component.isSaving = true;
+    component.isSaving = true;
 
-      component.updateAppointment();
+    component.updateAppointment();
 
-      expect(appointmentServiceMock.update)
-        .not.toHaveBeenCalled();
-    }
-  );
+    expect(appointmentServiceMock.update).not.toHaveBeenCalled();
+  });
 
-  it(
-    'should update appointment successfully',
-    () => {
-      component.appointmentId =
-        'appointment-1';
+  // Successful update
 
-      component.appointmentDate =
-        '2026-09-25T13:30';
+  it('should update appointment successfully', () => {
+    component.appointmentId = 'appointment-1';
 
-      component.reason =
-        '  Follow-up assessment  ';
+    component.appointmentDate = '2026-09-25T13:30';
 
-      component.notes =
-        '  Updated notes  ';
+    component.reason = '  Follow-up assessment  ';
 
-      appointmentServiceMock.update
-        .mockReturnValue(
-          of(appointment)
-        );
+    component.notes = '  Updated notes  ';
 
-      component.updateAppointment();
+    appointmentServiceMock.update.mockReturnValue(of(appointment));
 
-      expect(appointmentServiceMock.update)
-        .toHaveBeenCalledWith(
-          'appointment-1',
-          {
-            appointmentDate:
-              new Date(
-                '2026-09-25T13:30'
-              ).toISOString(),
-            reason:
-              'Follow-up assessment',
-            notes:
-              'Updated notes',
-          }
-        );
+    component.updateAppointment();
 
-      expect(component.isSaving)
-        .toBeFalsy();
+    expect(appointmentServiceMock.update).toHaveBeenCalledWith('appointment-1', {
+      appointmentDate: new Date('2026-09-25T13:30').toISOString(),
 
-      expect(toastServiceMock.success)
-        .toHaveBeenCalledWith(
-          'appointments.edit.success'
-        );
+      reason: 'Follow-up assessment',
 
-      expect(routerMock.navigate)
-        .toHaveBeenCalledWith([
-          '/appointments',
-        ]);
-    }
-  );
+      notes: 'Updated notes',
+    });
 
-  it(
-    'should send undefined when notes are empty',
-    () => {
-      component.appointmentId =
-        'appointment-1';
+    expect(component.isSaving).toBeFalsy();
 
-      component.appointmentDate =
-        '2026-09-25T13:30';
+    expect(toastServiceMock.success).toHaveBeenCalledWith('appointments.edit.success');
 
-      component.reason =
-        'Follow-up assessment';
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/appointments']);
+  });
 
-      component.notes = '   ';
+  it('should send undefined when notes are empty', () => {
+    component.appointmentId = 'appointment-1';
 
-      component.updateAppointment();
+    component.appointmentDate = '2026-09-25T13:30';
 
-      expect(appointmentServiceMock.update)
-        .toHaveBeenCalledWith(
-          'appointment-1',
-          {
-            appointmentDate:
-              new Date(
-                '2026-09-25T13:30'
-              ).toISOString(),
-            reason:
-              'Follow-up assessment',
-            notes: undefined,
-          }
-        );
-    }
-  );
+    component.reason = 'Follow-up assessment';
 
-  it(
-    'should show translated error when update fails',
-    () => {
-      appointmentServiceMock.update
-        .mockReturnValue(
-          throwError(() => ({
-            error: {
-              message:
-                'Appointment could not be updated',
-            },
-          }))
-        );
+    component.notes = '   ';
 
-      component.appointmentId =
-        'appointment-1';
+    component.updateAppointment();
 
-      component.appointmentDate =
-        '2026-09-25T13:30';
+    expect(appointmentServiceMock.update).toHaveBeenCalledWith('appointment-1', {
+      appointmentDate: new Date('2026-09-25T13:30').toISOString(),
 
-      component.reason =
-        'Follow-up assessment';
+      reason: 'Follow-up assessment',
 
-      component.updateAppointment();
+      notes: undefined,
+    });
+  });
 
-      expect(component.isSaving)
-        .toBeFalsy();
+  // Update errors
 
-      expect(component.errorMessage)
-        .toBe(
-          'appointments.edit.error'
-        );
-
-      expect(toastServiceMock.error)
-        .toHaveBeenCalledWith(
-          'appointments.edit.error'
-        );
-    }
-  );
-
-  it(
-    'should use translated fallback when API error has no message',
-    () => {
-      appointmentServiceMock.update
-        .mockReturnValue(
-          throwError(() => ({
-            error: {},
-          }))
-        );
-
-      component.appointmentId =
-        'appointment-1';
-
-      component.appointmentDate =
-        '2026-09-25T13:30';
-
-      component.reason =
-        'Follow-up assessment';
-
-      component.updateAppointment();
-
-      expect(component.isSaving)
-        .toBeFalsy();
-
-      expect(component.errorMessage)
-        .toBe(
-          'appointments.edit.error'
-        );
-
-      expect(toastServiceMock.error)
-        .toHaveBeenCalledWith(
-          'appointments.edit.error'
-        );
-    }
-  );
-
-  function toLocalDateTimeInput(
-    utcDate: string
-  ): string {
-    const date = new Date(utcDate);
-
-    const year =
-      date.getFullYear();
-
-    const month =
-      String(
-        date.getMonth() + 1
-      ).padStart(2, '0');
-
-    const day =
-      String(
-        date.getDate()
-      ).padStart(2, '0');
-
-    const hours =
-      String(
-        date.getHours()
-      ).padStart(2, '0');
-
-    const minutes =
-      String(
-        date.getMinutes()
-      ).padStart(2, '0');
-
-    return (
-      `${year}-${month}-${day}` +
-      `T${hours}:${minutes}`
+  it('should show translated error when update fails', () => {
+    appointmentServiceMock.update.mockReturnValue(
+      throwError(() => ({
+        error: {
+          message: 'Appointment could not be updated',
+        },
+      })),
     );
-  }
+
+    component.appointmentId = 'appointment-1';
+
+    component.appointmentDate = '2026-09-25T13:30';
+
+    component.reason = 'Follow-up assessment';
+
+    component.updateAppointment();
+
+    expect(component.isSaving).toBeFalsy();
+
+    expect(component.errorMessage).toBe('appointments.edit.error');
+
+    expect(toastServiceMock.error).toHaveBeenCalledWith('appointments.edit.error');
+  });
+
+  it('should use translated fallback when API error has no message', () => {
+    appointmentServiceMock.update.mockReturnValue(
+      throwError(() => ({
+        error: {},
+      })),
+    );
+
+    component.appointmentId = 'appointment-1';
+
+    component.appointmentDate = '2026-09-25T13:30';
+
+    component.reason = 'Follow-up assessment';
+
+    component.updateAppointment();
+
+    expect(component.isSaving).toBeFalsy();
+
+    expect(component.errorMessage).toBe('appointments.edit.error');
+
+    expect(toastServiceMock.error).toHaveBeenCalledWith('appointments.edit.error');
+  });
+
+  // Cancel
+
+  it('should navigate back to appointments when cancelling', () => {
+    component.cancel();
+
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/appointments']);
+  });
+
+  it('should not navigate away while saving', () => {
+    component.isSaving = true;
+
+    component.cancel();
+
+    expect(routerMock.navigate).not.toHaveBeenCalled();
+  });
+
+  // Lifecycle
+
+  it('should react to language changes', () => {
+    const detectChangesSpy = vi.spyOn(
+      (
+        component as unknown as {
+          cdr: {
+            detectChanges: () => void;
+          };
+        }
+      ).cdr,
+      'detectChanges',
+    );
+
+    component.ngOnInit();
+
+    detectChangesSpy.mockClear();
+
+    translationServiceMock.language$.next('es');
+
+    expect(detectChangesSpy).toHaveBeenCalled();
+  });
+
+  it('should complete destroy subject on destroy', () => {
+    const nextSpy = vi.spyOn(
+      (
+        component as unknown as {
+          destroy$: Subject<void>;
+        }
+      ).destroy$,
+      'next',
+    );
+
+    const completeSpy = vi.spyOn(
+      (
+        component as unknown as {
+          destroy$: Subject<void>;
+        }
+      ).destroy$,
+      'complete',
+    );
+
+    component.ngOnDestroy();
+
+    expect(nextSpy).toHaveBeenCalled();
+
+    expect(completeSpy).toHaveBeenCalled();
+  });
 });
+
+function toLocalDateTimeInput(utcDate: string): string {
+  const date = new Date(utcDate);
+
+  const year = date.getFullYear();
+
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+
+  const day = String(date.getDate()).padStart(2, '0');
+
+  const hours = String(date.getHours()).padStart(2, '0');
+
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${year}-${month}-${day}` + `T${hours}:${minutes}`;
+}

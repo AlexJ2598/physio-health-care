@@ -24,6 +24,10 @@ describe('AppointmentService', () => {
     reason: 'Consulta',
     notes: 'Test appointment',
     status: 'Scheduled',
+    startedAt: null,
+    completedAt: null,
+    cancelledAt: null,
+    wasAutomaticallyCancelled: false,
   };
 
   // Test setup
