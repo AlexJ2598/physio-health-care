@@ -348,4 +348,43 @@ describe('Dashboard', () => {
     expect(element.querySelector('.next-appointment-card')).toBeNull();
     expect(element.textContent).toContain('dashboard.nextAppointment.emptyTitle');
   });
+
+  // Appointment detail links
+
+  it('should link the next appointment card to its detail', () => {
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    const link = element.querySelector<HTMLAnchorElement>('a.next-appointment-card');
+
+    expect(link).not.toBeNull();
+    expect(link?.classList.contains('appointment-card-link')).toBe(true);
+    expect(link?.getAttribute('href')).toBe('/appointments/appointment-1');
+    expect(link?.textContent).toContain(dashboardSummary.nextAppointment!.patientName);
+  });
+
+  it('should link the current appointment card to its own detail', () => {
+    const currentAppointment = {
+      id: 'current-appointment-2',
+      patientId: 'patient-2',
+      patientName: 'Current patient',
+      reason: 'Follow-up',
+      appointmentDate: '2026-09-30T01:00:00Z',
+      status: 2,
+    };
+    dashboardServiceMock.getSummary.mockReturnValue(
+      of({ ...dashboardSummary, todayInProgress: 1, currentAppointment }),
+    );
+
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    const link = element.querySelector<HTMLAnchorElement>('a.current-appointment-card');
+
+    expect(link).not.toBeNull();
+    expect(link?.classList.contains('appointment-card-link')).toBe(true);
+    expect(link?.getAttribute('href')).toBe('/appointments/current-appointment-2');
+    expect(link?.textContent).toContain(currentAppointment.patientName);
+    expect(element.querySelector('a.next-appointment-card')?.getAttribute('href')).toBe(
+      '/appointments/appointment-1',
+    );
+  });
 });

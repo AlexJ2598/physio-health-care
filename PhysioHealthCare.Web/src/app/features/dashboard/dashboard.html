@@ -41,7 +41,10 @@
       </div>
 
       @if (dashboardSummary.currentAppointment; as appointment) {
-        <article class="current-appointment-card">
+        <a
+          class="current-appointment-card appointment-card-link"
+          [routerLink]="['/appointments', appointment.id]"
+        >
           <div class="current-appointment-time">
             {{ appointment.appointmentDate | date: 'shortTime' : undefined : dateLocale() }}
           </div>
@@ -52,7 +55,7 @@
           <span class="status-badge status-in-progress">
             {{ t('appointments.status.inProgress') }}
           </span>
-        </article>
+        </a>
       } @else {
         <div class="empty-state">
           <h3>{{ t('dashboard.currentAppointment.emptyTitle') }}</h3>
@@ -68,18 +71,28 @@
       </div>
 
       @if (dashboardSummary.nextAppointment; as appointment) {
-        <article class="next-appointment-card">
+        <a
+          class="next-appointment-card appointment-card-link"
+          [routerLink]="['/appointments', appointment.id]"
+        >
           <div class="next-appointment-time">
             {{ appointment.appointmentDate | date: 'shortTime' : undefined : dateLocale() }}
           </div>
+
           <div class="next-appointment-content">
-            <strong class="next-appointment-patient">{{ appointment.patientName }}</strong>
-            <span class="next-appointment-reason">{{ appointment.reason }}</span>
+            <strong class="next-appointment-patient">
+              {{ appointment.patientName }}
+            </strong>
+
+            <span class="next-appointment-reason">
+              {{ appointment.reason }}
+            </span>
           </div>
+
           <span class="status-badge status-scheduled">
             {{ t('appointments.status.scheduled') }}
           </span>
-        </article>
+        </a>
       } @else {
         <div class="empty-state">
           <h3>{{ t('dashboard.nextAppointment.emptyTitle') }}</h3>
