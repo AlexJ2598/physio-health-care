@@ -59,15 +59,60 @@
         </span>
       </div>
 
-      <div class="detail-row">
-        <span class="detail-label">
-          {{ t('appointments.create.notes') }}
-        </span>
+      <!-- Appointment notes -->
 
-        <span class="detail-value">
-          {{ currentAppointment.notes || '—' }}
-        </span>
-      </div>
+      @if (currentAppointment.status === 'InProgress') {
+        <div class="detail-row detail-row-notes">
+          <label
+            class="detail-label"
+            for="appointment-notes">
+            {{ t('appointments.create.notes') }}
+          </label>
+
+          <div class="notes-editor">
+            <textarea
+              id="appointment-notes"
+              class="notes-textarea"
+              name="appointmentNotes"
+              rows="5"
+              maxlength="500"
+              [(ngModel)]="notesDraft"
+              [disabled]="isSavingNotes"
+              [attr.aria-describedby]="'appointment-notes-counter'">
+            </textarea>
+
+            <div class="notes-editor-footer">
+              <span
+                id="appointment-notes-counter"
+                class="notes-character-count">
+                {{ notesDraft.length }} / 500
+              </span>
+
+              <button
+                type="button"
+                class="btn btn-primary"
+                [disabled]="isSavingNotes"
+                (click)="saveNotes()">
+                {{
+                  isSavingNotes
+                    ? t('appointments.detail.notesSaving')
+                    : t('appointments.detail.notesSave')
+                }}
+              </button>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="detail-row">
+          <span class="detail-label">
+            {{ t('appointments.create.notes') }}
+          </span>
+
+          <span class="detail-value">
+            {{ currentAppointment.notes || '—' }}
+          </span>
+        </div>
+      }
 
       <div class="detail-row">
         <span class="detail-label">
@@ -80,7 +125,12 @@
           [class.status-in-progress]="currentAppointment.status === 'InProgress'"
           [class.status-completed]="currentAppointment.status === 'Completed'"
           [class.status-cancelled]="currentAppointment.status === 'Cancelled'">
-          {{ t('appointments.status.' + statusTranslationKey(currentAppointment.status)) }}
+          {{
+            t(
+              'appointments.status.' +
+                statusTranslationKey(currentAppointment.status)
+            )
+          }}
         </span>
       </div>
 
@@ -165,7 +215,7 @@
             <button
               type="button"
               class="btn btn-success"
-              [disabled]="isUpdatingStatus"
+              [disabled]="isUpdatingStatus || isSavingNotes"
               (click)="completeAppointment()">
               {{ t('appointments.detail.complete') }}
             </button>
@@ -174,7 +224,7 @@
           <button
             type="button"
             class="btn btn-danger"
-            [disabled]="isUpdatingStatus"
+            [disabled]="isUpdatingStatus || isSavingNotes"
             (click)="cancelAppointment()">
             {{ t('appointments.detail.cancel') }}
           </button>

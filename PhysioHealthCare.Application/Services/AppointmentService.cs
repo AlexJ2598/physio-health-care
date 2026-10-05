@@ -494,5 +494,53 @@
                     appointment.WasAutomaticallyCancelled
             };
         }
+
+        public async Task<AppointmentResponseDto> UpdateNotesAsync(Guid id, UpdateAppointmentNotesDto dto)
+        {
+            _logger.LogInformation(
+                "Updating notes for AppointmentId: {AppointmentId}",
+                id);
+
+            var appointment = await _appointmentsRepository.GetByIdForUpdateAsync(id);
+
+            if(appointment == null)
+            {
+                _logger.LogWarning(
+                    "Appointment not found. AppointmentId: {AppointmentId}",
+                    id);
+                throw new NotFoundException(
+                    "Appointment not found.");
+            }
+
+            if(appointment.Status != AppointmentStatus.InProgress)
+            {
+                _logger.LogWarning(
+                    "Cannot update notes for appointment because it is not in progress. AppointmentId: {AppointmentId}, Status: {Status}",
+                    id,
+                    appointment.Status);
+                throw new ConflictException(
+                    $"Cannot update notes for an appointment with status {appointment.Status}.");
+            }
+
+            appointment.Notes = dto.Notes?.Trim() ?? string.Empty;
+
+            appointment.UpdatedAt = _clinicClock.UtcNow;
+
+            await _appointmentsRepository.UpdateAsync(appointment);
+
+            _logger.LogInformation(
+                "Appointment notes updated successfully. AppointmentId: {AppointmentId}",
+                id);
+            
+            var updatedAppointment = await _appointmentsRepository.GetByIdAsync(id);
+
+            if(updatedAppointment == null)
+            {
+                throw new NotFoundException(
+                    "Appointment not found.");
+            }
+
+            return MapToResponse(updatedAppointment);
+        }
     }
 }

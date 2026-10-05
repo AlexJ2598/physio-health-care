@@ -153,6 +153,19 @@
             return Ok(appointment);
         }
 
+        [HttpPatch("{id:guid}/notes")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<AppointmentResponseDto>> UpdateNotes(
+                Guid id,
+                UpdateAppointmentNotesDto dto)
+        {
+            var appointment =
+                await _appointmentService.UpdateNotesAsync(
+                    id,
+                    dto);
+            return Ok(appointment);
+        }
+
         [HttpPatch("{id:guid}/status")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<AppointmentResponseDto>>UpdateStatus(

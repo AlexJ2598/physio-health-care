@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 
 import { AppointmentService } from '../../../core/services/appointment';
 import { ToastService } from '../../../core/services/toast';
@@ -12,7 +13,7 @@ import { Appointment, AppointmentStatusValue } from '../../../shared/models/appo
 @Component({
   selector: 'app-appointment-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, LoadingComponent],
+  imports: [CommonModule, FormsModule, RouterLink, LoadingComponent],
   templateUrl: './appointment-detail.html',
   styleUrl: './appointment-detail.scss',
 })
@@ -23,6 +24,8 @@ export class AppointmentDetail implements OnInit, OnDestroy {
 
   isLoading = false;
   isUpdatingStatus = false;
+  isSavingNotes = false;
+  notesDraft = '';
   showCancelConfirmation = false;
   showCompleteConfirmation = false;
   errorMessage = '';
@@ -78,6 +81,7 @@ export class AppointmentDetail implements OnInit, OnDestroy {
         next: (appointment) => {
           this.appointment = appointment;
           this.isLoading = false;
+          this.notesDraft = appointment.notes ?? '';
 
           this.changeDetector.detectChanges();
         },
@@ -96,6 +100,42 @@ export class AppointmentDetail implements OnInit, OnDestroy {
       });
   }
 
+  //Appointment notes
+
+  saveNotes(): void{
+    if(!this.appointment ||
+      this.appointment.status !== 'InProgress' ||
+      this.isSavingNotes
+    ){
+      return;
+    }
+    this.isSavingNotes = true;
+    this.changeDetector.detectChanges();
+
+    this.appointmentService.updateNotes(this.appointment.id,{notes: this.notesDraft})
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next: (appointment) => {
+        this.appointment = appointment;
+        this.notesDraft = appointment.notes ?? '';
+        this.isSavingNotes = false;
+
+        this.toastService.success(this.t('appointments.detail.notesUpdateSuccess'),);
+
+        this.changeDetector.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error updating appointment notes:', error);
+
+        this.isSavingNotes = false;
+
+        this.toastService.error(
+          this.t('appointments.detail.notesUpdateError'),
+        );
+
+        this.changeDetector.detectChanges();
+      },
+    });
+  }
   // Start appointment
 
   startAppointment(): void {
@@ -201,6 +241,7 @@ export class AppointmentDetail implements OnInit, OnDestroy {
         next: (appointment) => {
           this.appointment = appointment;
           this.isUpdatingStatus = false;
+          this.notesDraft = appointment.notes ?? '';
 
           this.toastService.success(this.t(successMessageKey));
 

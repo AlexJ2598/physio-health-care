@@ -37,6 +37,10 @@ export interface UpdateAppointment {
   notes?: string;
 }
 
+export interface UpdateAppointmentNotes {
+  notes : string | null;
+}
+
 export interface UpdateAppointmentStatus {
   status: AppointmentStatusValue;
 }

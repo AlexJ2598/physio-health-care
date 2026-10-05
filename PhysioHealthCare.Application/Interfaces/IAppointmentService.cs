@@ -28,6 +28,10 @@
                 Guid id,
                 UpdateAppointmentDto dto);
 
+        Task<AppointmentResponseDto>UpdateNotesAsync(
+                Guid id,
+                UpdateAppointmentNotesDto dto);
+
         Task<AppointmentResponseDto>UpdateStatusAsync(
                 Guid id,
                 UpdateAppointmentStatusDto dto);

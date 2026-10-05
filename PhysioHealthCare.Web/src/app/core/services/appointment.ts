@@ -8,6 +8,7 @@ import {
   AppointmentFilters,
   CreateAppointment,
   UpdateAppointment,
+  UpdateAppointmentNotes,
   UpdateAppointmentStatus,
 } from '../../shared/models/appointment';
 import { PagedResult } from '../../shared/models/paged-result';
@@ -21,6 +22,12 @@ export class AppointmentService {
   constructor(private http: HttpClient) {}
 
   // Appointment actions
+  updateNotes(id: string, notes: UpdateAppointmentNotes): Observable<Appointment> {
+    return this.http.patch<Appointment>(
+      `${environment.apiUrl}/Appointments/${id}/notes`,
+      notes,
+    );
+  }
 
   updateStatus(id: string, status: UpdateAppointmentStatus): Observable<Appointment> {
     return this.http.patch<Appointment>(`${environment.apiUrl}/Appointments/${id}/status`, status);
