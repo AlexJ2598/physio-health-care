@@ -116,6 +116,10 @@
             <a class="btn-small btn-edit" [routerLink]="['/patients/edit', patient.id]">
             {{ t('common.edit') }}
           </a>
+          <a class="btn-small btn-clinical-record"
+          [routerLink]="['/patients', patient.id, 'clinical-record']">
+          {{t('patients.clinicalRecord')}}
+        </a>
           <button type="button" class="btn-small btn-delete" (click)="openDeleteModal(patient)">
             {{ t('common.delete') }}
           </button>

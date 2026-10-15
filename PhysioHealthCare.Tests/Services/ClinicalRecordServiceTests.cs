@@ -104,7 +104,7 @@ namespace PhysioHealthCare.Tests.Services
         }
 
         [Fact]
-        public async Task CreateAsync_ShouldThrowBadRequestException_WhenRecordAlreadyExists()
+        public async Task CreateAsync_ShouldThrowConflictException_WhenRecordAlreadyExists()
         {
             // Arrange
             var patientId = Guid.NewGuid();
@@ -126,7 +126,7 @@ namespace PhysioHealthCare.Tests.Services
 
             // Assert
             await act.Should()
-                .ThrowAsync<BadRequestException>()
+                .ThrowAsync<ConflictException>()
                 .WithMessage("Patient already has a clinical record.");
 
             _clinicalRecordRepositoryMock.Verify(

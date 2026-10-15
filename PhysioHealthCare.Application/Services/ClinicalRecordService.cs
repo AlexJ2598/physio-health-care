@@ -96,7 +96,7 @@
                     "Cannot create clinical record because patient already has one. PatientId: {PatientId}",
                     patientId);
 
-                throw new BadRequestException(
+                throw new ConflictException(
                     "Patient already has a clinical record.");
             }
 

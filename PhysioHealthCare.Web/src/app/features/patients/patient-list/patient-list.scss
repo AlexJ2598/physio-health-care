@@ -365,6 +365,24 @@ td {
   color: var(--color-danger-dark);
 }
 
+.btn-clinical-record{
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+  border: 1px solid transparent;
+  border-radius:var(--radius-sm);
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--transition-fast);
+
+  &:hover{
+    background: var(--color-primary);
+    color: var(--color-surface);
+  }
+  &:focus-visible{
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
 /* Pagination */
 
 .pagination {

@@ -1,6 +1,8 @@
 ﻿namespace PhysioHealthCare.Infrastructure.Repositories
 {
+    using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
+    using PhysioHealthCare.Application.Exceptions;
     using PhysioHealthCare.Application.Interfaces;
     using PhysioHealthCare.Domain.Entities;
     using PhysioHealthCare.Infrastructure.Data;
@@ -19,13 +21,37 @@
             _context = appDbContext;
         }
 
+
         public async Task<ClinicalRecord> CreateAsync(
             ClinicalRecord clinicalRecord)
         {
             var record =
                 _context.ClinicalRecords.Add(clinicalRecord);
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException exception)
+                when (
+                    exception.InnerException is SqlException sqlException &&
+                    (sqlException.Number == 2601 ||
+                     sqlException.Number == 2627))
+            {
+                var recordExists =
+                    await _context.ClinicalRecords
+                        .AsNoTracking()
+                        .AnyAsync(cr =>
+                            cr.PatientId == clinicalRecord.PatientId);
+
+                if (recordExists)
+                {
+                    throw new ConflictException(
+                        "Patient already has a clinical record.");
+                }
+
+                throw;
+            }
 
             return record.Entity;
         }
@@ -34,8 +60,7 @@
         {
             return _context.ClinicalRecords
                 .AnyAsync(cr =>
-                    cr.PatientId == patientId &&
-                    cr.IsActive);
+                    cr.PatientId == patientId);
         }
 
         public Task<ClinicalRecord?> GetByIdAsync(Guid id)

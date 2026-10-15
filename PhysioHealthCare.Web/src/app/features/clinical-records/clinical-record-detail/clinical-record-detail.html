@@ -1,0 +1,164 @@
+<section class="clinical-record-page">
+  <header class="page-header">
+    <div class="header-content">
+      <span class="eyebrow">
+        {{ t('clinicalRecords.patientManagement') }}
+      </span>
+
+      <h1>{{ t('clinicalRecords.title') }}</h1>
+
+      <p>{{ t('clinicalRecords.subtitle') }}</p>
+    </div>
+
+    <button type="button" class="btn btn-secondary" (click)="goBack()">
+      {{ t('clinicalRecords.back') }}
+    </button>
+  </header>
+
+  @if (successMessage) {
+    <div class="alert alert-success" role="status">
+      {{ t(successMessage) }}
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div class="alert alert-error" role="alert">
+      <span>{{ t(errorMessage) }}</span>
+
+      @if (!isBusy && patientId) {
+        <button type="button" class="btn btn-secondary" (click)="loadClinicalRecord()">
+          {{ t('common.retry') }}
+        </button>
+      }
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="state-card" role="status">
+      <div class="loading-spinner" aria-hidden="true"></div>
+
+      <h2>{{ t('clinicalRecords.loading') }}</h2>
+
+      <p>
+        {{ t('clinicalRecords.loadingDescription') }}
+      </p>
+    </div>
+  } @else if (clinicalRecord; as record) {
+    <div class="record-summary">
+      <div class="record-heading">
+        <div>
+          <span class="section-label">
+            {{ t('clinicalRecords.recordLabel') }}
+          </span>
+
+          <h2>{{ record.recordNumber }}</h2>
+
+          <p>{{ t('clinicalRecords.recordDescription') }}</p>
+        </div>
+
+        <span class="status-badge status-active">
+          {{ t('clinicalRecords.recordActive') }}
+        </span>
+      </div>
+
+      <div class="record-details">
+        <div class="detail-item">
+          <span class="detail-label">
+            {{ t('clinicalRecords.recordNumber') }}
+          </span>
+
+          <strong>{{ record.recordNumber }}</strong>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-label">
+            {{ t('clinicalRecords.createdOn') }}
+          </span>
+
+          <strong>
+            {{ record.createdAt | date: 'mediumDate' : undefined : dateLocale() }}
+          </strong>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-label">
+            {{ t('clinicalRecords.historyStatus') }}
+          </span>
+
+          @if (record.hasClinicalHistory) {
+            <span class="status-badge status-complete">
+              {{ t('clinicalRecords.historyRegistered') }}
+            </span>
+          } @else {
+            <span class="status-badge status-pending">
+              {{ t('clinicalRecords.historyPending') }}
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="history-card">
+      <div class="history-content">
+        <div class="history-icon">
+          <span aria-hidden="true">✚</span>
+        </div>
+
+        <div>
+          <h2>{{ t('clinicalRecords.historyStatus') }}</h2>
+
+          @if (record.hasClinicalHistory) {
+            <p>
+              {{ t('clinicalRecords.historyDescription') }}
+            </p>
+          } @else {
+            <p>
+              {{ t('clinicalRecords.historyMissing') }}
+            </p>
+          }
+        </div>
+      </div>
+
+      <div class="history-actions">
+        @if (record.hasClinicalHistory) {
+          <span class="status-badge status-complete">
+            {{ t('clinicalRecords.historyAvailable') }}
+          </span>
+
+          <button type="button" class="btn btn-primary" (click)="goToClinicalHistory()">
+            {{ t('clinicalRecords.viewHistory') }}
+          </button>
+        } @else {
+          <span class="status-badge status-pending">
+            {{ t('clinicalRecords.historyPending') }}
+          </span>
+
+          <button type="button" class="btn btn-primary" (click)="goToClinicalHistory()">
+            {{ t('clinicalRecords.createHistory') }}
+          </button>
+        }
+      </div>
+    </div>
+  } @else if (!errorMessage) {
+    <div class="state-card empty-state">
+      <div class="empty-icon" aria-hidden="true">+</div>
+
+      <h2>{{ t('clinicalRecords.emptyTitle') }}</h2>
+
+      <p>{{ t('clinicalRecords.emptyMessage') }}</p>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="isCreating"
+        (click)="createClinicalRecord()"
+      >
+        @if (isCreating) {
+          {{ t('clinicalRecords.creating') }}
+        } @else {
+          {{ t('clinicalRecords.create') }}
+        }
+      </button>
+    </div>
+  }
+</section>
