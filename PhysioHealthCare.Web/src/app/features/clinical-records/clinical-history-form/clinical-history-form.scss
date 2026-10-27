@@ -1,0 +1,639 @@
+
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+// ======================================================
+// Page container
+// ======================================================
+
+.clinical-history-page {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6) var(--space-10);
+  box-sizing: border-box;
+  color: var(--color-text-primary);
+}
+
+// ======================================================
+// Page header
+// ======================================================
+
+.page-header {
+  margin-bottom: var(--space-8);
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  h1 {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-title);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.6px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+  }
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+
+  border: none;
+  background: transparent;
+  color: var(--color-primary-dark);
+
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+
+  transition: color var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    color: var(--color-text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+// ======================================================
+// Loading and error states
+// ======================================================
+
+.state-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+
+  min-height: 240px;
+  padding: var(--space-8);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+
+  text-align: center;
+
+  h2 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-lg);
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+  }
+
+  &--error {
+    background: var(--color-danger-surface);
+    border-color: var(--color-danger-border);
+
+    h2,
+    p {
+      color: var(--color-danger-text);
+    }
+  }
+}
+
+// ======================================================
+// Main form
+// ======================================================
+
+.clinical-history-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  min-width: 0;
+}
+
+// ======================================================
+// Form header
+// ======================================================
+
+.form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+
+  padding: var(--space-6);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+
+  h2 {
+    margin: 0 0 var(--space-2);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+  }
+}
+
+.record-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: var(--space-2) var(--space-4);
+
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-full);
+
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+// ======================================================
+// Form sections
+// ======================================================
+
+.form-section {
+  min-width: 0;
+  overflow: hidden;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+
+  &:focus-within {
+    border-color: var(--color-primary);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+
+    padding: var(--space-5) var(--space-6);
+
+    background: var(--color-surface-soft);
+    border-bottom: 1px solid var(--color-border);
+
+    &::before {
+      content: "";
+      display: block;
+      flex-shrink: 0;
+
+      width: 4px;
+      height: 24px;
+
+      background: var(--color-primary);
+      border-radius: var(--radius-full);
+    }
+
+    h3 {
+      margin: 0;
+      color: var(--color-text-primary);
+      font-size: var(--font-size-md);
+      font-weight: 700;
+      line-height: 1.4;
+    }
+  }
+}
+
+// ======================================================
+// Responsive form grid
+// ======================================================
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+
+  padding: var(--space-6);
+}
+
+// ======================================================
+// Fields
+// ======================================================
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+  min-width: 0;
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    display: block;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  input,
+  textarea {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+
+    padding: var(--form-control-padding);
+
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    font-weight: 400;
+    line-height: 1.5;
+
+    outline: none;
+
+    transition:
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast),
+      background-color var(--transition-fast);
+
+    &:hover:not(:disabled) {
+      border-color: var(--color-border-hover);
+    }
+
+    &:focus {
+      border-color: var(--color-primary);
+      box-shadow: var(--focus-ring-primary);
+    }
+
+    &:disabled {
+      background: var(--color-surface-soft);
+      color: var(--color-text-muted);
+      cursor: not-allowed;
+      opacity: 0.75;
+    }
+
+    &.is-invalid,
+    &.ng-invalid.ng-touched {
+      border-color: var(--color-danger);
+
+      &:focus {
+        box-shadow: var(--focus-ring-danger);
+      }
+    }
+  }
+
+  input {
+    min-height: 48px;
+  }
+
+  input[type="date"] {
+    color-scheme: light;
+    cursor: pointer;
+  }
+
+  input[type="number"] {
+    appearance: textfield;
+  }
+
+  textarea {
+    min-height: 110px;
+    resize: vertical;
+    overflow-wrap: anywhere;
+  }
+
+  .required {
+    margin-left: var(--space-1);
+    color: var(--color-danger);
+    font-weight: 700;
+  }
+}
+
+// ======================================================
+// Validation messages
+// ======================================================
+
+.field-error {
+  display: block;
+  color: var(--color-danger-dark);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.field-hint {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: 1.5;
+}
+
+// ======================================================
+// Alerts
+// ======================================================
+
+.form-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+
+  padding: var(--space-4) var(--space-5);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+
+  p {
+    margin: 0;
+  }
+
+  &--error {
+    background: var(--color-danger-surface);
+    border-color: var(--color-danger-border);
+    color: var(--color-danger-text);
+
+    &::before {
+      content: "!";
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      width: 22px;
+      height: 22px;
+
+      background: var(--color-danger-soft);
+      border-radius: var(--radius-full);
+
+      color: var(--color-danger-dark);
+      font-size: var(--font-size-sm);
+      font-weight: 700;
+    }
+  }
+}
+
+// ======================================================
+// Action buttons
+// ======================================================
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+
+  padding: var(--space-5) var(--space-6);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  min-height: 44px;
+  padding: var(--space-3) var(--space-5);
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring-primary);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  &--primary {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-surface);
+
+    &:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+      border-color: var(--color-primary-dark);
+    }
+  }
+
+  &--secondary {
+    background: var(--color-surface);
+    border-color: var(--color-border-strong);
+    color: var(--color-text-secondary);
+
+    &:hover:not(:disabled) {
+      background: var(--color-surface-soft);
+      border-color: var(--color-primary);
+      color: var(--color-primary-dark);
+    }
+  }
+}
+
+// ======================================================
+// Tablet
+// ======================================================
+
+@media (max-width: 1024px) {
+  .clinical-history-page {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .form-grid {
+    gap: var(--space-4);
+  }
+}
+
+// ======================================================
+// Mobile
+// ======================================================
+
+@media (max-width: 768px) {
+  .clinical-history-page {
+    padding: var(--space-4) var(--space-3) var(--space-8);
+  }
+
+  .page-header {
+    margin-bottom: var(--space-6);
+
+    h1 {
+      font-size: var(--font-size-xl);
+      letter-spacing: -0.3px;
+    }
+
+    p {
+      font-size: var(--font-size-sm);
+    }
+  }
+
+  .form-header {
+    align-items: flex-start;
+    padding: var(--space-4);
+  }
+
+  .form-section__header {
+    padding: var(--space-4);
+
+    h3 {
+      font-size: var(--font-size-base);
+    }
+  }
+
+  .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    padding: var(--space-4);
+  }
+
+  .form-field--full {
+    grid-column: auto;
+  }
+
+  .form-field {
+    input,
+    textarea {
+      font-size: 16px;
+    }
+  }
+
+  .form-actions {
+    padding: var(--space-4);
+
+    .btn {
+      flex: 1 1 100%;
+      width: 100%;
+    }
+  }
+
+  .state-container {
+    min-height: 200px;
+    padding: var(--space-6) var(--space-4);
+  }
+}
+
+// ======================================================
+// Small mobile devices
+// ======================================================
+
+@media (max-width: 420px) {
+  .clinical-history-page {
+    padding-inline: var(--space-2);
+  }
+
+  .form-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .record-number {
+    max-width: 100%;
+  }
+
+  .form-field {
+    textarea {
+      min-height: 100px;
+    }
+  }
+}
+
+// ======================================================
+// Reduced motion accessibility
+// ======================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .back-button,
+  .form-section,
+  .form-field input,
+  .form-field textarea,
+  .btn {
+    transition: none;
+  }
+
+  .btn:hover {
+    transform: none;
+  }
+}

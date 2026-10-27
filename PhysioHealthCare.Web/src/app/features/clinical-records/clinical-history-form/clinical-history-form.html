@@ -1,0 +1,612 @@
+
+<section class="clinical-history-page">
+
+  <!-- Header -->
+  <header class="page-header">
+    <div class="page-header__content">
+
+      <button
+        type="button"
+        class="back-button"
+        (click)="cancel()"
+        [disabled]="isSaving()"
+      >
+        ← {{ t('clinicalHistory.form.back') }}
+      </button>
+
+      <h1>
+        {{
+          t(
+            isEditMode()
+              ? 'clinicalHistory.form.editTitle'
+              : 'clinicalHistory.form.createTitle'
+          )
+        }}
+      </h1>
+
+      <p>
+        {{ t('clinicalHistory.form.subtitle') }}
+      </p>
+
+    </div>
+  </header>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="state-container" role="status">
+      <app-loading
+        [message]="t('clinicalHistory.form.loading')"
+        size="medium"
+        [inline]="true"
+      />
+    </div>
+  }
+
+  <!-- Loading error -->
+  @else if (errorMessage()) {
+    <div
+      class="state-container state-container--error"
+      role="alert"
+    >
+      <h2>
+        {{ t('clinicalHistory.form.loadErrorTitle') }}
+      </h2>
+
+      <p>
+        {{ t(errorMessage()) }}
+      </p>
+
+      <button
+        type="button"
+        class="btn btn--secondary"
+        (click)="loadClinicalRecord()"
+      >
+        {{ t('clinicalHistory.form.retry') }}
+      </button>
+    </div>
+  }
+
+  <!-- Clinical history form -->
+  @else if (clinicalRecordId()) {
+
+    <form
+      class="clinical-history-form"
+      [formGroup]="form"
+      (ngSubmit)="save()"
+      novalidate
+    >
+
+      <!-- Form header -->
+      <div class="form-header">
+        <div>
+          <h2>
+            {{ t('clinicalHistory.form.generalTitle') }}
+          </h2>
+
+          <p>
+            {{ t('clinicalHistory.form.requiredHint') }}
+          </p>
+        </div>
+
+        @if (recordNumber()) {
+          <span class="record-number">
+            {{ recordNumber() }}
+          </span>
+        }
+      </div>
+
+      <!-- Conflict -->
+      @if (hasConflict()) {
+        <div
+          class="form-alert form-alert--error"
+          role="alert"
+        >
+          <p>
+            {{ t('clinicalHistory.form.conflictError') }}
+          </p>
+        </div>
+      }
+
+      <!-- Backend validation errors -->
+      @if (hasServerValidationErrors()) {
+        <div
+          class="form-alert form-alert--error"
+          role="alert"
+        >
+          <p>
+            {{ t('clinicalHistory.form.validationError') }}
+          </p>
+        </div>
+      }
+
+      <!-- 1. Consultation -->
+      <section class="form-section">
+
+        <div class="form-section__header">
+          <h3>
+            {{ t('clinicalHistory.sections.consultation') }}
+          </h3>
+        </div>
+
+        <div class="form-grid">
+
+          <!-- Chief complaint -->
+          <div class="form-field form-field--full">
+            <label for="chiefComplaint">
+              {{ t('clinicalHistory.fields.chiefComplaint') }}
+              <span class="required">*</span>
+            </label>
+
+            <textarea
+              id="chiefComplaint"
+              formControlName="chiefComplaint"
+              rows="3"
+              maxlength="1000"
+              [class.is-invalid]="
+                hasError('chiefComplaint', 'required') ||
+                hasError('chiefComplaint', 'maxlength') ||
+                hasError('chiefComplaint', 'server')
+              "
+            ></textarea>
+
+            @if (hasError('chiefComplaint', 'required')) {
+              <small class="field-error">
+                {{ t('clinicalHistory.form.requiredField') }}
+              </small>
+            }
+
+            @if (hasError('chiefComplaint', 'maxlength')) {
+              <small class="field-error">
+                {{ t('clinicalHistory.form.maxLength') }}
+              </small>
+            }
+
+            @if (hasError('chiefComplaint', 'server')) {
+              <small class="field-error">
+                {{ serverError('chiefComplaint') }}
+              </small>
+            }
+          </div>
+
+          <!-- Current condition -->
+          <div class="form-field form-field--full">
+            <label for="currentCondition">
+              {{ t('clinicalHistory.fields.currentCondition') }}
+            </label>
+
+            <textarea
+              id="currentCondition"
+              formControlName="currentCondition"
+              rows="4"
+              maxlength="2000"
+            ></textarea>
+
+            @if (hasError('currentCondition', 'server')) {
+              <small class="field-error">
+                {{ serverError('currentCondition') }}
+              </small>
+            }
+          </div>
+
+          <!-- Condition onset date -->
+          <div class="form-field">
+            <label for="conditionOnsetDate">
+              {{ t('clinicalHistory.fields.conditionOnsetDate') }}
+            </label>
+
+            <input
+              id="conditionOnsetDate"
+              type="date"
+              formControlName="conditionOnsetDate"
+              [max]="maxDate"
+              [class.is-invalid]="
+                hasError('conditionOnsetDate', 'futureDate') ||
+                hasError('conditionOnsetDate', 'invalidDate') ||
+                hasError('conditionOnsetDate', 'server')
+              "
+            />
+
+            @if (hasError('conditionOnsetDate', 'futureDate')) {
+              <small class="field-error">
+                {{ t('clinicalHistory.form.futureDate') }}
+              </small>
+            }
+
+            @if (hasError('conditionOnsetDate', 'invalidDate')) {
+              <small class="field-error">
+                {{ t('clinicalHistory.form.invalidDate') }}
+              </small>
+            }
+
+            @if (hasError('conditionOnsetDate', 'server')) {
+              <small class="field-error">
+                {{ serverError('conditionOnsetDate') }}
+              </small>
+            }
+          </div>
+
+          <!-- Injury mechanism -->
+          <div class="form-field form-field--full">
+            <label for="injuryMechanism">
+              {{ t('clinicalHistory.fields.injuryMechanism') }}
+            </label>
+
+            <textarea
+              id="injuryMechanism"
+              formControlName="injuryMechanism"
+              rows="3"
+              maxlength="1000"
+            ></textarea>
+
+            @if (hasError('injuryMechanism', 'server')) {
+              <small class="field-error">
+                {{ serverError('injuryMechanism') }}
+              </small>
+            }
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 2. Medical history -->
+      <section class="form-section">
+
+        <div class="form-section__header">
+          <h3>
+            {{ t('clinicalHistory.sections.medicalHistory') }}
+          </h3>
+        </div>
+
+        <div class="form-grid">
+
+          <div class="form-field form-field--full">
+            <label for="relevantMedicalHistory">
+              {{ t('clinicalHistory.fields.relevantMedicalHistory') }}
+            </label>
+
+            <textarea
+              id="relevantMedicalHistory"
+              formControlName="relevantMedicalHistory"
+              rows="4"
+              maxlength="2000"
+            ></textarea>
+
+            @if (hasError('relevantMedicalHistory', 'server')) {
+              <small class="field-error">
+                {{ serverError('relevantMedicalHistory') }}
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="previousSurgeries">
+              {{ t('clinicalHistory.fields.previousSurgeries') }}
+            </label>
+
+            <textarea
+              id="previousSurgeries"
+              formControlName="previousSurgeries"
+              rows="4"
+              maxlength="2000"
+            ></textarea>
+
+            @if (hasError('previousSurgeries', 'server')) {
+              <small class="field-error">
+                {{ serverError('previousSurgeries') }}
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="previousInjuries">
+              {{ t('clinicalHistory.fields.previousInjuries') }}
+            </label>
+
+            <textarea
+              id="previousInjuries"
+              formControlName="previousInjuries"
+              rows="4"
+              maxlength="2000"
+            ></textarea>
+
+            @if (hasError('previousInjuries', 'server')) {
+              <small class="field-error">
+                {{ serverError('previousInjuries') }}
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="allergies">
+              {{ t('clinicalHistory.fields.allergies') }}
+            </label>
+
+            <textarea
+              id="allergies"
+              formControlName="allergies"
+              rows="3"
+              maxlength="1000"
+            ></textarea>
+
+            @if (hasError('allergies', 'server')) {
+              <small class="field-error">
+                {{ serverError('allergies') }}
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="currentMedications">
+              {{ t('clinicalHistory.fields.currentMedications') }}
+            </label>
+
+            <textarea
+              id="currentMedications"
+              formControlName="currentMedications"
+              rows="3"
+              maxlength="1000"
+            ></textarea>
+
+            @if (hasError('currentMedications', 'server')) {
+              <small class="field-error">
+                {{ serverError('currentMedications') }}
+              </small>
+            }
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 3. Medical information -->
+      <section class="form-section">
+
+        <div class="form-section__header">
+          <h3>
+            {{ t('clinicalHistory.sections.medicalInformation') }}
+          </h3>
+        </div>
+
+        <div class="form-grid">
+
+          <div class="form-field form-field--full">
+            <label for="medicalDiagnosis">
+              {{ t('clinicalHistory.fields.medicalDiagnosis') }}
+            </label>
+
+            <textarea
+              id="medicalDiagnosis"
+              formControlName="medicalDiagnosis"
+              rows="4"
+              maxlength="2000"
+            ></textarea>
+
+            @if (hasError('medicalDiagnosis', 'server')) {
+              <small class="field-error">
+                {{ serverError('medicalDiagnosis') }}
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="referringPhysician">
+              {{ t('clinicalHistory.fields.referringPhysician') }}
+            </label>
+
+            <input
+              id="referringPhysician"
+              type="text"
+              formControlName="referringPhysician"
+              maxlength="200"
+            />
+
+            @if (hasError('referringPhysician', 'server')) {
+              <small class="field-error">
+                {{ serverError('referringPhysician') }}
+              </small>
+            }
+          </div>
+
+          <div class="form-field form-field--full">
+            <label for="previousStudies">
+              {{ t('clinicalHistory.fields.previousStudies') }}
+            </label>
+
+            <textarea
+              id="previousStudies"
+              formControlName="previousStudies"
+              rows="4"
+              maxlength="2000"
+            ></textarea>
+
+            @if (hasError('previousStudies', 'server')) {
+              <small class="field-error">
+                {{ serverError('previousStudies') }}
+              </small>
+            }
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 4. Physical therapy -->
+      <section class="form-section">
+
+        <div class="form-section__header">
+          <h3>
+            {{ t('clinicalHistory.sections.physicalTherapy') }}
+          </h3>
+        </div>
+
+        <div class="form-grid">
+
+          <!-- Pain level -->
+          <div class="form-field">
+            <label for="painLevel">
+              {{ t('clinicalHistory.fields.painLevel') }}
+            </label>
+
+            <input
+              id="painLevel"
+              type="number"
+              formControlName="painLevel"
+              min="0"
+              max="10"
+              step="1"
+              [class.is-invalid]="
+                hasError('painLevel', 'min') ||
+                hasError('painLevel', 'max') ||
+                hasError('painLevel', 'pattern') ||
+                hasError('painLevel', 'server')
+              "
+            />
+
+            <small class="field-hint">
+              {{ t('clinicalHistory.form.painLevelHint') }}
+            </small>
+
+            @if (
+              hasError('painLevel', 'min') ||
+              hasError('painLevel', 'max') ||
+              hasError('painLevel', 'pattern')
+            ) {
+              <small class="field-error">
+                {{ t('clinicalHistory.form.painLevelRange') }}
+              </small>
+            }
+
+            @if (hasError('painLevel', 'server')) {
+              <small class="field-error">
+                {{ serverError('painLevel') }}
+              </small>
+            }
+          </div>
+
+          <div class="form-field form-field--full">
+            <label for="functionalLimitations">
+              {{ t('clinicalHistory.fields.functionalLimitations') }}
+            </label>
+
+            <textarea
+              id="functionalLimitations"
+              formControlName="functionalLimitations"
+              rows="4"
+              maxlength="2000"
+            ></textarea>
+
+            @if (hasError('functionalLimitations', 'server')) {
+              <small class="field-error">
+                {{ serverError('functionalLimitations') }}
+              </small>
+            }
+          </div>
+
+          <div class="form-field form-field--full">
+            <label for="physicalTherapyAssessment">
+              {{ t('clinicalHistory.fields.physicalTherapyAssessment') }}
+            </label>
+
+            <textarea
+              id="physicalTherapyAssessment"
+              formControlName="physicalTherapyAssessment"
+              rows="5"
+              maxlength="4000"
+            ></textarea>
+
+            @if (hasError('physicalTherapyAssessment', 'server')) {
+              <small class="field-error">
+                {{ serverError('physicalTherapyAssessment') }}
+              </small>
+            }
+          </div>
+
+          <div class="form-field form-field--full">
+            <label for="physicalTherapyDiagnosis">
+              {{ t('clinicalHistory.fields.physicalTherapyDiagnosis') }}
+            </label>
+
+            <textarea
+              id="physicalTherapyDiagnosis"
+              formControlName="physicalTherapyDiagnosis"
+              rows="4"
+              maxlength="2000"
+            ></textarea>
+
+            @if (hasError('physicalTherapyDiagnosis', 'server')) {
+              <small class="field-error">
+                {{ serverError('physicalTherapyDiagnosis') }}
+              </small>
+            }
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 5. Observations -->
+      <section class="form-section">
+
+        <div class="form-section__header">
+          <h3>
+            {{ t('clinicalHistory.sections.observations') }}
+          </h3>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field form-field--full">
+
+            <label for="notes">
+              {{ t('clinicalHistory.fields.notes') }}
+            </label>
+
+            <textarea
+              id="notes"
+              formControlName="notes"
+              rows="5"
+              maxlength="4000"
+            ></textarea>
+
+            @if (hasError('notes', 'server')) {
+              <small class="field-error">
+                {{ serverError('notes') }}
+              </small>
+            }
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Form actions -->
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="btn btn--secondary"
+          (click)="cancel()"
+          [disabled]="isSaving()"
+        >
+          {{ t('clinicalHistory.form.cancel') }}
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn--primary"
+          [disabled]="isLoading() || isSaving() || form.invalid"
+        >
+          @if (isSaving()) {
+            {{ t('clinicalHistory.form.saving') }}
+          } @else {
+            {{
+              t(
+                isEditMode()
+                  ? 'clinicalHistory.form.update'
+                  : 'clinicalHistory.form.create'
+              )
+            }}
+          }
+        </button>
+
+      </div>
+
+    </form>
+  }
+
+</section>

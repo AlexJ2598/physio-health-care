@@ -1,0 +1,504 @@
+
+/* ==========================================================
+   01. HOST
+   ========================================================== */
+
+:host {
+  display: block;
+  min-height: 100%;
+}
+
+
+/* ==========================================================
+   02. PAGE LAYOUT
+   ========================================================== */
+
+.clinical-history-page {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6) var(--space-10);
+  color: var(--color-text-primary);
+}
+
+
+/* ==========================================================
+   03. PAGE HEADER
+   ========================================================== */
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+  }
+}
+
+
+/* ==========================================================
+   04. BACK BUTTON
+   ========================================================== */
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+  padding: 10px 16px;
+  margin-bottom: var(--space-3);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+
+  &:hover {
+    background: var(--color-surface-soft);
+    border-color: var(--color-border-strong);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring-primary);
+  }
+}
+
+
+/* ==========================================================
+   05. SHARED CARD STYLES
+   ========================================================== */
+
+.state-container,
+.history-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+
+/* ==========================================================
+   06. LOADING, EMPTY AND ERROR STATES
+   ========================================================== */
+
+.state-container {
+  padding: var(--space-8);
+  text-align: center;
+
+  h2 {
+    margin: 0 0 var(--space-3);
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: 1.7;
+  }
+
+  .btn {
+    margin-top: var(--space-5);
+  }
+
+  &--error {
+    background: var(--color-danger-surface);
+    border-color: var(--color-danger-border);
+
+    p {
+      color: var(--color-danger-text);
+    }
+  }
+}
+
+
+/* ==========================================================
+   07. SHARED BUTTONS
+   ========================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  min-height: 42px;
+  padding: 10px 18px;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring-primary);
+  }
+
+  &--primary {
+    background: var(--color-primary);
+    color: var(--color-surface);
+
+    &:hover {
+      background: var(--color-primary-dark);
+    }
+  }
+
+  &--secondary {
+    background: var(--color-surface);
+    border-color: var(--color-border-strong);
+    color: var(--color-text-primary);
+
+    &:hover {
+      background: var(--color-surface-soft);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+
+/* ==========================================================
+   08. CLINICAL HISTORY CARD
+   ========================================================== */
+
+.history-card {
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+
+    padding: var(--space-5) var(--space-6);
+
+    border-bottom: 1px solid var(--color-border);
+
+    h2 {
+      margin: 0;
+      color: var(--color-text-primary);
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      line-height: 1.4;
+    }
+  }
+
+  &__body {
+    padding: var(--space-6);
+  }
+}
+
+
+/* ==========================================================
+   09. CLINICAL RECORD NUMBER
+   ========================================================== */
+
+.record-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 7px 12px;
+
+  border-radius: var(--radius-full);
+
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+
+  white-space: nowrap;
+}
+
+
+/* ==========================================================
+   10. CLINICAL HISTORY SECTIONS
+   ========================================================== */
+
+.history-section {
+  padding: var(--space-6) 0;
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+
+    margin: 0 0 var(--space-5);
+
+    color: var(--color-text-primary);
+
+    font-size: var(--font-size-md);
+    font-weight: 700;
+    line-height: 1.4;
+
+    &::before {
+      content: "";
+
+      width: 4px;
+      height: 20px;
+      flex-shrink: 0;
+
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+    }
+  }
+}
+
+
+/* ==========================================================
+   11. CLINICAL FIELD GRID
+   ========================================================== */
+
+.history-fields {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  column-gap: var(--space-6);
+  row-gap: var(--space-5);
+
+  align-items: start;
+}
+
+
+/* ==========================================================
+   12. CLINICAL FIELD CONTENT
+   ========================================================== */
+
+.history-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  min-width: 0;
+
+  > span {
+    display: block;
+
+    color: var(--color-text-muted);
+
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  > p {
+    margin: 0;
+
+    color: var(--color-text-primary);
+
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    line-height: 1.65;
+
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+  }
+}
+
+
+/* ==========================================================
+   13. TABLET RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 1024px) {
+  .clinical-history-page {
+    padding:
+      var(--space-6)
+      var(--space-5)
+      var(--space-8);
+  }
+
+  .history-fields {
+    column-gap: var(--space-5);
+  }
+}
+
+
+/* ==========================================================
+   14. MOBILE RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 768px) {
+  /* Page */
+
+  .clinical-history-page {
+    padding:
+      var(--space-5)
+      var(--space-4)
+      var(--space-8);
+  }
+
+  /* Header */
+
+  .page-header {
+    margin-bottom: var(--space-5);
+
+    h1 {
+      font-size: var(--font-size-xl);
+    }
+  }
+
+  /* Navigation */
+
+  .back-button {
+    width: 100%;
+  }
+
+  /* Shared buttons */
+
+  .btn {
+    width: 100%;
+  }
+
+  /* States */
+
+  .state-container {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  /* History card */
+
+  .history-card {
+    &__header {
+      align-items: flex-start;
+      flex-direction: column;
+
+      padding: var(--space-4);
+
+      h2 {
+        font-size: var(--font-size-md);
+      }
+    }
+
+    &__body {
+      padding: var(--space-4);
+    }
+  }
+
+  /* Clinical sections */
+
+  .history-section {
+    padding: var(--space-5) 0;
+
+    h3 {
+      margin-bottom: var(--space-4);
+      font-size: var(--font-size-base);
+    }
+  }
+
+  /* Single-column layout */
+
+  .history-fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  /* Fields */
+
+  .history-field {
+    gap: var(--space-1);
+  }
+}
+
+
+/* ==========================================================
+   15. SMALL MOBILE RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 480px) {
+  .clinical-history-page {
+    padding:
+      var(--space-4)
+      var(--space-3)
+      var(--space-6);
+  }
+
+  .page-header {
+    h1 {
+      font-size: var(--font-size-xl);
+    }
+  }
+
+  .history-card {
+    &__header,
+    &__body {
+      padding: var(--space-4);
+    }
+  }
+
+  .history-section {
+    h3 {
+      align-items: flex-start;
+
+      &::before {
+        margin-top: 2px;
+      }
+    }
+  }
+}

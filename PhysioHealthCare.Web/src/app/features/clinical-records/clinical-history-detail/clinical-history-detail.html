@@ -1,1 +1,414 @@
-<p>clinical-history-detail works!</p>
+
+<section class="clinical-history-page">
+
+  <!-- ================================================== -->
+  <!-- Page header -->
+  <!-- ================================================== -->
+
+  <header class="page-header">
+    <div class="page-header__content">
+
+      <button
+        type="button"
+        class="back-button"
+        (click)="goBack()"
+      >
+        ← {{ t('clinicalHistory.detail.back') }}
+      </button>
+
+      <h1>
+        {{ t('clinicalHistory.detail.title') }}
+      </h1>
+
+      <p>
+        {{ t('clinicalHistory.detail.subtitle') }}
+      </p>
+
+    </div>
+  </header>
+
+  <!-- ================================================== -->
+  <!-- Loading -->
+  <!-- ================================================== -->
+
+  @if (isLoading()) {
+
+    <div class="state-container" role="status">
+      <app-loading
+        [message]="t('clinicalHistory.detail.loading')"
+        size="medium"
+        [inline]="true"
+      />
+    </div>
+
+  }
+
+  <!-- ================================================== -->
+  <!-- Error -->
+  <!-- ================================================== -->
+
+  @else if (errorMessage()) {
+
+    <div
+      class="state-container state-container--error"
+      role="alert"
+    >
+
+      <p>
+        {{ t(errorMessage()) }}
+      </p>
+
+      <button
+        type="button"
+        class="btn btn--secondary"
+        (click)="loadClinicalHistory()"
+      >
+        {{ t('clinicalHistory.detail.retry') }}
+      </button>
+
+    </div>
+
+  }
+
+  <!-- ================================================== -->
+  <!-- No clinical record -->
+  <!-- ================================================== -->
+
+  @else if (hasNoClinicalRecord()) {
+
+    <div class="state-container">
+
+      <h2>
+        {{ t('clinicalHistory.detail.noRecordTitle') }}
+      </h2>
+
+      <p>
+        {{ t('clinicalHistory.detail.noRecordDescription') }}
+      </p>
+
+      <button
+        type="button"
+        class="btn btn--primary"
+        (click)="goBack()"
+      >
+        {{ t('clinicalHistory.detail.backToRecord') }}
+      </button>
+
+    </div>
+
+  }
+
+  <!-- ================================================== -->
+  <!-- No clinical history -->
+  <!-- ================================================== -->
+
+  @else if (hasNoClinicalHistory()) {
+
+    <div class="state-container">
+
+      <h2>
+        {{ t('clinicalHistory.detail.emptyTitle') }}
+      </h2>
+
+      <p>
+        {{ t('clinicalHistory.detail.emptyDescription') }}
+      </p>
+
+      <button
+        type="button"
+        class="btn btn--primary"
+        (click)="goToHistoryForm()"
+      >
+        {{ t('clinicalHistory.form.create') }}
+      </button>
+
+    </div>
+
+  }
+
+  <!-- ================================================== -->
+  <!-- Existing clinical history -->
+  <!-- ================================================== -->
+
+  @else if (clinicalHistory(); as history) {
+
+    <article class="history-card">
+
+      <!-- Card header -->
+
+      <div class="history-card__header">
+
+        <h2>
+          {{ t('clinicalHistory.detail.informationTitle') }}
+        </h2>
+
+        <div class="history-card__actions">
+
+          @if (clinicalRecord(); as record) {
+            <span class="record-number">
+              {{ record.recordNumber }}
+            </span>
+          }
+
+          <button
+            type="button"
+            class="btn btn--secondary"
+            (click)="goToHistoryForm()"
+          >
+            {{ t('clinicalHistory.form.editTitle') }}
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="history-card__body">
+
+        <!-- ============================================ -->
+        <!-- 1. Reason for consultation -->
+        <!-- ============================================ -->
+
+        <section class="history-section">
+
+          <h3>
+            {{ t('clinicalHistory.sections.consultation') }}
+          </h3>
+
+          <div class="history-fields">
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.chiefComplaint') }}
+              </span>
+              <p>
+                {{ history.chiefComplaint || '—' }}
+              </p>
+            </div>
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.currentCondition') }}
+              </span>
+              <p>
+                {{ history.currentCondition || '—' }}
+              </p>
+            </div>
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.conditionOnsetDate') }}
+              </span>
+              <p>
+                {{
+                  history.conditionOnsetDate
+                    ? (history.conditionOnsetDate
+                        | date:'dd MMM yyyy':'':dateLocale())
+                    : '—'
+                }}
+              </p>
+            </div>
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.injuryMechanism') }}
+              </span>
+              <p>
+                {{ history.injuryMechanism || '—' }}
+              </p>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ============================================ -->
+        <!-- 2. Medical history -->
+        <!-- ============================================ -->
+
+        <section class="history-section">
+
+          <h3>
+            {{ t('clinicalHistory.sections.medicalHistory') }}
+          </h3>
+
+          <div class="history-fields">
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.relevantMedicalHistory') }}
+              </span>
+              <p>
+                {{ history.relevantMedicalHistory || '—' }}
+              </p>
+            </div>
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.previousSurgeries') }}
+              </span>
+              <p>
+                {{ history.previousSurgeries || '—' }}
+              </p>
+            </div>
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.previousInjuries') }}
+              </span>
+              <p>
+                {{ history.previousInjuries || '—' }}
+              </p>
+            </div>
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.allergies') }}
+              </span>
+              <p>
+                {{ history.allergies || '—' }}
+              </p>
+            </div>
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.currentMedications') }}
+              </span>
+              <p>
+                {{ history.currentMedications || '—' }}
+              </p>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ============================================ -->
+        <!-- 3. Medical information -->
+        <!-- ============================================ -->
+
+        <section class="history-section">
+
+          <h3>
+            {{ t('clinicalHistory.sections.medicalInformation') }}
+          </h3>
+
+          <div class="history-fields">
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.medicalDiagnosis') }}
+              </span>
+              <p>
+                {{ history.medicalDiagnosis || '—' }}
+              </p>
+            </div>
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.referringPhysician') }}
+              </span>
+              <p>
+                {{ history.referringPhysician || '—' }}
+              </p>
+            </div>
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.previousStudies') }}
+              </span>
+              <p>
+                {{ history.previousStudies || '—' }}
+              </p>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ============================================ -->
+        <!-- 4. Physical therapy assessment -->
+        <!-- ============================================ -->
+
+        <section class="history-section">
+
+          <h3>
+            {{ t('clinicalHistory.sections.physicalTherapy') }}
+          </h3>
+
+          <div class="history-fields">
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.painLevel') }}
+              </span>
+              <p>
+                {{ history.painLevel ?? '—' }}
+              </p>
+            </div>
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.functionalLimitations') }}
+              </span>
+              <p>
+                {{ history.functionalLimitations || '—' }}
+              </p>
+            </div>
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.physicalTherapyAssessment') }}
+              </span>
+              <p>
+                {{ history.physicalTherapyAssessment || '—' }}
+              </p>
+            </div>
+
+            <div class="history-field">
+              <span>
+                {{ t('clinicalHistory.fields.physicalTherapyDiagnosis') }}
+              </span>
+              <p>
+                {{ history.physicalTherapyDiagnosis || '—' }}
+              </p>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ============================================ -->
+        <!-- 5. General observations -->
+        <!-- ============================================ -->
+
+        <section class="history-section">
+
+          <h3>
+            {{ t('clinicalHistory.sections.observations') }}
+          </h3>
+
+          <div class="history-fields">
+
+            <div class="history-field">
+
+              <span>
+                {{ t('clinicalHistory.fields.notes') }}
+              </span>
+
+              <p>
+                {{ history.notes || '—' }}
+              </p>
+
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+
+    </article>
+
+  }
+
+</section>
