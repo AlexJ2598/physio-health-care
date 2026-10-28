@@ -50,10 +50,12 @@ export const routes: Routes = [
       {
         path: 'patients/create',
         component: PatientCreateComponent,
+        canDeactivate: [unsavedChangesGuard]
       },
       {
         path: 'patients/edit/:id',
         component: PatientEditComponent,
+        canDeactivate : [unsavedChangesGuard],
       },
 
       // ==========================================
@@ -83,10 +85,12 @@ export const routes: Routes = [
       {
         path: 'appointments/create',
         component: AppointmentCreateComponent,
+        canDeactivate : [unsavedChangesGuard],
       },
       {
         path: 'appointments/edit/:id',
         component: AppointmentEditComponent,
+        canDeactivate: [unsavedChangesGuard],
       },
       {
         path: 'appointments/:id',

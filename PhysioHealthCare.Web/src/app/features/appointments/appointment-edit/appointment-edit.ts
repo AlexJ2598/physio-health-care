@@ -1,3 +1,4 @@
+
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectorRef,
@@ -9,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
+import { HasUnsavedChanges } from '../../../core/guards/unsaved-changes.guard';
 import { AppointmentService } from '../../../core/services/appointment';
 import { ToastService } from '../../../core/services/toast';
 import { TranslationService } from '../../../core/services/translation';
@@ -26,7 +28,9 @@ import { UpdateAppointment } from '../../../shared/models/appointment';
   templateUrl: './appointment-edit.html',
   styleUrl: './appointment-edit.scss',
 })
-export class AppointmentEditComponent implements OnInit, OnDestroy {
+export class AppointmentEditComponent
+  implements OnInit, OnDestroy, HasUnsavedChanges {
+
   // State and configuration
 
   appointmentId = '';
@@ -39,6 +43,13 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
   loadErrorMessage = '';
   errorMessage = '';
   formSubmitted = false;
+
+  // Original values for unsaved changes detection
+
+  private originalAppointmentDate = '';
+  private originalReason = '';
+  private originalNotes = '';
+  private hasLoadedAppointment = false;
 
   private readonly destroy$ = new Subject<void>();
 
@@ -81,7 +92,7 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
   // Data loading
 
   loadAppointment(): void {
-    if (this.isLoading) {
+    if (this.isLoading || this.isSaving) {
       return;
     }
 
@@ -109,19 +120,18 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
             return;
           }
 
-          this.patientName =
-            appointment.patientName;
+          this.patientName = appointment.patientName;
 
           this.appointmentDate =
             this.toLocalDateTimeInput(
               appointment.appointmentDate,
             );
 
-          this.reason =
-            appointment.reason;
+          this.reason = appointment.reason;
+          this.notes = appointment.notes ?? '';
 
-          this.notes =
-            appointment.notes ?? '';
+          // Store initial values only after loading succeeds
+          this.captureOriginalValues();
 
           this.isLoading = false;
           this.cdr.detectChanges();
@@ -135,17 +145,12 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
           this.isLoading = false;
 
           if (error.status === 404) {
-            this.router.navigate([
-              '/not-found',
-            ]);
-
+            this.router.navigate(['/not-found']);
             return;
           }
 
           this.loadErrorMessage =
-            this.t(
-              'appointments.edit.loadError',
-            );
+            this.t('appointments.edit.loadError');
 
           this.cdr.detectChanges();
         },
@@ -157,7 +162,7 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
   updateAppointment(): void {
     this.formSubmitted = true;
 
-    if (this.isSaving) {
+    if (this.isSaving || this.isLoading) {
       return;
     }
 
@@ -166,9 +171,7 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
       !this.reason.trim()
     ) {
       this.errorMessage =
-        this.t(
-          'appointments.validation.requiredFields',
-        );
+        this.t('appointments.validation.requiredFields');
 
       this.cdr.detectChanges();
       return;
@@ -180,15 +183,11 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
 
     const appointment: UpdateAppointment = {
       appointmentDate:
-        new Date(
-          this.appointmentDate,
-        ).toISOString(),
+        new Date(this.appointmentDate).toISOString(),
 
-      reason:
-        this.reason.trim(),
+      reason: this.reason.trim(),
 
-      notes:
-        this.notes.trim() || undefined,
+      notes: this.notes.trim() || undefined,
     };
 
     this.appointmentService
@@ -201,10 +200,11 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
         next: () => {
           this.isSaving = false;
 
+          // Saved changes must not trigger CanDeactivate
+          this.captureOriginalValues();
+
           this.toastService.success(
-            this.t(
-              'appointments.edit.success',
-            ),
+            this.t('appointments.edit.success'),
           );
 
           this.router.navigate([
@@ -220,9 +220,7 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
           this.isSaving = false;
 
           this.errorMessage =
-            this.t(
-              'appointments.edit.error',
-            );
+            this.t('appointments.edit.error');
 
           this.toastService.error(
             this.errorMessage,
@@ -231,6 +229,43 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
         },
       });
+  }
+
+  // Unsaved changes protection
+
+  canDeactivate(): boolean {
+    // Prevent navigation during an active save
+    if (this.isSaving) {
+      return false;
+    }
+
+    // No changes or no appointment loaded
+    if (!this.hasUnsavedChanges()) {
+      return true;
+    }
+
+    return window.confirm(
+      this.t('clinicalHistory.form.discardChanges')
+    );
+  }
+
+  private hasUnsavedChanges(): boolean {
+    if (!this.hasLoadedAppointment) {
+      return false;
+    }
+
+    return (
+      this.appointmentDate !== this.originalAppointmentDate ||
+      this.reason !== this.originalReason ||
+      this.notes !== this.originalNotes
+    );
+  }
+
+  private captureOriginalValues(): void {
+    this.originalAppointmentDate = this.appointmentDate;
+    this.originalReason = this.reason;
+    this.originalNotes = this.notes;
+    this.hasLoadedAppointment = true;
   }
 
   // Template helpers
@@ -246,9 +281,7 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
   }
 
   t(key: string): string {
-    return this.translationService.translate(
-      key,
-    );
+    return this.translationService.translate(key);
   }
 
   // Internal helpers
@@ -256,31 +289,25 @@ export class AppointmentEditComponent implements OnInit, OnDestroy {
   private toLocalDateTimeInput(
     utcDate: string,
   ): string {
-    const date =
-      new Date(utcDate);
+    const date = new Date(utcDate);
 
-    const year =
-      date.getFullYear();
+    const year = date.getFullYear();
 
-    const month =
-      String(
-        date.getMonth() + 1,
-      ).padStart(2, '0');
+    const month = String(
+      date.getMonth() + 1,
+    ).padStart(2, '0');
 
-    const day =
-      String(
-        date.getDate(),
-      ).padStart(2, '0');
+    const day = String(
+      date.getDate(),
+    ).padStart(2, '0');
 
-    const hours =
-      String(
-        date.getHours(),
-      ).padStart(2, '0');
+    const hours = String(
+      date.getHours(),
+    ).padStart(2, '0');
 
-    const minutes =
-      String(
-        date.getMinutes(),
-      ).padStart(2, '0');
+    const minutes = String(
+      date.getMinutes(),
+    ).padStart(2, '0');
 
     return (
       `${year}-${month}-${day}` +

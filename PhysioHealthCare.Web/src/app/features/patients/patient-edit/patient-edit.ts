@@ -1,23 +1,44 @@
+
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import {
+  ActivatedRoute,
+  Router,
+  RouterLink,
+} from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
+import { HasUnsavedChanges } from '../../../core/guards/unsaved-changes.guard';
 import { PatientService } from '../../../core/services/patient';
 import { ToastService } from '../../../core/services/toast';
 import { TranslationService } from '../../../core/services/translation';
 import { LoadingComponent } from '../../../shared/components/loading/loading';
-import { PatientGenderValue, UpdatePatient } from '../../../shared/models/patient';
+import {
+  PatientGenderValue,
+  UpdatePatient,
+} from '../../../shared/models/patient';
 
 @Component({
   selector: 'app-patient-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LoadingComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    LoadingComponent,
+  ],
   templateUrl: './patient-edit.html',
   styleUrl: './patient-edit.scss',
 })
-export class PatientEditComponent implements OnInit, OnDestroy {
+export class PatientEditComponent
+  implements OnInit, OnDestroy, HasUnsavedChanges {
+
   // State and configuration
 
   patientId = '';
@@ -25,6 +46,7 @@ export class PatientEditComponent implements OnInit, OnDestroy {
   isSaving = false;
   errorMessage = '';
   formSubmitted = false;
+
   patient: UpdatePatient = {
     firstName: '',
     lastName: '',
@@ -35,17 +57,22 @@ export class PatientEditComponent implements OnInit, OnDestroy {
     address: '',
     notes: '',
   };
+
+  // Original patient values
+
+  private originalPatient: UpdatePatient | null = null;
+
   private readonly destroy$ = new Subject<void>();
 
   // Dependencies
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private patientService: PatientService,
-    private cdr: ChangeDetectorRef,
-    private translationService: TranslationService,
-    private toastService: ToastService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly patientService: PatientService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly translationService: TranslationService,
+    private readonly toastService: ToastService,
   ) {}
 
   // Computed values
@@ -57,9 +84,13 @@ export class PatientEditComponent implements OnInit, OnDestroy {
 
     const year = yesterday.getFullYear();
 
-    const month = String(yesterday.getMonth() + 1).padStart(2, '0');
+    const month = String(
+      yesterday.getMonth() + 1,
+    ).padStart(2, '0');
 
-    const day = String(yesterday.getDate()).padStart(2, '0');
+    const day = String(
+      yesterday.getDate(),
+    ).padStart(2, '0');
 
     return `${year}-${month}-${day}`;
   }
@@ -67,15 +98,17 @@ export class PatientEditComponent implements OnInit, OnDestroy {
   // Lifecycle
 
   ngOnInit(): void {
-    this.translationService.language$.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.cdr.detectChanges();
-    });
+    this.translationService.language$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.cdr.detectChanges();
+      });
 
-    this.patientId = this.route.snapshot.paramMap.get('id') ?? '';
+    this.patientId =
+      this.route.snapshot.paramMap.get('id') ?? '';
 
     if (!this.patientId) {
       this.router.navigate(['/not-found']);
-
       return;
     }
 
@@ -84,60 +117,60 @@ export class PatientEditComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destroy$.next();
-
     this.destroy$.complete();
   }
 
   // Data loading
 
   loadPatient(): void {
+    if (this.isLoading || this.isSaving) {
+      return;
+    }
+
     this.isLoading = true;
-
     this.errorMessage = '';
-
     this.cdr.detectChanges();
 
-    this.patientService.getById(this.patientId).subscribe({
-      next: (patient) => {
-        this.patient = {
-          firstName: patient.firstName,
+    this.patientService
+      .getById(this.patientId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (patient) => {
+          this.patient = {
+            firstName: patient.firstName,
+            lastName: patient.lastName,
+            birthDate: patient.birthDate.substring(0, 10),
+            gender: patient.gender,
+            phoneNumber: patient.phoneNumber ?? '',
+            email: patient.email ?? '',
+            address: patient.address ?? '',
+            notes: patient.notes ?? '',
+          };
 
-          lastName: patient.lastName,
+          // Capture values after loading the patient
+          this.captureOriginalValues();
 
-          birthDate: patient.birthDate.substring(0, 10),
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
 
-          gender: patient.gender,
+        error: (error) => {
+          console.error('Load patient error', error);
 
-          phoneNumber: patient.phoneNumber ?? '',
+          this.isLoading = false;
 
-          email: patient.email ?? '',
+          if (error.status === 404) {
+            this.router.navigate(['/not-found']);
+            return;
+          }
 
-          address: patient.address ?? '',
+          this.errorMessage = this.t(
+            'patients.edit.loadError',
+          );
 
-          notes: patient.notes ?? '',
-        };
-
-        this.isLoading = false;
-
-        this.cdr.detectChanges();
-      },
-
-      error: (error) => {
-        console.error('Load patient error', error);
-
-        this.isLoading = false;
-
-        if (error.status === 404) {
-          this.router.navigate(['/not-found']);
-
-          return;
-        }
-
-        this.errorMessage = this.t('patients.edit.loadError');
-
-        this.cdr.detectChanges();
-      },
-    });
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   // Form submission
@@ -145,7 +178,7 @@ export class PatientEditComponent implements OnInit, OnDestroy {
   updatePatient(): void {
     this.formSubmitted = true;
 
-    if (this.isSaving) {
+    if (this.isSaving || this.isLoading) {
       return;
     }
 
@@ -155,47 +188,100 @@ export class PatientEditComponent implements OnInit, OnDestroy {
       !this.patient.birthDate ||
       !this.isValidGender(this.patient.gender)
     ) {
-      this.errorMessage = this.t('patients.validation.requiredFields');
+      this.errorMessage = this.t(
+        'patients.validation.requiredFields',
+      );
 
       this.cdr.detectChanges();
-
       return;
     }
 
     if (!this.isBirthDateValid(this.patient.birthDate)) {
-      this.errorMessage = this.t('patients.validation.birthDatePast');
+      this.errorMessage = this.t(
+        'patients.validation.birthDatePast',
+      );
 
       this.cdr.detectChanges();
-
       return;
     }
 
     this.errorMessage = '';
-
     this.isSaving = true;
-
     this.cdr.detectChanges();
 
-    this.patientService.update(this.patientId, this.patient).subscribe({
-      next: () => {
-        this.isSaving = false;
+    this.patientService
+      .update(this.patientId, this.patient)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.isSaving = false;
 
-        this.toastService.success(this.t('patients.edit.success'));
+          // The changes were saved successfully.
+          // Update the baseline before navigating.
+          this.captureOriginalValues();
 
-        this.router.navigate(['/patients']);
-      },
+          this.toastService.success(
+            this.t('patients.edit.success'),
+          );
 
-      error: (error) => {
-        console.error('Update patient error', error);
+          this.router.navigate(['/patients']);
+        },
 
-        this.isSaving = false;
+        error: (error) => {
+          console.error('Update patient error', error);
 
-        this.errorMessage =
-          error.error?.message || error.error?.Message || this.t('patients.edit.error');
+          this.isSaving = false;
 
-        this.cdr.detectChanges();
-      },
-    });
+          this.errorMessage =
+            error.error?.message ||
+            error.error?.Message ||
+            this.t('patients.edit.error');
+
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  // Unsaved changes protection
+
+  canDeactivate(): boolean {
+    // Prevent navigation while saving
+    if (this.isSaving) {
+      return false;
+    }
+
+    // Allow navigation when nothing has changed
+    if (!this.hasUnsavedChanges()) {
+      return true;
+    }
+
+    // Confirm before discarding changes
+    return window.confirm(
+      this.t('clinicalHistory.form.discardChanges'),
+    );
+  }
+
+  private hasUnsavedChanges(): boolean {
+    if (!this.originalPatient) {
+      return false;
+    }
+
+    return (
+      this.patient.firstName !== this.originalPatient.firstName ||
+      this.patient.lastName !== this.originalPatient.lastName ||
+      this.patient.birthDate !== this.originalPatient.birthDate ||
+      this.patient.gender !== this.originalPatient.gender ||
+      this.patient.phoneNumber !== this.originalPatient.phoneNumber ||
+      this.patient.email !== this.originalPatient.email ||
+      this.patient.address !== this.originalPatient.address ||
+      this.patient.notes !== this.originalPatient.notes
+    );
+  }
+
+  private captureOriginalValues(): void {
+    this.originalPatient = {
+      ...this.patient,
+    };
   }
 
   // Template helpers
@@ -207,7 +293,9 @@ export class PatientEditComponent implements OnInit, OnDestroy {
   // Internal helpers
 
   private isBirthDateValid(birthDateValue: string): boolean {
-    const parts = birthDateValue.split('-').map(Number);
+    const parts = birthDateValue
+      .split('-')
+      .map(Number);
 
     if (parts.length !== 3) {
       return false;
@@ -219,16 +307,26 @@ export class PatientEditComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    const birthDate = new Date(year, month - 1, day);
+    const birthDate = new Date(
+      year,
+      month - 1,
+      day,
+    );
 
     const now = new Date();
 
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const today = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
 
     return birthDate < today;
   }
 
-  private isValidGender(gender: PatientGenderValue): boolean {
+  private isValidGender(
+    gender: PatientGenderValue,
+  ): boolean {
     return gender >= 1 && gender <= 3;
   }
 }
