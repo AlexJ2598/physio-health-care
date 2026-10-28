@@ -2,6 +2,7 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth-guard';
+import { unsavedChangesGuard } from './core/guards/unsaved-changes.guard';
 
 import { AppointmentListComponent } from './features/appointments/appointment-list/appointment-list';
 import { AppointmentCreateComponent } from './features/appointments/appointment-create/appointment-create';
@@ -38,6 +39,7 @@ export const routes: Routes = [
     component: AppLayoutComponent,
     canActivate: [authGuard],
     children: [
+
       // ==========================================
       // Patients
       // ==========================================
@@ -60,6 +62,7 @@ export const routes: Routes = [
       {
         path: 'patients/:id/clinical-record/history/form',
         component: ClinicalHistoryForm,
+        canDeactivate: [unsavedChangesGuard],
       },
       {
         path: 'patients/:id/clinical-record/history',
