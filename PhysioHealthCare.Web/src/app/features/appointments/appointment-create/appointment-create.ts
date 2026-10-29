@@ -10,13 +10,14 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
-import { HasUnsavedChanges } from '../../../core/guards/unsaved-changes.guard';
+import { HasPendingChanges, HasUnsavedChanges } from '../../../core/guards/unsaved-changes.guard';
 import { AppointmentService } from '../../../core/services/appointment';
 import { PatientService } from '../../../core/services/patient';
 import { ToastService } from '../../../core/services/toast';
 import { TranslationService } from '../../../core/services/translation';
 import { CreateAppointment } from '../../../shared/models/appointment';
 import { Patient } from '../../../shared/models/patient';
+import { PreventUnloadDirective } from '../../../shared/directives/prevent-unload.directive';
 
 @Component({
   selector: 'app-appointment-create',
@@ -24,12 +25,13 @@ import { Patient } from '../../../shared/models/patient';
   imports: [
     CommonModule,
     FormsModule,
+    PreventUnloadDirective,
   ],
   templateUrl: './appointment-create.html',
   styleUrl: './appointment-create.scss',
 })
 export class AppointmentCreateComponent
-  implements OnInit, OnDestroy, HasUnsavedChanges {
+  implements OnInit, OnDestroy, HasUnsavedChanges, HasPendingChanges {
 
   // ====================================================
   // State and configuration
@@ -219,11 +221,15 @@ export class AppointmentCreateComponent
     if (!this.hasUnsavedChanges()) {
       return true;
     }
-
+    
     // Ask before discarding unsaved information
     return window.confirm(
       this.t('clinicalHistory.form.discardChanges'),
     );
+  }
+
+  hasPendingChanges(): boolean {
+    return this.hasUnsavedChanges() || this.isSaving;
   }
 
   private hasUnsavedChanges(): boolean {

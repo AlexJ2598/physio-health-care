@@ -22,7 +22,7 @@
 
     <!-- Edit form -->
 
-    <form *ngIf="!isLoading" #patientForm="ngForm" (ngSubmit)="updatePatient()">
+    <form *ngIf="!isLoading" #patientForm="ngForm" [appPreventUnload]="this" (ngSubmit)="updatePatient()">
       <div class="grid">
         <!-- First Name -->
 

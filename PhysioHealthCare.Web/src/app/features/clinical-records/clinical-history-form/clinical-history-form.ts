@@ -15,7 +15,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HasUnsavedChanges } from '../../../core/guards/unsaved-changes.guard';
+import { HasPendingChanges, HasUnsavedChanges } from '../../../core/guards/unsaved-changes.guard';
 import {
   catchError,
   finalize,
@@ -29,6 +29,7 @@ import {
 } from '../../../shared/models/clinical-history.model';
 import { ClinicalRecordService } from '../../../core/services/clinical-record.service';
 import { ClinicalHistoryService } from '../../../core/services/clinical-history.service';
+import { PreventUnloadDirective } from '../../../shared/directives/prevent-unload.directive';
 import { TranslationService } from '../../../core/services/translation';
 import { ToastService } from '../../../core/services/toast';
 import { LoadingComponent } from '../../../shared/components/loading/loading';
@@ -71,11 +72,12 @@ function notFutureDate(
   imports: [
     ReactiveFormsModule,
     LoadingComponent,
+    PreventUnloadDirective
   ],
   templateUrl: './clinical-history-form.html',
   styleUrl: './clinical-history-form.scss',
 })
-export class ClinicalHistoryForm implements OnInit, HasUnsavedChanges {
+export class ClinicalHistoryForm implements OnInit, HasUnsavedChanges, HasPendingChanges {
 
   // ====================================================
   // Dependencies
@@ -551,6 +553,10 @@ export class ClinicalHistoryForm implements OnInit, HasUnsavedChanges {
     return window.confirm(
       this.t('clinicalHistory.form.discardChanges')
     );
+  }
+
+  hasPendingChanges(): boolean {
+    return this.form.dirty || this.isSaving();
   }
   /** Navigate back; the route guard handles confirmation. */
   cancel(): void {

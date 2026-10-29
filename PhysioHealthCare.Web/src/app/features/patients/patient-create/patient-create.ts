@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
-import { HasUnsavedChanges } from '../../../core/guards/unsaved-changes.guard';
+import { HasPendingChanges, HasUnsavedChanges } from '../../../core/guards/unsaved-changes.guard';
 import { PatientService } from '../../../core/services/patient';
 import { ToastService } from '../../../core/services/toast';
 import { TranslationService } from '../../../core/services/translation';
@@ -19,6 +19,7 @@ import {
   CreatePatient,
   PatientGenderValue,
 } from '../../../shared/models/patient';
+import { PreventUnloadDirective } from '../../../shared/directives/prevent-unload.directive';
 
 @Component({
   selector: 'app-patient-create',
@@ -28,12 +29,13 @@ import {
     FormsModule,
     RouterLink,
     LoadingComponent,
+    PreventUnloadDirective,
   ],
   templateUrl: './patient-create.html',
   styleUrl: './patient-create.scss',
 })
 export class PatientCreateComponent
-  implements OnInit, OnDestroy, HasUnsavedChanges {
+  implements OnInit, OnDestroy, HasUnsavedChanges, HasPendingChanges {
 
   // State and configuration
 
@@ -192,6 +194,10 @@ export class PatientCreateComponent
     return window.confirm(
       this.t('clinicalHistory.form.discardChanges'),
     );
+  }
+
+  hasPendingChanges(): boolean {
+    return this.hasUnsavedChanges() || this.isLoading;
   }
 
   private hasUnsavedChanges(): boolean {

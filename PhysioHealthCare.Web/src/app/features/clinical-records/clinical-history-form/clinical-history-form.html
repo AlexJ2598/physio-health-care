@@ -71,7 +71,8 @@
 
     <form
       class="clinical-history-form"
-      [formGroup]="form"
+      [appPreventUnload]="this"
+      [formGroup]="form"ker 
       (ngSubmit)="save()"
       novalidate
     >

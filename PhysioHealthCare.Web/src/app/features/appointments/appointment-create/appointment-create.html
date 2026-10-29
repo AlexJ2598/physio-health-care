@@ -1,3 +1,4 @@
+
 <section class="appointment-create">
   <!-- Page header -->
   <div class="page-header">
@@ -12,21 +13,30 @@
     </div>
   </div>
 
+  <!-- Error message -->
   <div *ngIf="errorMessage" class="error-message">
     <p>
-      {{errorMessage}}
+      {{ errorMessage }}
     </p>
+
     <button
-    ngIf="!isSaving && patients.length === 0"
-    class="btn btn-secondary"
-    type="button"
-    (click)="loadPatients()">
-    {{t('common.retry')}}
+      *ngIf="!isSaving && patients.length === 0"
+      class="btn btn-secondary"
+      type="button"
+      (click)="loadPatients()"
+    >
+      {{ t('common.retry') }}
     </button>
   </div>
 
   <!-- Form fields and validation -->
-  <form #appointmentForm="ngForm" class="appointment-form" (ngSubmit)="createAppointment()">
+  <form
+    #appointmentForm="ngForm"
+    class="appointment-form"
+    [appPreventUnload]="this"
+    (ngSubmit)="createAppointment()"
+  >
+    <!-- Patient -->
     <div class="form-group">
       <label for="patientId">
         {{ t('appointments.create.patient') }}
@@ -47,12 +57,16 @@
           }}
         </option>
 
-        <option *ngFor="let patient of patients" [value]="patient.id">
+        <option
+          *ngFor="let patient of patients"
+          [value]="patient.id"
+        >
           {{ patient.fullName }}
         </option>
       </select>
     </div>
 
+    <!-- Date and time -->
     <div class="form-group">
       <label for="appointmentDate">
         {{ t('appointments.create.date') }}
@@ -68,6 +82,7 @@
       />
     </div>
 
+    <!-- Reason -->
     <div class="form-group">
       <label for="reason">
         {{ t('appointments.create.reason') }}
@@ -84,6 +99,7 @@
       />
     </div>
 
+    <!-- Notes -->
     <div class="form-group">
       <label for="notes">
         {{ t('appointments.create.notes') }}
@@ -96,18 +112,18 @@
         [disabled]="isSaving"
         [placeholder]="t('appointments.create.notesPlaceholder')"
         rows="4"
-      >
-      </textarea>
+      ></textarea>
     </div>
 
     <!-- Form actions -->
     <div class="form-actions">
       <button
-      class="btn btn-secondary"
-      type="button"
-      [disabled]="isSaving"
-      (click)="cancel()">
-      {{ t('common.cancel') }}
+        class="btn btn-secondary"
+        type="button"
+        [disabled]="isSaving"
+        (click)="cancel()"
+      >
+        {{ t('common.cancel') }}
       </button>
 
       <button
@@ -115,7 +131,11 @@
         type="submit"
         [disabled]="appointmentForm.invalid || isLoadingPatients || isSaving"
       >
-        {{ isSaving ? t('appointments.create.saving') : t('appointments.create.save') }}
+        {{
+          isSaving
+            ? t('appointments.create.saving')
+            : t('appointments.create.save')
+        }}
       </button>
     </div>
   </form>

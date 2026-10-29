@@ -10,12 +10,13 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
-import { HasUnsavedChanges } from '../../../core/guards/unsaved-changes.guard';
+import { HasPendingChanges, HasUnsavedChanges } from '../../../core/guards/unsaved-changes.guard';
 import { AppointmentService } from '../../../core/services/appointment';
 import { ToastService } from '../../../core/services/toast';
 import { TranslationService } from '../../../core/services/translation';
 import { LoadingComponent } from '../../../shared/components/loading/loading';
 import { UpdateAppointment } from '../../../shared/models/appointment';
+import { PreventUnloadDirective } from '../../../shared/directives/prevent-unload.directive';
 
 @Component({
   selector: 'app-appointment-edit',
@@ -24,12 +25,13 @@ import { UpdateAppointment } from '../../../shared/models/appointment';
     CommonModule,
     FormsModule,
     LoadingComponent,
+    PreventUnloadDirective,
   ],
   templateUrl: './appointment-edit.html',
   styleUrl: './appointment-edit.scss',
 })
 export class AppointmentEditComponent
-  implements OnInit, OnDestroy, HasUnsavedChanges {
+  implements OnInit, OnDestroy, HasUnsavedChanges, HasPendingChanges {
 
   // State and configuration
 
@@ -247,6 +249,11 @@ export class AppointmentEditComponent
     return window.confirm(
       this.t('clinicalHistory.form.discardChanges')
     );
+  }
+
+  //prevent refresh
+  hasPendingChanges(): boolean {
+    return this.hasUnsavedChanges() || this.isSaving;
   }
 
   private hasUnsavedChanges(): boolean {
