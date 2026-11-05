@@ -1,6 +1,7 @@
 ﻿namespace PhysioHealthCare.Controllers
 {
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Authorization;
     using PhysioHealthCare.Application.DTOs.Auth;
     using PhysioHealthCare.Application.Interfaces;
 
@@ -17,6 +18,7 @@
         }
 
         [HttpPost("register")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto dto)
         {
             var result = await authService.RegisterAsync(dto);

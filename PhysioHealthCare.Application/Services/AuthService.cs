@@ -38,9 +38,15 @@
                 throw new BadRequestException("Email already exists.");
             }
 
-            if (!Enum.TryParse<UserRole>(dto.Role, true, out var role))
+            if (!Enum.TryParse<UserRole>(
+               dto.Role,
+               true,
+               out var role) ||
+               !Enum.IsDefined(typeof(UserRole), role) ||
+               (role != UserRole.Admin && role != UserRole.Therapist))
             {
-                throw new BadRequestException("Invalid role.");
+                throw new BadRequestException(
+                    "Invalid role. Allowed roles: Admin, Therapist.");
             }
 
             var user = new User

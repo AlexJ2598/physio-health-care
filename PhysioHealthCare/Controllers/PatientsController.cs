@@ -8,6 +8,7 @@
 
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "Admin,Therapist")]
     public class PatientsController : ControllerBase
     {
         private readonly IPatientService _patientService;
