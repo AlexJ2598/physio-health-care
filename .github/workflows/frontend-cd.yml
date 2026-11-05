@@ -1,0 +1,63 @@
+
+name: PhysioHealthCare Frontend CD
+
+on:
+  workflow_run:
+    workflows:
+      - "PhysioHealthCare CI"
+    types:
+      - completed
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: physiohealthcare-frontend-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Angular to Azure
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success'
+          && github.event.workflow_run.event == 'push'
+          && github.event.workflow_run.head_branch == 'main'
+          && github.event.workflow_run.head_repository.full_name == github.repository }}
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: PhysioHealthCare.Web
+
+    steps:
+      - name: Checkout successful CI commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: PhysioHealthCare.Web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Angular
+        run: npm run build
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          app_location: PhysioHealthCare.Web/dist/PhysioHealthCare.Web/browser
+          api_location: ""
+          output_location: ""
+          skip_app_build: true
+          production_branch: main
