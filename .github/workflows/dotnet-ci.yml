@@ -1,16 +1,17 @@
-name: .NET CI
+name: PhysioHealthCare CI
 
 on:
   push:
     branches:
       - main
-      - feature/*
+      - 'feature/**'
   pull_request:
     branches:
       - main
 
 jobs:
-  build:
+  backend:
+    name: Backend .NET 9
     runs-on: ubuntu-latest
 
     steps:
@@ -27,3 +28,31 @@ jobs:
 
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
+
+      - name: Run unit tests
+        run: dotnet test --no-build --configuration Release
+
+  frontend:
+    name: Frontend Angular
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: PhysioHealthCare.Web
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: PhysioHealthCare.Web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Angular
+        run: npm run build

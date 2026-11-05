@@ -78,7 +78,7 @@
             // Assert
             await act.Should()
                 .ThrowAsync<BadRequestException>()
-                .WithMessage("Invalid role.");
+                .WithMessage("Invalid role. Allowed roles: Admin, Therapist.");
         }
         [Fact]
         public async Task RegisterAsync_WhenValidData_ShouldReturnAuthResponseDto()
