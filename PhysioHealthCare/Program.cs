@@ -33,6 +33,18 @@ builder.Services.AddHealthChecks()
         name: "sqlserver",
         tags: ["ready"]);
 
+var jwtKey = builder.Configuration["JwtSettings:Key"];
+
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    throw new InvalidOperationException("JWT signing key is missing. Configure JwtSettings:Key.");
+}
+
+if(Encoding.UTF8.GetByteCount(jwtKey) < 32)
+{
+    throw new InvalidOperationException("JWT signing key must be at least 32 bytes long.");
+}
+
 builder.Services.AddAuthentication(
     JwtBearerDefaults.AuthenticationScheme)
 
@@ -59,12 +71,8 @@ builder.Services.AddAuthentication(
             builder.Configuration["JwtSettings:Audience"],
 
 
-            IssuerSigningKey =
-                new SymmetricSecurityKey(
-
-                Encoding.UTF8.GetBytes(
-
-                builder.Configuration["JwtSettings:Key"]!))
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtKey))
         };
 });
 
