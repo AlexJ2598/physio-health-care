@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 using PhysioHealthCare.Application.Interfaces;
 using PhysioHealthCare.Application.Responses;
 using PhysioHealthCare.Application.Services;
@@ -21,6 +23,76 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // Global rate limit per IP address.
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(
+        context =>
+        {
+            var ipAddress = context.Connection.RemoteIpAddress?.ToString()
+            ?? "unknown";
+
+            return RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: ipAddress,
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 100,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0,
+                    AutoReplenishment = true
+                });
+        });
+    //Restrictive policy for authentication endpoints.
+    options.AddPolicy("AuthPolicy", context => {
+        var ipAddress = context.Connection.RemoteIpAddress?.
+        ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: ipAddress,
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            });
+    });
+
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        var httpContext = context.HttpContext;
+
+        var logger = httpContext.RequestServices
+        .GetRequiredService<ILoggerFactory>()
+        .CreateLogger("RateLimiting");
+
+        logger.LogWarning(
+            "Rate limit exceeded. Method: {Method}, Endpoint: {Endpoint}, TraceId: {TraceId}",
+            httpContext.Request.Method,
+            httpContext.GetEndpoint()?.DisplayName??"unknown",
+            httpContext.TraceIdentifier);
+
+        if (context.Lease.TryGetMetadata(
+            MetadataName.RetryAfter, out var retryAfter))
+        {
+            httpContext.Response.Headers["Retry-After"] =
+            Math.Ceiling(retryAfter.TotalSeconds).ToString(System.Globalization
+            .CultureInfo.InvariantCulture);
+        }
+
+        var response = new ErrorResponse
+        {
+            StatusCode = StatusCodes.Status429TooManyRequests,
+            Message = "Too many requests. Please try again later.",
+            Path = httpContext.Request.Path,
+            Method = httpContext.Request.Method,
+            TraceId = httpContext.TraceIdentifier
+        };
+        await httpContext.Response.WriteAsJsonAsync(response, cancellationToken);
+    };
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -201,9 +273,13 @@ if (enableSwagger)
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
 app.UseCors("Angular");
 
 app.UseAuthentication();
+
+app.UseRateLimiter();
 
 app.UseAuthorization();
 
@@ -213,12 +289,12 @@ app.MapControllers();
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
     Predicate = _ => false
-}).AllowAnonymous();
+}).AllowAnonymous().DisableRateLimiting();
 
 // Readiness: verifica la conexión con SQL Server.
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains("ready")
-}).AllowAnonymous();
+}).AllowAnonymous().DisableRateLimiting();
 
 app.Run();
