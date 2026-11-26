@@ -2,11 +2,13 @@
 {
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.RateLimiting;
     using PhysioHealthCare.Application.DTOs.Auth;
     using PhysioHealthCare.Application.Interfaces;
 
     [ApiController]
     [Route("api/[controller]")]
+    [EnableRateLimiting("AuthPolicy")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService authService;
